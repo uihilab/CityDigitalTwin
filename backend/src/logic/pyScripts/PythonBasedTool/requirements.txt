@@ -1,0 +1,10 @@
+# TODO: Add your python dependencies here.
+# Example shown below. Make sure to remove.
+
+geopandas==0.9.0
+numpy==1.22.4
+pandas==1.3.1
+requests==2.27.1
+Shapely==1.7.1
+rioxarray==0.13.1
+rasterio==1.3.4
