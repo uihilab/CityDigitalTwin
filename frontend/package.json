@@ -16,6 +16,7 @@
     "@deck.gl/core": "^8.9.35",
     "@deck.gl/google-maps": "^8.9.35",
     "@deck.gl/layers": "^8.9.35",
+    "@deck.gl/mesh-layers": "^8.9.35",
     "@emotion/cache": "11.10.8",
     "@emotion/react": "11.10.8",
     "@emotion/styled": "11.10.8",
