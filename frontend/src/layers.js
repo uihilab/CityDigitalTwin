@@ -58,32 +58,28 @@ const layers = [
     title: "Infrastructure",
     key: "InfrastructureData",
     icon: <Icon fontSize="small">Infrastructure Data</Icon>,
-    route: "frontend/src/components/SCEvents/index.js",
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Electric grid",
     key: "Electricgrid",
-    status: true,
     icon: <Icon fontSize="small">Electric grid</Icon>,
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Bridges",
     key: "Bridges",
-    status: false,
     icon: <Icon fontSize="small">Bridges</Icon>,
-    dataPath: "/data/bridges_iowa.geojson",
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Buildings",
     key: "Buildings",
     icon: <Icon fontSize="small">Buildings</Icon>,
   },
   {
     type: "divider",
-    key: "divide1",
+    key: "divide",
   },
   {
     type: "title",
@@ -92,20 +88,20 @@ const layers = [
     icon: <Icon fontSize="small">Environmental and Climate</Icon>,
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Air quality",
     key: "AQuality",
     icon: <Icon fontSize="small">Air quality</Icon>,
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Water levels and discharge",
     key: "Waterlevels",
     icon: <Icon fontSize="small">Water</Icon>,
   },
   {
     type: "divider",
-    key: "divide2",
+    key: "divide",
   },
   {
     type: "title",
@@ -114,34 +110,34 @@ const layers = [
     icon: <Icon fontSize="small">Transportation and Mobilty</Icon>,
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Road Networks",
     key: "RoadNetworks",
     icon: <Icon fontSize="small">Road Networks</Icon>,
-    dataPath: "/data/highway_waterloo.geojson",
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Transit Routes",
     key: "PublicTransitRoutes",
     icon: <Icon fontSize="small">Transit</Icon>,
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Traffic Flow",
     key: "TrafficFlow",
     icon: <Icon fontSize="small">Traffic</Icon>,
   },
   {
-    type: "mydesign",
+    type: "collapse",
     name: "Transportation Events",
     key: "TransEvents",
     icon: <Icon fontSize="small">Events</Icon>,
   },
   {
     type: "divider",
-    key: "divide3",
+    key: "divide",
   },
+
 ];
 
 export default layers;
