@@ -4,6 +4,9 @@ import { Deck } from "@deck.gl/core";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import {ScenegraphLayer} from "@deck.gl/mesh-layers";
 import Switch from "@mui/material/Switch";
+import Sidenav from "examples/Sidenav";
+import { useMaterialUIController } from "context";
+import layers from "layers";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -12,6 +15,19 @@ let map = null;
 let overlay = null;
 function Map3D() {
   const [loadPowerPlants, setPowerPlants] = useState(false);
+
+  const [controller, dispatch] = useMaterialUIController();
+  const {
+    miniSidenav,
+    direction,
+    layout,
+    openConfigurator,
+    sidenavColor,
+    transparentSidenav,
+    whiteSidenav,
+    darkMode,
+  } = controller;
+  const [onMouseEnter, setOnMouseEnter] = useState(false);
 
   function loadScript(url) {
     if (typeof google !== "undefined") {
@@ -50,20 +66,23 @@ function Map3D() {
     // });
   }
 
-  async function loadHighways() {
-    const response = await fetch("/data/highway_waterloo.geojson");
-    const data = await response.json();
+  async function loadJsonData(url) {
+    const response = await fetch(url);
+    return response.json();
+  }
+
+  async function loadGeoJsonLayer(id, data) {
     const layer = new GeoJsonLayer({
-      id: "highways-layer",
+      id: id,
       data,
     });
     return layer;
   }
 
-  function loadTruck() {
+  function loadTruck(data) {
     return new ScenegraphLayer({
       id: "truck",
-      data: "/data/test.json",
+      data: data,//"/data/test.json",
       scenegraph: "/data/CesiumMilkTruck.glb",
       sizeScale: 2,
       getPosition: (d) => d.coordinates,
@@ -92,11 +111,25 @@ function Map3D() {
       getLineWidth: 1,
       getElevation: 30,
     });
-    const highways = await loadHighways();
-    const trucks = loadTruck();
+
+    const highwayData = await loadJsonData("/data/highway_waterloo.geojson");
+    const layerHighways = await loadGeoJsonLayer("highway-layer", highwayData);
+    
+
+    const targetRoadId = "w15820550"; // Replace with your desired road name
+    
+    const specificRoadFeatures = highwayData.features.filter(
+      (feature) => feature.properties.full_id === targetRoadId
+    );
+    var coords = specificRoadFeatures[0].geometry.coordinates;
+
+    var truckData = [{"coordinates":coords[0]}];
+    debugger;
+    const layerTruck = loadTruck(truckData);
+
     // Create overlay instance
     overlay = new DeckOverlay({
-      layers: [layerPower, highways, trucks],
+      layers: [layerPower, layerHighways, layerTruck],
     });
     //overlay.props.layers.push(layerPower);
     overlay.setMap(map);
@@ -113,11 +146,19 @@ function Map3D() {
   }
   //
   return (
-    <div>
-      <button onClick={loadMap}>Load Map</button>
-      <Switch checked={loadPowerPlants} onChange={() => loadPowerPlantsLayer()} />
-      <div id="map" style={{ width: "100%", height: "100vh" }} />
-    </div>
+    <>
+      <Sidenav
+        color={sidenavColor}
+        brand={transparentSidenav && !darkMode}
+        brandName="Waterloo"
+        routes={layers}
+      />
+      <div>
+        <button onClick={loadMap}>Load Map</button>
+        <Switch checked={loadPowerPlants} onChange={() => loadPowerPlantsLayer()} />
+        <div id="map" style={{ width: "100%", height: "100vh" }} />
+      </div>
+    </>
   );
 }
 
