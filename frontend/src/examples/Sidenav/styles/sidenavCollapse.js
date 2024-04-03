@@ -53,8 +53,8 @@ function collapseItem(theme, ownerState) {
         if (!active) {
           backgroundValue =
             transparentSidenav && !darkMode
-              ? grey[300]
-              : rgba(whiteSidenav ? grey[400] : white.main, 0.2);
+              ? white[300]
+              : rgba(whiteSidenav ? white[400] : white.main, 0.2);
         }
 
         return backgroundValue;

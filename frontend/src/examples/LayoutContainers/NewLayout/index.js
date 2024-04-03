@@ -27,28 +27,28 @@ import MDBox from "components/MDBox";
 // Material Dashboard 2 React context
 import { useMaterialUIController, setLayout } from "context";
 
-function PageLayout({ background, children }) {
-  const [, dispatch] = useMaterialUIController();
+function NewLayout({ children }) {
+  const [controller, dispatch] = useMaterialUIController();
+  const { miniSidenav } = controller;
   const { pathname } = useLocation();
 
   useEffect(() => {
-    setLayout(dispatch, "page");
+    setLayout(dispatch, "dashboard");
   }, [pathname]);
 
   return (
     <MDBox
-      width="100vw"
-      height="100%"
-      minHeight="100vh"
-      bgColor={background}
       sx={({ breakpoints, transitions, functions: { pxToRem } }) => ({
         p: 3,
         position: "relative",
-        marginLeft: miniSidenav ? pxToRem(120) : 0, // Sol menüyü kaldırmak için burayı güncelledik
-        transition: transitions.create(["margin-left", "margin-right"], {
-          easing: transitions.easing.easeInOut,
-          duration: transitions.duration.standard,
-        }),
+
+        [breakpoints.up("xl")]: {
+          marginLeft: miniSidenav ? pxToRem(120) : 0, // Left margin set to 0 when miniSidenav is false
+          transition: transitions.create(["margin-left", "margin-right"], {
+            easing: transitions.easing.easeInOut,
+            duration: transitions.duration.standard,
+          }),
+        },
       })}
     >
       {children}
@@ -56,15 +56,9 @@ function PageLayout({ background, children }) {
   );
 }
 
-// Setting default values for the props for PageLayout
-PageLayout.defaultProps = {
-  background: "default",
-};
-
-// Typechecking props for the PageLayout
-PageLayout.propTypes = {
-  background: PropTypes.oneOf(["white", "light", "default"]),
+// Typechecking props for the DashboardLayout
+NewLayout.propTypes = {
   children: PropTypes.node.isRequired,
 };
 
-export default PageLayout;
+export default NewLayout;

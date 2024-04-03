@@ -21,7 +21,8 @@ export default styled(Drawer)(({ theme, ownerState }) => {
   const { palette, boxShadows, transitions, breakpoints, functions } = theme;
   const { transparentSidenav, whiteSidenav, miniSidenav, darkMode } = ownerState;
 
-  const sidebarWidth = 250;
+  //SidebarWidth değeri ile sol menüdeki genişlik ayarlaması gerçekleştiriliyor. 
+  const sidebarWidth = 250; //250
   const { transparent, gradients, white, background } = palette;
   const { xxl } = boxShadows;
   const { pxToRem, linearGradient } = functions;

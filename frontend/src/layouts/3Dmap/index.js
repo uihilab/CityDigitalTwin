@@ -20,15 +20,21 @@ import Grid from "@mui/material/Grid";
 import MDBox from "components/MDBox";
 
 // Material Dashboard 2 React examples
+import NewLayout from "examples/LayoutContainers/NewLayout";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
 import SC3DBuilding from "components/SC3DBuilding";
+// Custom styles for the Sidenav
+import SidenavRoot from "examples/Sidenav/SidenavRoot";
+import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
+
+
 function Map3D() {
   return (
     <DashboardLayout>
       <DashboardNavbar absolute isMini />
-      <MDBox mt={8}>
+      <MDBox mt={9}>
         <MDBox mb={3}>
           <SC3DBuilding />
         </MDBox>
@@ -37,5 +43,4 @@ function Map3D() {
     </DashboardLayout>
   );
 }
-
 export default Map3D;

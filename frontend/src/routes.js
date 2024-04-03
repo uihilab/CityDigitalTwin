@@ -126,7 +126,7 @@ const routes = [
     component: <SC3DBuilding/>,
   },
   {
-    type: "collapse",
+    type: "click",
     name: "Smart City",
     key: "smart-city",
     icon: <Icon fontSize="small">assignment</Icon>,

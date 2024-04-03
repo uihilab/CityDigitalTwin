@@ -2,5 +2,12 @@
   "name": "SmartCity",
   "lockfileVersion": 3,
   "requires": true,
-  "packages": {}
+  "packages": {},
+  "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@material-ui/icons": "^4.11.3",
+    "@mui/lab": "^5.0.0-alpha.169",
+    "@mui/material": "^5.15.14",
+    "react-use": "^17.5.0"
+  }
 }
