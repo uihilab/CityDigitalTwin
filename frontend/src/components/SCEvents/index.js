@@ -112,7 +112,7 @@ export default function App({
       layers={[layer]}
       views={MAP_VIEW}
       initialViewState={INITIAL_VIEW_STATE}
-      controller={{ dragRotate: false }}ts/index.
+      controller={{ dragRotate: false }}
       onViewStateChange={hideTooltip}
       onClick={expandTooltip}
       height="100vh"
