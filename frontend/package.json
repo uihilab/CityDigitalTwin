@@ -26,6 +26,7 @@
     "@mui/material": "5.12.3",
     "@turf/rhumb-bearing": "^6.5.0",
     "@turf/rhumb-distance": "^6.5.0",
+    "@vis.gl/react-google-maps": "^0.8.3",
     "chart.js": "4.3.0",
     "chroma-js": "2.4.2",
     "dayjs": "^1.11.10",

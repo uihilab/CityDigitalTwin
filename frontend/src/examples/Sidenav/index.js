@@ -12,6 +12,7 @@ Coded by www.creative-tim.com
 
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
+import React, { useState } from 'react'; // Import useState hook
 
 import { useEffect } from "react";
 
@@ -35,6 +36,7 @@ import MDButton from "components/MDButton";
 // Material Dashboard 2 React example components
 import SidenavCollapse from "examples/Sidenav/SidenavCollapse";
 
+
 // Custom styles for the Sidenav
 import SidenavRoot from "examples/Sidenav/SidenavRoot";
 import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
@@ -46,12 +48,21 @@ import {
   setTransparentSidenav,
   setWhiteSidenav,
 } from "context";
+import { green, red } from "@mui/material/colors";
+import Switch from "@mui/material/Switch";
 
-function Sidenav({ color, brand, brandName, routes, ...rest }) {
+function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
+
+
+  const handleClick = (index) => {
+    const newActiveItems = [...activeItems];
+    newActiveItems[index] = !newActiveItems[index]; // Toggle active state
+    setActiveItems(newActiveItems);
+  };
 
   let textColor = "white";
 
@@ -83,8 +94,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
 
+
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route }) => {
+  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route, dataPath, clickFunc }, index) => {
     let returnValue;
 
     if (type === "collapse") {
@@ -136,9 +148,43 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
         />
       );
     }
+    else if (type === "mydesign") {
+      returnValue = href ? (
+        <Link
+          to={href}
+          key={key}
+          target="_blank"
+          rel="noreferrer"
+          sx={{ textDecoration: "none", color: red }}
+        >
+          <SidenavCollapse
+            name={name}
+            icon={icon}
+            active={key === collapseName ? { fontStyle: "italic" } : {}}
+            noCollapse={noCollapse}
+          />
+        </Link>
+      ) : (
+        <NavLink key={key} to={route} onClick={() => handleClick(index)}
+        //status={clickedItem?.key === key ? clickedItem.status : undefined}
+        >
+            <SidenavCollapse
+              name={name}
+              icon={icon}
+              onClick={() => linkClickHandler(key, activeItems[index], dataPath, clickFunc)}
+              active={activeItems[index]}
+            />
+        </NavLink>
+      );
+    }
 
     return returnValue;
   });
+
+  function linkClickHandler(key, isActive, dataPath, clickFunc) {
+    event.preventDefault();
+    clickFunc(key, !isActive, dataPath);
+  }
 
   return (
     <SidenavRoot
@@ -195,7 +241,9 @@ function Sidenav({ color, brand, brandName, routes, ...rest }) {
     </SidenavRoot>
   );
 }
-
+function clickFunc() {
+  console.log(Tıklandı);
+}
 // Setting default values for the props of Sidenav
 Sidenav.defaultProps = {
   color: "info",
