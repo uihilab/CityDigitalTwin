@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { GoogleMapsOverlay as DeckOverlay } from "@deck.gl/google-maps";
-import { Deck } from "@deck.gl/core";
-import { GeoJsonLayer } from "@deck.gl/layers";
+import React, { useState, useEffect, useMemo, StrictMode } from "react";
+import DeckGL from "@deck.gl/react";
+import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
-import Switch from "@mui/material/Switch";
 import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
@@ -24,55 +23,9 @@ function Map3D() {
   ];
 
   const [controller, dispatch] = useMaterialUIController();
-  const {
-    miniSidenav,
-    direction,
-    layout,
-    openConfigurator,
-    sidenavColor,
-    transparentSidenav,
-    whiteSidenav,
-    darkMode,
-  } = controller;
-  const [onMouseEnter, setOnMouseEnter] = useState(false);
+  const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
-
-  function loadScript(url) {
-    if (typeof google !== "undefined") {
-      return Promise.resolve();
-    }
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.type = "text/javascript";
-      script.src = url;
-      script.onload = resolve;
-      document.head.appendChild(script);
-    });
-  }
-
-  async function loadMap() {
-    const container = document.getElementById("map");
-    await loadScript(GOOGLE_MAPS_API_URL);
-    map = new google.maps.Map(container, {
-      center: { lng: -92.3452489, lat: 42.4935949 }, //-92.3452489,42.4935949
-      zoom: 19,
-      heading: 0,
-      tilt: 45,
-      isFractionalZoomEnabled: true,
-      mapId: GOOGLE_MAP_ID,
-      mapTypeControlOptions: {
-        mapTypeIds: ["roadmap", "terrain"],
-      },
-      streetViewControl: false,
-    });
-
-    // map.moveCamera({
-    //   center: new google.maps.LatLng(37.7893719, -122.3942),
-    //   zoom: 16,
-    //   heading: 320,
-    //   tilt: 15
-    // });
-  }
+  const [mapLayers, setMapLayers] = useState(maplayersTestData);
 
   async function loadJsonData(url) {
     const response = await fetch(url);
@@ -141,16 +94,28 @@ function Map3D() {
 
     const truckData = [{ coordinates: coords[0] }];
 
-    var truckData = [{ "coordinates": coords[0] }];
-    debugger;
     const layerTruck = loadTruck(truckData);
 
-    // Create overlay instance
-    overlay = new DeckOverlay({
-      layers: [layerPower, layerHighways, layerTruck], //
-    });
-    //overlay.props.layers.push(layerPower);
-    overlay.setMap(map);
+    const testLayers = [layerPower, layerHighways, layerTruck];
+    setMapLayers(testLayers);
+  }
+
+  function checkLayerExists(layerName) {
+    const foundIndex = mapLayers.findIndex((x) => x.id === layerName);
+    return foundIndex;
+  }
+
+  function removeLayer(layerName) {
+    const foundIndex = checkLayerExists(layerName);
+    if (foundIndex > -1) {
+      //mapLayers[foundIndex].visible = false;
+      mapLayers.splice(foundIndex, 1);
+      const newLayers = mapLayers.slice();
+      setMapLayers(newLayers);
+      // overlay.setProps({ layers: mapLayers });
+      // overlay.setMap(null);
+      // overlay.setMap(map);
+    }
   }
 
   async function layerLinkHandler(key, isActive, dataPath) {
@@ -159,84 +124,13 @@ function Map3D() {
     } else {
       removeLayer(key);
     }
-    setPowerPlants(!loadPowerPlants);
-  }
-  function layerLinkHandler(key, isActive) {
-    console.log(key, isActive);
-    if (key === "Electricgrid") {
-      if (isActive === true) {
-        console.log("Power plant katmanı yüklendi");
-        loadPowerPlantsLayer();
-      }
-      else {
-        overlayPower.setMap(null);
-      }
-    }
-    else if (key === "AQuality") {
-      if (isActive === true) {
-        console.log("AQuality katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-    else if (key === "Waterlevels") {
-      if (isActive === true) {
-        console.log("Waterlevels katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-    else if (key === "TranspMobility") {
-      if (isActive === true) {
-        console.log("TranspMobility katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-    else if (key === "RoadNetworks") {
-      if (isActive === true) {
-        console.log("RoadNetworks katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-    else if (key === "PublicTransitRoutes") {
-      if (isActive === true) {
-        console.log("PublicTransitRoutes katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-    else if (key === "TrafficFlow") {
-      if (isActive === true) {
-        console.log("TrafficFlow katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-    else if (key === "TransEvents") {
-      if (isActive === true) {
-        console.log("TransEvents katmanı yüklendi");
-      }
-      else {
-
-      }
-    }
-
   }
 
-  const mydesignLayers = layers.filter(layer => layer.type === "mydesign");
+  const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
 
-  mydesignLayers.forEach(element => {
+  mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
-  })
-
+  });
 
   return (
     <>
@@ -245,7 +139,8 @@ function Map3D() {
         brand={transparentSidenav && !darkMode}
         brandName="Waterloo"
         routes={layers}
-        activeItems={activeItems} setActiveItems={setActiveItems}
+        activeItems={activeItems}
+        setActiveItems={setActiveItems}
       />
       <div>
         <div id="map" style={{ width: "100%", height: "100vh" }}>

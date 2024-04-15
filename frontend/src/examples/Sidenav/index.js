@@ -109,7 +109,7 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
 
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
-  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route, clickFunc }, index) => {
+  const renderRoutes = routes.map(({ type, name, icon, title, noCollapse, key, href, route, dataPath, clickFunc }, index) => {
     let returnValue;
 
     if (type === "collapse") {
@@ -181,7 +181,12 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
         <NavLink key={key} to={route} onClick={() => handleClick(index)}
         //status={clickedItem?.key === key ? clickedItem.status : undefined}
         >
-          <SidenavCollapse name={name} icon={icon} onClick={() => linkClickHandler(key, activeItems[index], clickFunc)} active={activeItems[index]} />
+            <SidenavCollapse
+              name={name}
+              icon={icon}
+              onClick={() => linkClickHandler(key, activeItems[index], dataPath, clickFunc)}
+              active={activeItems[index]}
+            />
         </NavLink>
       );
     }
@@ -189,9 +194,9 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
     return returnValue;
   });
 
-  function linkClickHandler(key, isActive, clickFunc) {
+  function linkClickHandler(key, isActive, dataPath, clickFunc) {
     event.preventDefault();
-    clickFunc(key, !isActive);
+    clickFunc(key, !isActive, dataPath);
   }
 
   return (
