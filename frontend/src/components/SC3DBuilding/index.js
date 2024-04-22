@@ -14,6 +14,11 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function Map3D() {
+  const initialState = {
+    electricGrid: false,
+    transEvents: false,
+    publicTransitRoutes: false
+  };
   const maplayersTestData = [
 
   ];
@@ -25,6 +30,8 @@ function Map3D() {
 
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
+  const [checkboxState, setCheckboxState] = useState(initialState);
+  const [isCheckboxMenuOpen, setIsCheckboxMenuOpen] = useState(false);
 
   const data = getTrafficEventData();
   // DeckGL ScatterplotLayer
@@ -95,8 +102,6 @@ function Map3D() {
     setMapLayers(newLayers);
   }
 
-  
-
   const [hoverInfo, setHoverInfo] = useState({});
   const expandTooltip = (info) => {
     if (info.picked && true) {
@@ -145,7 +150,7 @@ function Map3D() {
   //   );
   // }
   // const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json";
-  
+
   async function loadTransportationEvents() {
 
     try {
@@ -184,6 +189,53 @@ function Map3D() {
     }
   }
 
+  const CheckboxLayer = ({ handleCheckboxChange, checkboxState }) => {
+    return (
+      <div style={{ 
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        padding: "10px",
+        boxSizing: "border-box",
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        zIndex: 999,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: '5px'
+      }}>
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="electricGrid"
+            checked={checkboxState.electricGrid}
+            onChange={handleCheckboxChange}
+          />
+          Electric Grid
+        </label>
+        <br />
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="transEvents"
+            checked={checkboxState.transEvents}
+            onChange={handleCheckboxChange}
+          />
+          Transportation Events
+        </label>
+        <br />
+        <label>
+          <input
+            type="checkbox"
+            name="publicTransitRoutes"
+            checked={checkboxState.publicTransitRoutes}
+            onChange={handleCheckboxChange}
+          />
+          Public Transit Routes
+        </label>
+      </div>
+    );
+  };
 
   function checkLayerExists(layerName) {
     const foundIndex = mapLayers.findIndex((x) => x.id === layerName);
@@ -203,6 +255,20 @@ function Map3D() {
     }
   }
 
+  // Checkbox durumlarını güncellemek için bir fonksiyon
+  const handleCheckboxChange = (event) => {
+    const { name, checked } = event.target;
+    setCheckboxState(prevState => ({
+      ...prevState,
+      [name]: checked
+    }));
+  };
+
+  // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
+  const handlePublicTransitRoutesClick = (open) => {
+    setIsCheckboxMenuOpen(open);
+  };
+
   async function layerLinkHandler(key, isActive, dataPath) {
 
     if (isActive) {
@@ -214,9 +280,22 @@ function Map3D() {
         await loadTransportationEvents();
         return;
       }
-      
+      if (key == "PublicTransitRoutes" && isCheckboxMenuOpen ==false) {
+        debugger;
+        handlePublicTransitRoutesClick(true);
+        return;
+      }
+
       await loadLayer(key, dataPath);
+
     } else {
+      if(isCheckboxMenuOpen ==true)
+      {
+        debugger;
+        handlePublicTransitRoutesClick(false);
+        return;
+      }
+      
       removeLayer(key);
     }
   }
@@ -236,9 +315,14 @@ function Map3D() {
         routes={layers}
         activeItems={activeItems}
         setActiveItems={setActiveItems}
-      />
-      <div>
-        <div id="map" style={{ width: "100%", height: "70vh" }}>
+      />   
+     
+       {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
+  { isCheckboxMenuOpen && (
+
+    <CheckboxLayer handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+  )}
+        <div id="map" style={{ width: "100%", height: "90vh" }}>
           <StrictMode>
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
@@ -246,7 +330,7 @@ function Map3D() {
                   longitude: -92.3452489,
                   latitude: 42.4935949,
                   zoom: 19,
-                  heading: 0,
+                  heading: 100,
                   pitch: 45,
                 }}
                 controller
@@ -262,7 +346,6 @@ function Map3D() {
             </APIProvider>
           </StrictMode>
         </div>
-      </div>
     </>
   );
 }
