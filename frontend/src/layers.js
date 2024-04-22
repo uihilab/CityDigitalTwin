@@ -66,6 +66,7 @@ let layers = [
     key: "Electricgrid",
     status: true,
     icon: <Icon fontSize="small">Electric grid</Icon>,
+    dataPath: "/data/PowerPlants.json",
   },
   {
     type: "mydesign",
@@ -73,7 +74,7 @@ let layers = [
     key: "Bridges",
     status: false,
     icon: <Icon fontSize="small">Bridges</Icon>,
-    dataPath: "/data/bridges_iowa.geojson",
+    dataPath: "/data/iowa_bridges.geojson",
   },
   {
     type: "mydesign",
@@ -137,92 +138,8 @@ let layers = [
     name: "Transportation Events",
     key: "TransEvents",
     icon: <Icon fontSize="small">Events</Icon>,
+    dataPath: "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
   },
-  {
-    type: "divider",
-    key: "divide3",
-  },
-  {
-    type: "mydesign",
-    name: "Electric grid",
-    key: "Electricgrid",
-    status: true,
-    icon: <Icon fontSize="small">Electric grid</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Bridges",
-    key: "Bridges",
-    status: false,
-    icon: <Icon fontSize="small">Bridges</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Buildings",
-    key: "Buildings",
-    icon: <Icon fontSize="small">Buildings</Icon>,
-  },
-  {
-    type: "divider",
-    key: "divide1",
-  },
-  {
-    type: "title",
-    title: "Environmental and Climate",
-    key: "ECD",
-    icon: <Icon fontSize="small">Environmental and Climate</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Air quality",
-    key: "AQuality",
-    icon: <Icon fontSize="small">Air quality</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Water levels and discharge",
-    key: "Waterlevels",
-    icon: <Icon fontSize="small">Water</Icon>,
-  },
-  {
-    type: "divider",
-    key: "divide2",
-  },
-  {
-    type: "title",
-    title: "Transportation and Mobilty",
-    key: "TranspMobility",
-    icon: <Icon fontSize="small">Transportation and Mobilty</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Road Networks",
-    key: "RoadNetworks",
-    icon: <Icon fontSize="small">Road Networks</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Transit Routes",
-    key: "PublicTransitRoutes",
-    icon: <Icon fontSize="small">Transit</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Traffic Flow",
-    key: "TrafficFlow",
-    icon: <Icon fontSize="small">Traffic</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Transportation Events",
-    key: "TransEvents",
-    icon: <Icon fontSize="small">Events</Icon>,
-  },
-  {
-    type: "divider",
-    key: "divide3",
-  },
-
 ];
 
 export default layers;

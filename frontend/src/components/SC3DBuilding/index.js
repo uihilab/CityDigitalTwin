@@ -6,26 +6,35 @@ import { ScenegraphLayer } from "@deck.gl/mesh-layers";
 import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
-import { forEach } from "@loaders.gl/core";
+import { IconLayer } from "@deck.gl/layers";
+import { getTrafficEventData, convertToMarkers } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCEvents/TrafficEvent";
+import Popup from './Popup';
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function Map3D() {
   const maplayersTestData = [
-    new ScatterplotLayer({
-      id: "deckgl-circle",
-      data: [{ position: [-92.3452489, 42.4935949] }],
-      getPosition: (d) => d.position,
-      getFillColor: [255, 0, 0, 100],
-      getRadius: 100,
-    }),
+
   ];
 
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
   const [mapLayers, setMapLayers] = useState(maplayersTestData);
+
+  const [clickPosition, setClickPosition] = useState({ x: null, y: null });
+  const [clickedObject, setClickedObject] = useState(null);
+
+  const data = getTrafficEventData();
+  // DeckGL ScatterplotLayer
+  const scatterplotLayer = new ScatterplotLayer({
+    id: 'scatterplot-layer',
+    data,
+    getPosition: d => d.position,
+    getFillColor: [255, 0, 0],
+    getRadius: 100,
+  });
 
   async function loadJsonData(url) {
     const response = await fetch(url);
@@ -65,7 +74,7 @@ function Map3D() {
     const response = await fetch("/data/PowerPlants.json");
     const data = await response.json();
     const layerPower = new GeoJsonLayer({
-      id: "powerplant-layer",
+      id: "Electricgrid",
       data,
       pickable: true,
       stroked: false,
@@ -81,24 +90,100 @@ function Map3D() {
       getElevation: 30,
     });
 
-    const highwayData = await loadJsonData("/data/highway_waterloo.geojson");
-    const layerHighways = await loadGeoJsonLayer("highway-layer", highwayData);
-
-    const targetRoadId = "w15820550"; // Replace with your desired road name
-
-
-    const specificRoadFeatures = highwayData.features.filter(
-      (feature) => feature.properties.full_id === targetRoadId
-    );
-    const coords = specificRoadFeatures[0].geometry.coordinates;
-
-    const truckData = [{ coordinates: coords[0] }];
-
-    const layerTruck = loadTruck(truckData);
-
-    const testLayers = [layerPower, layerHighways, layerTruck];
-    setMapLayers(testLayers);
+    const newLayers = mapLayers.slice();
+    newLayers.push(layerPower);
+    setMapLayers(newLayers);
   }
+
+  
+
+  const [hoverInfo, setHoverInfo] = useState({});
+  const expandTooltip = (info) => {
+    if (info.picked && true) {
+      setHoverInfo(info);
+    } else {
+      setHoverInfo({});
+    }
+  };
+
+  // function renderTooltip(hoverInfo) {
+  //   const { object, x, y } = hoverInfo;
+  //   if (hoverInfo.object) {
+  //     debugger;
+  //     return (
+  //       <div className="tooltip interactive" style={{ left: x, top: y }}>
+  //         <div key={hoverInfo.object.name}>
+  //           <h5>{hoverInfo.object.name}</h5>
+
+  //         </div>
+  //         {/* {hoverInfo.object.map(({ name, year, mass, class: meteorClass }) => {
+  //           return (
+  //             <div key={name}>
+  //               <h5>{name}</h5>
+  //               <div>Year: {year || "unknown"}</div>
+  //               <div>Class: {meteorClass}</div>
+  //               <div>Mass: {mass}g</div>
+  //             </div>
+  //           );
+  //         })} */}
+  //       </div>
+  //     );
+  //   }
+
+  //   if (!object) {
+  //     return null;
+  //   }
+
+  //   return object.cluster ? (
+  //     <div className="tooltip" style={{ left: x, top: y }}>
+  //       {object.point_count} records
+  //     </div>
+  //   ) : (
+  //     <div className="tooltip" style={{ left: x, top: y }}>
+  //       {object.name} {object.year ? `(${object.year})` : ""}
+  //     </div>
+  //   );
+  // }
+  // const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json";
+  
+  async function loadTransportationEvents() {
+
+    try {
+      const trafficEventData = await getTrafficEventData();
+
+      const layerEvent = new IconLayer({
+        id: 'TransEvents',
+        data: trafficEventData,
+        pickable: true,
+        iconAtlas: 'data/location-icon-atlas.png', // Replace with the path to your icon atlas
+        iconMapping: 'data/location-icon-mapping.json',
+        getIcon: d => 'marker',
+        sizeScale: 1,
+        getPosition: d => d.coordinates,
+        getSize: d => 50,
+        getColor: d => [255, 255, 255],
+        getAngle: d => 0,
+        onClick: info => {
+          expandTooltip(info)
+        }
+      })
+
+      const newLayers = mapLayers.slice();
+      newLayers.push(layerEvent);
+      setMapLayers(newLayers);
+
+      // debugger;
+      // return (
+      //   <DeckGL >
+      //     <Map reuseMaps mapLib={maplibregl} mapStyle={MAP_STYLE} preventStyleDiffing={true} />
+      //     {hoverInfo && renderTooltip(hoverInfo)}
+      //   </DeckGL>
+      // );
+    } catch (error) {
+      console.error('Error fetching event:', error);
+    }
+  }
+
 
   function checkLayerExists(layerName) {
     const foundIndex = mapLayers.findIndex((x) => x.id === layerName);
@@ -119,7 +204,17 @@ function Map3D() {
   }
 
   async function layerLinkHandler(key, isActive, dataPath) {
+
     if (isActive) {
+      if (key == "Electricgrid") {
+        await loadPowerPlantData();
+        return;
+      }
+      if (key == "TransEvents") {
+        await loadTransportationEvents();
+        return;
+      }
+      
       await loadLayer(key, dataPath);
     } else {
       removeLayer(key);
@@ -143,7 +238,7 @@ function Map3D() {
         setActiveItems={setActiveItems}
       />
       <div>
-        <div id="map" style={{ width: "100%", height: "100vh" }}>
+        <div id="map" style={{ width: "100%", height: "70vh" }}>
           <StrictMode>
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
@@ -155,9 +250,14 @@ function Map3D() {
                   pitch: 45,
                 }}
                 controller
-                layers={mapLayers}
+                layers={[mapLayers, scatterplotLayer]}
+                getTooltip={({ object }) => object && `${object.name}`}
               >
                 <Map mapId={GOOGLE_MAP_ID} />
+                <div>
+                  {/* {hoverInfo && renderTooltip(hoverInfo)} */}
+                  <Popup clickPosition={clickPosition} object={clickedObject} />
+                </div>
               </DeckGL>
             </APIProvider>
           </StrictMode>

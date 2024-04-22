@@ -190,9 +190,9 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
         </NavLink>
       );
     }
-
     return returnValue;
   });
+  
 
   function linkClickHandler(key, isActive, dataPath, clickFunc) {
     event.preventDefault();
