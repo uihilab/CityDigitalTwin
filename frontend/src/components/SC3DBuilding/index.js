@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, StrictMode } from "react";
 import DeckGL from "@deck.gl/react";
+
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
@@ -7,8 +8,11 @@ import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
 import { IconLayer } from "@deck.gl/layers";
+import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCEvents/TrafficEvent";
 import Popup from './Popup';
+import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCTrain/AmtrakData";
+import checkbox from "assets/theme/components/form/checkbox";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -31,7 +35,11 @@ function Map3D() {
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
   const [checkboxState, setCheckboxState] = useState(initialState);
-  const [isCheckboxMenuOpen, setIsCheckboxMenuOpen] = useState(false);
+  const [isRouteCheckboxMenuOpen, setIsRouteCheckboxMenuOpen] = useState(false);
+  const [isHighwayCheckboxMenuOpen, setIsHighwayCheckboxMenuOpen] = useState(false);
+  const [selectedHighway, setSelectedHighway] = useState(null);
+
+
 
   const data = getTrafficEventData();
   // DeckGL ScatterplotLayer
@@ -43,15 +51,55 @@ function Map3D() {
     getRadius: 100,
   });
 
+  // async function FetchDataQuality() {
+  //   // API URL
+  //   const apiUrl = "https://api.openaq.org/v2/locations";
+
+  //   // API anahtarı
+  //   const apiKey = "3b7b6f56cc5c63a923d14839721a4813dba3596d87776045b4ca88b0866b9296";
+
+  //   // Header nesnesini oluştur
+  //   const headers = new Headers();
+  //   headers.append("X-API-Key", apiKey);
+
+  //   // İsteği yap
+  //   const options = { method: 'GET', headers: { accept: 'application/json' } };
+
+  //   fetch('https://api.openaq.org/v2/locations?limit=100&page=1&offset=0&sort=desc&radius=1000&order_by=lastUpdated&dump_raw=false', options)
+  //     .then(response => response.json())
+  //     .then(response => console.log(response))
+  //     .catch(err => console.error(err));
+  // }
+
+  // async function loadCheckboxLayers(id, data) {
+  //   try {
+  //     // JSON dosyasından verileri al
+  //     const data = await loadJsonData(data);
+
+  //     // JSON dosyasından alınan verilere göre bir katman oluştur
+  //     const Layerstations = loadGeoJsonLayer(id, data);
+
+  //     // Oluşturulan katmanı döndür
+  //     return Layerstations;
+
+  //   } catch (error) {
+  //     console.error('Error fetching layer data from JSON:', error);
+  //     return null;
+  //   }
+  // }
+
   async function loadJsonData(url) {
     const response = await fetch(url);
     return response.json();
   }
 
-  async function loadGeoJsonLayer(id, data) {
+  async function CreateGeoJsonLayer(id, data, color) {
     const layer = new GeoJsonLayer({
       id,
       data,
+      getLineColor: color, // Çizgi rengini belirle
+      lineWidthMinPixels: 2, // Opsiyonel: çizgi kalınlığını belirle
+      lineWidthMaxPixels: 5, // Opsiyonel: çizgi kalınlığını belirle
     });
     return layer;
   }
@@ -71,7 +119,20 @@ function Map3D() {
 
   async function loadLayer(key, dataPath) {
     const jsonData = await loadJsonData(dataPath);
-    const layer = await loadGeoJsonLayer(key, jsonData);
+    const layer = await CreateGeoJsonLayer(key, jsonData);
+    const newLayers = mapLayers.slice();
+    newLayers.push(layer);
+    setMapLayers(newLayers);
+  }
+
+  async function loadLayerwithData(key, jsonData, color) {
+    const layer = await CreateGeoJsonLayer(key, jsonData, color);
+    const newLayers = mapLayers.slice();
+    newLayers.push(layer);
+    setMapLayers(newLayers);
+  }
+
+  async function loadLayerwithLayer(layer) {
     const newLayers = mapLayers.slice();
     newLayers.push(layer);
     setMapLayers(newLayers);
@@ -111,46 +172,6 @@ function Map3D() {
     }
   };
 
-  // function renderTooltip(hoverInfo) {
-  //   const { object, x, y } = hoverInfo;
-  //   if (hoverInfo.object) {
-  //     debugger;
-  //     return (
-  //       <div className="tooltip interactive" style={{ left: x, top: y }}>
-  //         <div key={hoverInfo.object.name}>
-  //           <h5>{hoverInfo.object.name}</h5>
-
-  //         </div>
-  //         {/* {hoverInfo.object.map(({ name, year, mass, class: meteorClass }) => {
-  //           return (
-  //             <div key={name}>
-  //               <h5>{name}</h5>
-  //               <div>Year: {year || "unknown"}</div>
-  //               <div>Class: {meteorClass}</div>
-  //               <div>Mass: {mass}g</div>
-  //             </div>
-  //           );
-  //         })} */}
-  //       </div>
-  //     );
-  //   }
-
-  //   if (!object) {
-  //     return null;
-  //   }
-
-  //   return object.cluster ? (
-  //     <div className="tooltip" style={{ left: x, top: y }}>
-  //       {object.point_count} records
-  //     </div>
-  //   ) : (
-  //     <div className="tooltip" style={{ left: x, top: y }}>
-  //       {object.name} {object.year ? `(${object.year})` : ""}
-  //     </div>
-  //   );
-  // }
-  // const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json";
-
   async function loadTransportationEvents() {
 
     try {
@@ -173,25 +194,15 @@ function Map3D() {
         }
       })
 
-      const newLayers = mapLayers.slice();
-      newLayers.push(layerEvent);
-      setMapLayers(newLayers);
-
-      // debugger;
-      // return (
-      //   <DeckGL >
-      //     <Map reuseMaps mapLib={maplibregl} mapStyle={MAP_STYLE} preventStyleDiffing={true} />
-      //     {hoverInfo && renderTooltip(hoverInfo)}
-      //   </DeckGL>
-      // );
+      loadLayerwithLayer(layerEvent);
     } catch (error) {
       console.error('Error fetching event:', error);
     }
   }
 
-  const CheckboxLayer = ({ handleCheckboxChange, checkboxState }) => {
+  const CheckboxLayerEvent = ({ handleCheckboxChange, checkboxState }) => {
     return (
-      <div style={{ 
+      <div style={{
         position: 'absolute',
         top: '0',
         left: '0',
@@ -207,36 +218,113 @@ function Map3D() {
         <label style={{ marginRight: '10px' }}>
           <input
             type="checkbox"
-            name="electricGrid"
+            name="Train"
             checked={checkboxState.electricGrid}
             onChange={handleCheckboxChange}
           />
-          Electric Grid
+          Train Stations and Amtract Train Routes
         </label>
         <br />
         <label style={{ marginRight: '10px' }}>
           <input
             type="checkbox"
-            name="transEvents"
+            name="Bus"
             checked={checkboxState.transEvents}
             onChange={handleCheckboxChange}
           />
-          Transportation Events
+          Bus stops and routes
         </label>
         <br />
         <label>
           <input
             type="checkbox"
-            name="publicTransitRoutes"
+            name="Tram"
             checked={checkboxState.publicTransitRoutes}
             onChange={handleCheckboxChange}
           />
-          Public Transit Routes
+          Tram stops and routes
         </label>
       </div>
     );
   };
 
+  const CheckboxLayerHighway = ({ handleCheckboxChange, checkboxState }) => {
+    return (
+      <div style={{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        padding: "10px",
+        boxSizing: "border-box",
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
+        zIndex: 999,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderRadius: '5px'
+      }}>
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="primary"
+            checked={checkboxState.primary}
+            onChange={handleCheckboxChange}
+          />
+          Primary
+        </label>
+        <br />
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="secondary"
+            checked={checkboxState.secondary}
+            onChange={handleCheckboxChange}
+          />
+          Secondary
+        </label>
+        <br />
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="residential"
+            checked={checkboxState.residential}
+            onChange={handleCheckboxChange}
+          />
+          Residential
+        </label>
+        <br />
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="service"
+            checked={checkboxState.service}
+            onChange={handleCheckboxChange}
+          />
+          Service
+        </label>
+        <br />
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="motorway"
+            checked={checkboxState.motorway}
+            onChange={handleCheckboxChange}
+          />
+          Motorway 
+        </label>
+        <br />
+        <label style={{ marginRight: '10px' }}>
+          <input
+            type="checkbox"
+            name="cycleway"
+            checked={checkboxState.cycleway}
+            onChange={handleCheckboxChange}
+          />
+          Cycleway 
+        </label>
+      </div>
+    );
+  };
   function checkLayerExists(layerName) {
     const foundIndex = mapLayers.findIndex((x) => x.id === layerName);
     return foundIndex;
@@ -245,28 +333,136 @@ function Map3D() {
   function removeLayer(layerName) {
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
-      //mapLayers[foundIndex].visible = false;
       mapLayers.splice(foundIndex, 1);
       const newLayers = mapLayers.slice();
       setMapLayers(newLayers);
-      // overlay.setProps({ layers: mapLayers });
-      // overlay.setMap(null);
-      // overlay.setMap(map);
     }
   }
 
   // Checkbox durumlarını güncellemek için bir fonksiyon
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = async (event) => {
     const { name, checked } = event.target;
+
     setCheckboxState(prevState => ({
       ...prevState,
       [name]: checked
     }));
-  };
 
+    if (checked && name == 'Train') {
+
+      const data = await getTrainStationsData();
+      // Tren istasyonlarının veri yapısını oluştur
+      const stationsStruct = createStationsStruct(data);
+
+      const trainStationsLayer = new ScatterplotLayer({
+        data: stationsStruct,
+        getPosition: d => d.path,
+        getRadius: 1,
+        getLineColor: [255, 0, 0],
+      });
+
+      debugger;
+      loadLayerwithLayer(trainStationsLayer);
+    }
+
+    if (checked && name == 'primary') {
+      var data_primary = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "primary");
+      var primary_link = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "primary_link");
+
+      // Verileri birleştir
+      const combinedData = data_primary.concat(primary_link);
+
+      // Yol çizgilerine özgü renk belirleme
+      const color = [255, 0, 0]; // Örneğin kırmızı renk
+      loadLayerwithData("primary", combinedData, color);
+      debugger;
+    }
+
+    if (checked && name == 'secondary') {
+      var data_secondary = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "secondary");
+      // Yol çizgilerine özgü renk belirleme
+      const color = [0, 0, 255]; // mavi renk
+      loadLayerwithData("secondary", data_secondary, color);
+      debugger;
+    }
+
+    if (checked && name == 'residential') {
+      var data_residential = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "residential");
+      // Yol çizgilerine özgü renk belirleme
+      const color = [95, 95, 95]; // koyu gri
+      loadLayerwithData("residential", data_residential, color);
+      debugger;
+    }
+
+    if (checked && name == 'service') {
+      var data_service = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "service");
+      // Yol çizgilerine özgü renk belirleme
+      const color = [190, 190, 190]; // Gri renk 
+      loadLayerwithData("service", data_service, color);
+      debugger;
+    }
+
+    if (checked && name == 'motorway') {
+      var data_motorway_link = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "motorway_link");
+      var data_motorway = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "motorway");
+      // Yol çizgilerine özgü renk belirleme
+
+      // Verileri birleştir
+      const combinedData = data_motorway_link.concat(data_motorway);
+
+
+      const color = [80, 80, 80]; // Gri renk 
+      loadLayerwithData("motorway", combinedData, color);
+      debugger;
+    }
+    
+    if (checked && name == 'cycleway') {
+      var data_cycleway = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "cycleway");
+      // Yol çizgilerine özgü renk belirleme
+      const color = [255, 0, 0]; // Gri renk 
+      loadLayerwithData("cycleway", data_cycleway, color);
+      debugger;
+    }
+
+
+    if (!checked && name == 'primary') {
+      removeLayer("primary");
+      debugger;
+    }
+    if (!checked && name == 'secondary') {
+      removeLayer("secondary");
+      debugger;
+    }
+
+    if (!checked && name == 'residential') {
+      removeLayer("residential");
+      debugger;
+    }
+
+    if (!checked && name == 'service') {
+      removeLayer("service");
+      debugger;
+    }
+
+    if (!checked && name == 'motorway') {
+      removeLayer("motorway_link");
+      removeLayer("motorway")
+      debugger;
+    }
+
+    if (!checked && name == 'cycleway') {
+      removeLayer("cycleway")
+      debugger;
+    }
+  }
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
   const handlePublicTransitRoutesClick = (open) => {
-    setIsCheckboxMenuOpen(open);
+    setIsRouteCheckboxMenuOpen(open);
+  };
+
+  const handleHighwayClick = (open) => {
+    setIsHighwayCheckboxMenuOpen(open);
+    removeLayer("primary");
   };
 
   async function layerLinkHandler(key, isActive, dataPath) {
@@ -280,24 +476,50 @@ function Map3D() {
         await loadTransportationEvents();
         return;
       }
-      if (key == "PublicTransitRoutes" && isCheckboxMenuOpen ==false) {
+      if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
         debugger;
         handlePublicTransitRoutesClick(true);
         return;
       }
-
+      if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
+        debugger;
+        handleHighwayClick(true);
+        checkboxState.primary = false;
+        checkboxState.secondary = false;
+        checkboxState.residential = false;
+        checkboxState.service = false;
+        checkboxState.motorway = false;
+        checkboxState.cycleway = false;
+        return;
+      }
       await loadLayer(key, dataPath);
 
     } else {
-      if(isCheckboxMenuOpen ==true)
-      {
+      if (isRouteCheckboxMenuOpen == true) {
         debugger;
         handlePublicTransitRoutesClick(false);
         return;
       }
-      
+      if (isHighwayCheckboxMenuOpen == true) {
+        debugger;
+        handleHighwayClick(false);
+        removeLayer("primary");
+        removeLayer("secondary");
+        removeLayer("residential");
+        removeLayer("service");
+        removeLayer("motorway_link");
+        removeLayer("motorway");
+        removeLayer("cycleway");
+        return;
+      }
       removeLayer(key);
     }
+
+    if (key == "AQuality") {
+      await FetchDataQuality();
+      return;
+    }
+
   }
 
   const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
@@ -315,37 +537,45 @@ function Map3D() {
         routes={layers}
         activeItems={activeItems}
         setActiveItems={setActiveItems}
-      />   
-     
-       {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
-  { isCheckboxMenuOpen && (
+      />
+      <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
+        {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
+        {isRouteCheckboxMenuOpen && (
 
-    <CheckboxLayer handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
-  )}
-        <div id="map" style={{ width: "100%", height: "90vh" }}>
-          <StrictMode>
-            <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-              <DeckGL
-                initialViewState={{
-                  longitude: -92.3452489,
-                  latitude: 42.4935949,
-                  zoom: 19,
-                  heading: 100,
-                  pitch: 45,
-                }}
-                controller
-                layers={[mapLayers, scatterplotLayer]}
-                getTooltip={({ object }) => object && `${object.name}`}
-              >
-                <Map mapId={GOOGLE_MAP_ID} />
-                <div>
-                  {/* {hoverInfo && renderTooltip(hoverInfo)} */}
-                  <Popup clickPosition={clickPosition} object={clickedObject} />
-                </div>
-              </DeckGL>
-            </APIProvider>
-          </StrictMode>
-        </div>
+          <CheckboxLayerEvent handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+        )}
+      </div>
+      <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
+        {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
+        {isHighwayCheckboxMenuOpen && (
+
+          <CheckboxLayerHighway handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+        )}
+      </div>
+      <div id="map" style={{ width: "100%", height: "90vh" }}>
+        <StrictMode>
+          <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+            <DeckGL
+              initialViewState={{
+                longitude: -92.345,
+                latitude: 42.4939,
+                zoom: 19,
+                heading: 1,
+                pitch: 45,
+              }}
+              controller
+              layers={[mapLayers, scatterplotLayer]}
+              getTooltip={({ object }) => object && `${object.name}`}
+            >
+              <Map mapId={GOOGLE_MAP_ID} />
+              <div>
+                {/* {hoverInfo && renderTooltip(hoverInfo)} */}
+                <Popup clickPosition={clickPosition} object={clickedObject} />
+              </div>
+            </DeckGL>
+          </APIProvider>
+        </StrictMode>
+      </div>
     </>
   );
 }
