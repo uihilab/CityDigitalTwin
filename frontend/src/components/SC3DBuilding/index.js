@@ -10,9 +10,9 @@ import layers from "layers";
 import { IconLayer } from "@deck.gl/layers";
 import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCEvents/TrafficEvent";
+import { renderAirQualityChart, FetchAirQuality } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCAQ/index";
 import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCTrain/AmtrakData";
-import checkbox from "assets/theme/components/form/checkbox";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -87,6 +87,8 @@ function Map3D() {
   //     return null;
   //   }
   // }
+
+
 
   async function loadJsonData(url) {
     const response = await fetch(url);
@@ -310,7 +312,7 @@ function Map3D() {
             checked={checkboxState.motorway}
             onChange={handleCheckboxChange}
           />
-          Motorway 
+          Motorway
         </label>
         <br />
         <label style={{ marginRight: '10px' }}>
@@ -320,7 +322,7 @@ function Map3D() {
             checked={checkboxState.cycleway}
             onChange={handleCheckboxChange}
           />
-          Cycleway 
+          Cycleway
         </label>
       </div>
     );
@@ -415,7 +417,7 @@ function Map3D() {
       loadLayerwithData("motorway", combinedData, color);
       debugger;
     }
-    
+
     if (checked && name == 'cycleway') {
       var data_cycleway = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "cycleway");
       // Yol çizgilerine özgü renk belirleme
@@ -465,6 +467,7 @@ function Map3D() {
     removeLayer("primary");
   };
 
+
   async function layerLinkHandler(key, isActive, dataPath) {
 
     if (isActive) {
@@ -474,6 +477,11 @@ function Map3D() {
       }
       if (key == "TransEvents") {
         await loadTransportationEvents();
+        return;
+      }
+      if (key == "AQuality") {
+        const airQualityData = await FetchAirQuality();
+        renderAirQualityChart(airQualityData);
         return;
       }
       if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
@@ -513,11 +521,6 @@ function Map3D() {
         return;
       }
       removeLayer(key);
-    }
-
-    if (key == "AQuality") {
-      await FetchDataQuality();
-      return;
     }
 
   }
@@ -568,6 +571,8 @@ function Map3D() {
               getTooltip={({ object }) => object && `${object.name}`}
             >
               <Map mapId={GOOGLE_MAP_ID} />
+              {/* Canvas'ı buraya ekleyin */}
+              <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10,  left: 10, zIndex:1, width:100, height:100, pointerEvents: "none", opacity: 0.5, padding:10}}></canvas>
               <div>
                 {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                 <Popup clickPosition={clickPosition} object={clickedObject} />
