@@ -572,7 +572,7 @@ function Map3D() {
             >
               <Map mapId={GOOGLE_MAP_ID} />
               {/* Canvas'ı buraya ekleyin */}
-              <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10,  left: 10, zIndex:1, width:100, height:100, pointerEvents: "none", opacity: 0.5, padding:10}}></canvas>
+              <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10,  left: 10, zIndex:1, width:100, height:100, pointerEvents: "yes", opacity: 0.5, padding:10}}></canvas>
               <div>
                 {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                 <Popup clickPosition={clickPosition} object={clickedObject} />

@@ -26,8 +26,8 @@ export function renderAirQualityChart(airQualityData) {
     // Canvas elementini alın
     const canvas = document.getElementById('airQualityCanvas');
     // Canvas'ı boyutlandırın
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = 150;
+    canvas.height = 25;
 
     // Canvas'a çizim yapın
     const ctx = canvas.getContext('2d');
