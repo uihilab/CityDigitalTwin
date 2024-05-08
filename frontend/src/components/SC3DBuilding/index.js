@@ -18,13 +18,31 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function Map3D() {
+  const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
+  // Haritada tıklama olayını dinleyen fonksiyon
+  const handleMapClick = (event) => {
+    debugger;
+    if (key === "AQuality") {
+      const longitude = event.coordinate[0];
+      const latitude = event.coordinate[1];
+      setClickPosition({ x: latitude, y: longitude });
+
+      FetchAirQuality(latitude, longitude)
+        .then(airQualityData => {
+          renderAirQualityChart(airQualityData);
+        })
+        .catch(error => {
+          console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
+        });
+    }
+  };
+
   const initialState = {
     electricGrid: false,
     transEvents: false,
     publicTransitRoutes: false
   };
   const maplayersTestData = [
-
   ];
 
   const [controller, dispatch] = useMaterialUIController();
@@ -51,26 +69,6 @@ function Map3D() {
     getRadius: 100,
   });
 
-  // async function FetchDataQuality() {
-  //   // API URL
-  //   const apiUrl = "https://api.openaq.org/v2/locations";
-
-  //   // API anahtarı
-  //   const apiKey = "3b7b6f56cc5c63a923d14839721a4813dba3596d87776045b4ca88b0866b9296";
-
-  //   // Header nesnesini oluştur
-  //   const headers = new Headers();
-  //   headers.append("X-API-Key", apiKey);
-
-  //   // İsteği yap
-  //   const options = { method: 'GET', headers: { accept: 'application/json' } };
-
-  //   fetch('https://api.openaq.org/v2/locations?limit=100&page=1&offset=0&sort=desc&radius=1000&order_by=lastUpdated&dump_raw=false', options)
-  //     .then(response => response.json())
-  //     .then(response => console.log(response))
-  //     .catch(err => console.error(err));
-  // }
-
   // async function loadCheckboxLayers(id, data) {
   //   try {
   //     // JSON dosyasından verileri al
@@ -87,8 +85,6 @@ function Map3D() {
   //     return null;
   //   }
   // }
-
-
 
   async function loadJsonData(url) {
     const response = await fetch(url);
@@ -138,6 +134,36 @@ function Map3D() {
     const newLayers = mapLayers.slice();
     newLayers.push(layer);
     setMapLayers(newLayers);
+  }
+
+  async function BuildingLayer() {
+    const response = await fetch("/data/waterloo_buildings.geojson");
+    const data = await response.json();
+
+    debugger;
+    var filteredData = data.features.filter(feature => feature.properties && feature.properties.building);
+
+    const layerBuilding = new GeoJsonLayer({
+      id: "Buildings",
+      data: filteredData,
+      pickable: true,
+      stroked: false,
+      filled: true,
+      extruded: true,
+      lineWidthScale: 20,
+      lineWidthMinPixels: 2,
+      getFillColor: [140, 170, 180, 200],
+      getLineColor: [0, 0, 0],
+      getLineWidth: 1,
+      getElevation: 30,
+      onHover: ({ object, x, y }) => {
+      }
+    });
+
+    const newLayers = mapLayers.slice();
+    newLayers.push(layerBuilding);
+    setMapLayers(newLayers);
+
   }
 
   async function loadPowerPlantData() {
@@ -479,9 +505,13 @@ function Map3D() {
         await loadTransportationEvents();
         return;
       }
+      if (key == "Buildings") {
+        await BuildingLayer();
+        return;
+      }
       if (key == "AQuality") {
-        const airQualityData = await FetchAirQuality();
-        renderAirQualityChart(airQualityData);
+        const AQualiy = await FetchAirQuality();
+        await renderAirQualityChart(AQualiy);
         return;
       }
       if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
@@ -489,6 +519,7 @@ function Map3D() {
         handlePublicTransitRoutesClick(true);
         return;
       }
+
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
         debugger;
         handleHighwayClick(true);
@@ -525,7 +556,7 @@ function Map3D() {
 
   }
 
-  const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
+
 
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
@@ -566,13 +597,30 @@ function Map3D() {
                 heading: 1,
                 pitch: 45,
               }}
+              onClick={handleMapClick}
               controller
               layers={[mapLayers, scatterplotLayer]}
-              getTooltip={({ object }) => object && `${object.name}`}
+              getTooltip={({ object }) => {
+                if (object) {
+                  if (object.properties && object.properties.building === "yes") {
+                    return "building";
+                  }
+                  else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !==null ) {
+                    return object.properties && object.properties.building;
+                  }
+                  else if(`${object.name}` != undefined)
+                  {
+                    return `${object.name}`;
+                  }
+
+                }
+               // object && (`${object.properties.building}` || `${object.name}`)
+              }
+              }
             >
               <Map mapId={GOOGLE_MAP_ID} />
-              {/* Canvas'ı buraya ekleyin */}
-              <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10,  left: 10, zIndex:1, width:100, height:100, pointerEvents: "yes", opacity: 0.5, padding:10}}></canvas>
+              {/* Canvas */}
+              <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10, left: 10, zIndex: 1, width: 100, height: 100, pointerEvents: "yes", opacity: 0.5, padding: 10 }}></canvas>
               <div>
                 {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                 <Popup clickPosition={clickPosition} object={clickedObject} />

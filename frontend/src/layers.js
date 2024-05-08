@@ -81,6 +81,7 @@ let layers = [
     name: "Buildings",
     key: "Buildings",
     icon: <Icon fontSize="small">Buildings</Icon>,
+    dataPath: "/data/waterloo_buildings.geojson",
   },
   {
     type: "divider",
