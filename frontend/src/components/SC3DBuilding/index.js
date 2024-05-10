@@ -499,6 +499,7 @@ function Map3D() {
         await renderAirQualityChart(AQualiy);
         return;
       }
+
       if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
         debugger;
         handlePublicTransitRoutesClick(true);
@@ -519,6 +520,8 @@ function Map3D() {
       await loadLayer(key, dataPath);
 
     } else {
+
+      debugger;
       if (isRouteCheckboxMenuOpen == true) {
         debugger;
         handlePublicTransitRoutesClick(false);
@@ -537,6 +540,11 @@ function Map3D() {
         return;
       }
       removeLayer(key);
+      if (key === "AQuality") {
+        const canvas = document.getElementById('airQualityCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
     }
   }
 
