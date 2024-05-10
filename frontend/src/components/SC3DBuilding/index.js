@@ -22,7 +22,8 @@ function Map3D() {
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = (event) => {
     debugger;
-    if (key === "AQuality") {
+    const isAQualityActive = activeItems[layers.findIndex(item => item.key === "AQuality")];
+    if (isAQualityActive) {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
       setClickPosition({ x: latitude, y: longitude });
@@ -37,11 +38,13 @@ function Map3D() {
     }
   };
 
+
   const initialState = {
     electricGrid: false,
     transEvents: false,
     publicTransitRoutes: false
   };
+
   const maplayersTestData = [
   ];
 
@@ -57,8 +60,6 @@ function Map3D() {
   const [isHighwayCheckboxMenuOpen, setIsHighwayCheckboxMenuOpen] = useState(false);
   const [selectedHighway, setSelectedHighway] = useState(null);
 
-
-
   const data = getTrafficEventData();
   // DeckGL ScatterplotLayer
   const scatterplotLayer = new ScatterplotLayer({
@@ -69,22 +70,6 @@ function Map3D() {
     getRadius: 100,
   });
 
-  // async function loadCheckboxLayers(id, data) {
-  //   try {
-  //     // JSON dosyasından verileri al
-  //     const data = await loadJsonData(data);
-
-  //     // JSON dosyasından alınan verilere göre bir katman oluştur
-  //     const Layerstations = loadGeoJsonLayer(id, data);
-
-  //     // Oluşturulan katmanı döndür
-  //     return Layerstations;
-
-  //   } catch (error) {
-  //     console.error('Error fetching layer data from JSON:', error);
-  //     return null;
-  //   }
-  // }
 
   async function loadJsonData(url) {
     const response = await fetch(url);
@@ -553,10 +538,7 @@ function Map3D() {
       }
       removeLayer(key);
     }
-
   }
-
-
 
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;

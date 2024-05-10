@@ -175,24 +175,25 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
             icon={icon}
             active={key === collapseName ? { fontStyle: "italic" } : {}}
             noCollapse={noCollapse}
+            setActiveItems={setActiveItems}
           />
         </Link>
       ) : (
         <NavLink key={key} to={route} onClick={() => handleClick(index)}
         //status={clickedItem?.key === key ? clickedItem.status : undefined}
         >
-            <SidenavCollapse
-              name={name}
-              icon={icon}
-              onClick={() => linkClickHandler(key, activeItems[index], dataPath, clickFunc)}
-              active={activeItems[index]}
-            />
+          <SidenavCollapse
+            name={name}
+            icon={icon}
+            onClick={() => linkClickHandler(key, activeItems[index], dataPath, clickFunc)}
+            active={activeItems[index]}
+          />
         </NavLink>
       );
     }
     return returnValue;
   });
-  
+
 
   function linkClickHandler(key, isActive, dataPath, clickFunc) {
     event.preventDefault();

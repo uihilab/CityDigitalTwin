@@ -12,8 +12,6 @@ export async function FetchAirQuality(latitude = 42.569663, longitude = -92.4796
         .catch(err => console.error(err));
 }
 
-let chartInstance; // Grafik nesnesini saklayacak değişken
-
 export async function renderAirQualityChart(airQualityData) {
 
     debugger;
@@ -32,21 +30,13 @@ export async function renderAirQualityChart(airQualityData) {
     canvas.width = 150;
     canvas.height = 25;
 
-    // Chart varsa yok et
-    if (chartInstance) {
-        try {
-            // Chart destroy edilir
-            chartInstance.destroy();
-        } catch (error) {
-            console.error("An error occurred while destroying the previous chart:", error);
-        }
-    }
-
     // Canvas'a çizim yapın
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    chartInstance=new Chart(ctx, {
+    debugger;
+
+    const chartInstance=new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
@@ -74,3 +64,4 @@ export async function renderAirQualityChart(airQualityData) {
         }
     });
 }
+
