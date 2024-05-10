@@ -11,7 +11,7 @@ export async function FetchAirQuality(latitude = 42.569663, longitude = -92.4796
         .then(response => response.json())
         .catch(err => console.error(err));
 }
-
+let chartInstance = null;
 export async function renderAirQualityChart(airQualityData) {
 
     debugger;
@@ -36,7 +36,13 @@ export async function renderAirQualityChart(airQualityData) {
 
     debugger;
 
-    const chartInstance=new Chart(ctx, {
+       // Eğer chartInstance tanımlıysa, önceki grafik örneğini yok et
+       if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+    }
+
+     chartInstance=new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
