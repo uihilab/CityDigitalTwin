@@ -72,11 +72,24 @@ function Map3D() {
 
 
   async function loadJsonData(url) {
+    debugger;
     const response = await fetch(url);
     return response.json();
   }
 
-  async function CreateGeoJsonLayer(id, data, color) {
+  async function CreateGeoJsonLayer(id, data) {
+    debugger;
+    const layer = new GeoJsonLayer({
+      id,
+      data,
+      lineWidthMinPixels: 2, // Opsiyonel: çizgi kalınlığını belirle
+      lineWidthMaxPixels: 5, // Opsiyonel: çizgi kalınlığını belirle
+    });
+    return layer;
+  }
+
+  async function CreateColourfulGeoJsonLayer(id, data, color) {
+    debugger;
     const layer = new GeoJsonLayer({
       id,
       data,
@@ -86,6 +99,7 @@ function Map3D() {
     });
     return layer;
   }
+
 
   function loadTruck(data) {
     return new ScenegraphLayer({
@@ -101,6 +115,7 @@ function Map3D() {
   }
 
   async function loadLayer(key, dataPath) {
+    debugger;
     const jsonData = await loadJsonData(dataPath);
     const layer = await CreateGeoJsonLayer(key, jsonData);
     const newLayers = mapLayers.slice();
@@ -108,8 +123,14 @@ function Map3D() {
     setMapLayers(newLayers);
   }
 
-  async function loadLayerwithData(key, jsonData, color) {
-    const layer = await CreateGeoJsonLayer(key, jsonData, color);
+  async function loadLayerwithData(key, jsonData) {
+    const layer = await CreateGeoJsonLayer(key, jsonData);
+    const newLayers = mapLayers.slice();
+    newLayers.push(layer);
+    setMapLayers(newLayers);
+  }
+  async function loadColourfulLayerwithData(key, jsonData, color) {
+    const layer = await CreateColourfulGeoJsonLayer(key, jsonData, color);
     const newLayers = mapLayers.slice();
     newLayers.push(layer);
     setMapLayers(newLayers);
@@ -387,7 +408,7 @@ function Map3D() {
 
       // Yol çizgilerine özgü renk belirleme
       const color = [255, 0, 0]; // Örneğin kırmızı renk
-      loadLayerwithData("primary", combinedData, color);
+      loadColourfulLayerwithData("primary", combinedData, color);
       debugger;
     }
 
@@ -395,7 +416,7 @@ function Map3D() {
       var data_secondary = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "secondary");
       // Yol çizgilerine özgü renk belirleme
       const color = [0, 0, 255]; // mavi renk
-      loadLayerwithData("secondary", data_secondary, color);
+      loadColourfulLayerwithData("secondary", data_secondary, color);
       debugger;
     }
 
@@ -403,7 +424,7 @@ function Map3D() {
       var data_residential = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "residential");
       // Yol çizgilerine özgü renk belirleme
       const color = [95, 95, 95]; // koyu gri
-      loadLayerwithData("residential", data_residential, color);
+      loadColourfulLayerwithData("residential", data_residential, color);
       debugger;
     }
 
@@ -411,7 +432,7 @@ function Map3D() {
       var data_service = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "service");
       // Yol çizgilerine özgü renk belirleme
       const color = [190, 190, 190]; // Gri renk 
-      loadLayerwithData("service", data_service, color);
+      loadColourfulLayerwithData("service", data_service, color);
       debugger;
     }
 
@@ -425,7 +446,7 @@ function Map3D() {
 
 
       const color = [80, 80, 80]; // Gri renk 
-      loadLayerwithData("motorway", combinedData, color);
+      loadColourfulLayerwithData("motorway", combinedData, color);
       debugger;
     }
 
@@ -433,7 +454,7 @@ function Map3D() {
       var data_cycleway = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "cycleway");
       // Yol çizgilerine özgü renk belirleme
       const color = [255, 0, 0]; // Gri renk 
-      loadLayerwithData("cycleway", data_cycleway, color);
+      loadColourfulLayerwithData("cycleway", data_cycleway, color);
       debugger;
     }
 
