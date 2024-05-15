@@ -11,6 +11,7 @@ import { IconLayer } from "@deck.gl/layers";
 import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCAQ/index";
+import { FetchWeatherData, getCoordinates } from '../SCWeather/Weather.js';
 import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCTrain/AmtrakData";
 
@@ -23,6 +24,7 @@ function Map3D() {
   const handleMapClick = (event) => {
     debugger;
     const isAQualityActive = activeItems[layers.findIndex(item => item.key === "AQuality")];
+    const isWeatherActive = activeItems[layers.findIndex(item => item.key === "WeatherForecast")];
     if (isAQualityActive) {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
@@ -35,6 +37,17 @@ function Map3D() {
         .catch(error => {
           console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
         });
+    }
+    if (isWeatherActive) {
+      const longitude = event.coordinate[0];
+      const latitude = event.coordinate[1];
+
+      // Belirli bir koordinattaki hava durumu verilerini al
+      const weatherData = FetchWeatherData(latitude, longitude);
+
+      // Hava durumu verilerini kullanarak iconları haritaya ekle
+      showWeatherIcons(weatherData);
+
     }
   };
 
@@ -208,6 +221,7 @@ function Map3D() {
 
   async function loadTransportationEvents() {
 
+    debugger;
     try {
       const trafficEventData = await getTrafficEventData();
 
@@ -232,6 +246,48 @@ function Map3D() {
     } catch (error) {
       console.error('Error fetching event:', error);
     }
+  }
+
+  async function createWeatherIconLayer(centerLatitude, centerLongitude, numberOfCoordinates) {
+    debugger;
+
+    // Tıklanan nokta için hava durumu verilerini al
+    const weatherData = await FetchWeatherData(centerLatitude, centerLongitude);
+
+    // Yakın yerlerin koordinatlarını hesapla
+    const nearbyCoordinates = await getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, 10, 100, 100);
+
+    // IconLayer için kullanılacak veri
+    const iconData = [];
+
+    // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
+    for (const coord of nearbyCoordinates.randomCoordinates) {
+      // Yakın noktadaki hava durumu verilerini al
+      const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
+            // IconLayer için icon verisi oluştur
+      iconData.push({
+        coordinates: coord,
+      });
+    }
+    debugger;
+    // IconLayer bileşeni
+    const iconLayer = new IconLayer({
+      id: 'WeatherForecast',
+      data: iconData,
+      pickable: true,
+      iconAtlas: 'data/location-icon-atlas.png', // Replace with the path to your icon atlas
+      iconMapping: 'data/location-icon-mapping.json',
+      getIcon: d => 'marker',
+      sizeScale: 1,
+      getPosition: d => d.coordinates,
+      getSize: d => 50,
+      getColor: d => [255, 255, 255],
+      getAngle: d => 0,
+      onClick: info => {
+        console.log("tıklandı")
+      }
+    });
+    loadLayerwithLayer(iconLayer);
   }
 
   const CheckboxLayerEvent = ({ handleCheckboxChange, checkboxState }) => {
@@ -520,6 +576,11 @@ function Map3D() {
         await renderAirQualityChart(AQualiy);
         return;
       }
+      if (key == "WeatherForecast") {
+        debugger;
+        await createWeatherIconLayer(42.569663, -92.479646, 3);
+        return;
+      }
 
       if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
         debugger;
@@ -565,7 +626,7 @@ function Map3D() {
         const canvas = document.getElementById('airQualityCanvas');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+      }
     }
   }
 
@@ -616,16 +677,15 @@ function Map3D() {
                   if (object.properties && object.properties.building === "yes") {
                     return "building";
                   }
-                  else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !==null ) {
+                  else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !== null) {
                     return object.properties && object.properties.building;
                   }
-                  else if(`${object.name}` != undefined)
-                  {
+                  else if (`${object.name}` != undefined) {
                     return `${object.name}`;
                   }
 
                 }
-               // object && (`${object.properties.building}` || `${object.name}`)
+                // object && (`${object.properties.building}` || `${object.name}`)
               }
               }
             >

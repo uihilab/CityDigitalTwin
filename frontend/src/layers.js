@@ -101,6 +101,13 @@ let layers = [
   },
   {
     type: "mydesign",
+    name: "Weather Forecast",
+    key: "WeatherForecast",
+    icon: <Icon fontSize="small">Weather Forecast</Icon>,
+    dataPath: "/data/highway_waterloo.geojson",
+  },
+  {
+    type: "mydesign",
     name: "Water levels and discharge",
     key: "Waterlevels",
     icon: <Icon fontSize="small">Water</Icon>,
