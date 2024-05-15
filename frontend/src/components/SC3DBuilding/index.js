@@ -8,12 +8,11 @@ import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
 import { IconLayer } from "@deck.gl/layers";
-import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCHighway/index";
-import { getTrafficEventData, convertToMarkers } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCEvents/TrafficEvent";
-import { renderAirQualityChart, FetchAirQuality } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCAQ/index";
-import { FetchWeatherData, getCoordinates } from '../SCWeather/Weather.js';
+import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index";
+import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
+import { renderAirQualityChart, FetchAirQuality } from "../SCAQ/index";
 import Popup from './Popup';
-import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "/Users/sumeyye/Documents/GitHub/SmartCity/frontend/src/components/SCTrain/AmtrakData";
+import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
