@@ -102,9 +102,9 @@ let layers = [
   {
     type: "mydesign",
     name: "Weather Forecast",
-    key: "WeatherForecast",
+    key: "WForecast",
     icon: <Icon fontSize="small">Weather Forecast</Icon>,
-    dataPath: "/data/highway_waterloo.geojson",
+    dataPath: "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m",
   },
   {
     type: "mydesign",

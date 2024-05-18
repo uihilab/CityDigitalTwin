@@ -11,7 +11,9 @@ import { IconLayer } from "@deck.gl/layers";
 import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality } from "../SCAQ/index";
+import { FetchWeatherData, getCoordinates } from "../SCWeather/Weather";
 import Popup from './Popup';
+import {CreatelayerWeather} from "../SCWeather/layerWeather";
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
@@ -20,10 +22,10 @@ const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 function Map3D() {
   const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   // Haritada tıklama olayını dinleyen fonksiyon
-  const handleMapClick = (event) => {
+  const handleMapClick = async (event) => {
     debugger;
     const isAQualityActive = activeItems[layers.findIndex(item => item.key === "AQuality")];
-    const isWeatherActive = activeItems[layers.findIndex(item => item.key === "WeatherForecast")];
+    const isWeatherActive = activeItems[layers.findIndex(item => item.key === "WForecast")];
     if (isAQualityActive) {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
@@ -38,19 +40,32 @@ function Map3D() {
         });
     }
     if (isWeatherActive) {
+      //debugger;
+      //removeLayer("WForecast");
+      //Katmanlar güncellenmiyor ve yeni bir katman eklenmiyor. Eski katman kalıyor. 
+      // Rastgele koordinat bulma fonksiyonunda hata var. Hep aynı bölgede buluyor. 
       const longitude = event.coordinate[0];
-      const latitude = event.coordinate[1];
+        const latitude = event.coordinate[1];
+        setClickPosition({ x: latitude, y: longitude });
 
-      // Belirli bir koordinattaki hava durumu verilerini al
-      const weatherData = FetchWeatherData(latitude, longitude);
+        try {
+            // Hava durumu verilerini asenkron olarak al
+            const data = await FetchWeatherData(latitude, longitude);
 
-      // Hava durumu verilerini kullanarak iconları haritaya ekle
-      showWeatherIcons(weatherData);
-
+            // Hava durumu verilerinin doğruluğunu kontrol et
+            if (data && data.coordinates) {
+                const weatherLatitude = data.coordinates[0];
+                const weatherLongitude = data.coordinates[1];
+                // Hava durumu verilerini kullanarak iconları haritaya ekle
+                createWeatherIconLayer(weatherLongitude, weatherLatitude, 3);
+            } else {
+                console.error('Invalid weather data:', data);
+            }
+        } catch (error) {
+            console.error('Error in handleMapClick:', error);
+        }
     }
   };
-
-
   const initialState = {
     electricGrid: false,
     transEvents: false,
@@ -64,7 +79,7 @@ function Map3D() {
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
   const [mapLayers, setMapLayers] = useState(maplayersTestData);
-
+  const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
   const [checkboxState, setCheckboxState] = useState(initialState);
@@ -72,15 +87,17 @@ function Map3D() {
   const [isHighwayCheckboxMenuOpen, setIsHighwayCheckboxMenuOpen] = useState(false);
   const [selectedHighway, setSelectedHighway] = useState(null);
 
-  const data = getTrafficEventData();
-  // DeckGL ScatterplotLayer
-  const scatterplotLayer = new ScatterplotLayer({
-    id: 'scatterplot-layer',
-    data,
-    getPosition: d => d.position,
-    getFillColor: [255, 0, 0],
-    getRadius: 100,
-  });
+  // const data = getTrafficEventData();
+
+  // // DeckGL ScatterplotLayer
+
+  // const scatterplotLayer = new ScatterplotLayer({
+  //   id: 'scatterplot-layer',
+  //   data,
+  //   getPosition: d => d.position,
+  //   getFillColor: [255, 0, 0],
+  //   getRadius: 100,
+  // });
 
 
   async function loadJsonData(url) {
@@ -149,6 +166,7 @@ function Map3D() {
   }
 
   async function loadLayerwithLayer(layer) {
+    debugger;
     const newLayers = mapLayers.slice();
     newLayers.push(layer);
     setMapLayers(newLayers);
@@ -248,45 +266,34 @@ function Map3D() {
   }
 
   async function createWeatherIconLayer(centerLatitude, centerLongitude, numberOfCoordinates) {
-    debugger;
+    try {
+      debugger;
+      const lat= 42.4962;
+      const long= -90.3484;
+      // Tıklanan nokta için hava durumu verilerini al
+      const weatherData = await FetchWeatherData(lat, long);
 
-    // Tıklanan nokta için hava durumu verilerini al
-    const weatherData = await FetchWeatherData(centerLatitude, centerLongitude);
+      // Yakın yerlerin koordinatlarını hesapla
+      const nearbyCoordinates = await getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, 10, 100, 100);
 
-    // Yakın yerlerin koordinatlarını hesapla
-    const nearbyCoordinates = await getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, 10, 100, 100);
+      // IconLayer için kullanılacak veri
+      const iconData = [];
 
-    // IconLayer için kullanılacak veri
-    const iconData = [];
-
-    // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
-    for (const coord of nearbyCoordinates.randomCoordinates) {
-      // Yakın noktadaki hava durumu verilerini al
-      const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
-            // IconLayer için icon verisi oluştur
-      iconData.push({
-        coordinates: coord,
-      });
-    }
-    debugger;
-    // IconLayer bileşeni
-    const iconLayer = new IconLayer({
-      id: 'WeatherForecast',
-      data: iconData,
-      pickable: true,
-      iconAtlas: 'data/location-icon-atlas.png', // Replace with the path to your icon atlas
-      iconMapping: 'data/location-icon-mapping.json',
-      getIcon: d => 'marker',
-      sizeScale: 1,
-      getPosition: d => d.coordinates,
-      getSize: d => 50,
-      getColor: d => [255, 255, 255],
-      getAngle: d => 0,
-      onClick: info => {
-        console.log("tıklandı")
+      // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
+      for (const coord of nearbyCoordinates.randomCoordinates) {
+        // Yakın noktadaki hava durumu verilerini al
+        const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
+        // IconLayer için icon verisi oluştur
+        iconData.push(nearbyWeatherData);
       }
-    });
-    loadLayerwithLayer(iconLayer);
+      iconData.push(weatherData)
+      debugger;
+      return await CreatelayerWeather(iconData);
+
+    }
+    catch (error) {
+      console.error('Error fetching event:', error);
+    }
   }
 
   const CheckboxLayerEvent = ({ handleCheckboxChange, checkboxState }) => {
@@ -425,6 +432,7 @@ function Map3D() {
       mapLayers.splice(foundIndex, 1);
       const newLayers = mapLayers.slice();
       setMapLayers(newLayers);
+      debugger;
     }
   }
 
@@ -437,22 +445,22 @@ function Map3D() {
       [name]: checked
     }));
 
-    if (checked && name == 'Train') {
+    // if (checked && name == 'Train') {
 
-      const data = await getTrainStationsData();
-      // Tren istasyonlarının veri yapısını oluştur
-      const stationsStruct = createStationsStruct(data);
+    //   const data = await getTrainStationsData();
+    //   // Tren istasyonlarının veri yapısını oluştur
+    //   const stationsStruct = createStationsStruct(data);
 
-      const trainStationsLayer = new ScatterplotLayer({
-        data: stationsStruct,
-        getPosition: d => d.path,
-        getRadius: 1,
-        getLineColor: [255, 0, 0],
-      });
+    //   const trainStationsLayer = new ScatterplotLayer({
+    //     data: stationsStruct,
+    //     getPosition: d => d.path,
+    //     getRadius: 1,
+    //     getLineColor: [255, 0, 0],
+    //   });
 
-      debugger;
-      loadLayerwithLayer(trainStationsLayer);
-    }
+    //   debugger;
+    //   loadLayerwithLayer(trainStationsLayer);
+    // }
 
     if (checked && name == 'primary') {
       var data_primary = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "primary");
@@ -575,9 +583,9 @@ function Map3D() {
         await renderAirQualityChart(AQualiy);
         return;
       }
-      if (key == "WeatherForecast") {
-        debugger;
-        await createWeatherIconLayer(42.569663, -92.479646, 3);
+      if (key == "WForecast") {
+        const layer = await createWeatherIconLayer(42.569663, -92.479646, 3);
+        loadLayerwithLayer(layer);
         return;
       }
 
@@ -663,26 +671,30 @@ function Map3D() {
             <DeckGL
               initialViewState={{
                 longitude: -92.345,
-                latitude: 42.4939,
+                latitude: 42.4937,
                 zoom: 19,
                 heading: 1,
                 pitch: 45,
               }}
               onClick={handleMapClick}
               controller
-              layers={[mapLayers, scatterplotLayer]}
+              layers={[mapLayers, WeathericonLayer]}
               getTooltip={({ object }) => {
                 if (object) {
+                  debugger;
                   if (object.properties && object.properties.building === "yes") {
                     return "building";
                   }
                   else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !== null) {
                     return object.properties && object.properties.building;
                   }
-                  else if (`${object.name}` != undefined) {
+                  else if (object.name != undefined) {
                     return `${object.name}`;
                   }
-
+                  else if (object && object.temperature != undefined) {
+                    debugger;
+                    return `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`;
+                  }
                 }
                 // object && (`${object.properties.building}` || `${object.name}`)
               }
@@ -695,6 +707,7 @@ function Map3D() {
                 {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                 <Popup clickPosition={clickPosition} object={clickedObject} />
               </div>
+              <div id="App"></div>
             </DeckGL>
           </APIProvider>
         </StrictMode>

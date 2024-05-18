@@ -6,34 +6,34 @@ import DeckGL from "@deck.gl/react";
 import { MapView } from "@deck.gl/core";
 import { IconLayer } from "@deck.gl/layers";
 import { getWeatherData, convertToMarkers } from "./WeatherData.js"; // WeatherData.js dosyasını kullanıyorum. Değiştirin
+import { FetchWeatherData} from "./Weather.js";
 
-import IconClusterLayer from "./icon-cluster-layer";
+import IconClusterLayer from "./icon-cluster-layer.js";
 
 const MAP_VIEW = new MapView({ repeat: true });
 const INITIAL_VIEW_STATE = {
-  longitude: -35,
-  latitude: 36.7,
+  longitude: -92.34208776485049,
+  latitude: 42.493790878436535,
   zoom: 1.8,
   maxZoom: 20,
   pitch: 0,
   bearing: 0,
 };
-
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json";
 
 function renderTooltip(info) {
   const { object, x, y } = info;
 
-  if (info.objects) {
+  if (info) {
     return (
       <div className="tooltip interactive" style={{ left: x, top: y }}>
-        {info.objects.map(({ name, year, mass, class: meteorClass }) => {
+        {info.map(({ coordinates, relative_humidity_2m, temperature_2m, time: time }) => {
           return (
-            <div key={name}>
-              <h5>{name}</h5>
-              <div>Year: {year || "unknown"}</div>
-              <div>Class: {meteorClass}</div>
-              <div>Mass: {mass}g</div>
+            <div key={coordinates}>
+              <h5>{coordinates}</h5>
+              <div>relative_humidity_2m: {relative_humidity_2m || "unknown"}</div>
+              <div>temperature_2m: {temperature_2m}</div>
+              <div>time: {time}g</div>
             </div>
           );
         })}
@@ -51,16 +51,15 @@ function renderTooltip(info) {
     </div>
   ) : (
     <div className="tooltip" style={{ left: x, top: y }}>
-      {object.name} {object.year ? `(${object.year})` : ""}
+      {object.coordinates} {object.time ? `(${object.time})` : ""}
     </div>
   );
 }
 
 /* eslint-disable react/no-deprecated */
 export default function App({
-  data = "data/events.json", // Bu alanı güncelleyebilirsiniz
-  iconMapping = "data/location-icon-mapping.json",
-  iconAtlas = "data/location-icon-atlas.png",
+  data = FetchWeatherData(latitude = 42.569663, longitude = -92.479646), // Bu alanı güncelleyebilirsiniz
+  iconAtlas = "/data/location-icon-atlas.png",
   showCluster = true,
   mapStyle = MAP_STYLE,
 }) {
@@ -83,17 +82,19 @@ export default function App({
     async function fetchData() {
       const data = await getWeatherData(); // WeatherData.js dosyasından verileri al
 
-      setWeatherData(data);
+      setWeatherData([data]);
     }
     fetchData();
   }, []);
 
   const layerProps = {
-    data: convertToMarkers(weatherData), // WeatherData.js dosyasındaki verileri işleyin
+    data: weatherData, // WeatherData.js dosyasındaki verileri işleyin
     pickable: true,
     getPosition: (d) => d.coordinates,
     iconAtlas,
-    iconMapping,
+    iconMapping: {
+      marker: { x: 0, y: 0, width: 128, height: 128 }
+    },
     onHover: !hoverInfo.objects && setHoverInfo,
   };
 

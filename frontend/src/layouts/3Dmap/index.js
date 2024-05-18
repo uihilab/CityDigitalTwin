@@ -33,7 +33,7 @@ import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
 function Map3D() {
   return (
     <DashboardLayout>
-      <DashboardNavbar absolute isMini />
+      {/* CANDO: Haritanın üstünde değişiklik yapacaksan buraya yazacaksın */}
       <MDBox mt={9}>
         <MDBox mb={3}>
           <SC3DBuilding />
