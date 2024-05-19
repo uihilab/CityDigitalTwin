@@ -13,7 +13,7 @@ import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent"
 import { renderAirQualityChart, FetchAirQuality } from "../SCAQ/index";
 import { FetchWeatherData, getCoordinates } from "../SCWeather/Weather";
 import Popup from './Popup';
-import {CreatelayerWeather} from "../SCWeather/layerWeather";
+import { CreatelayerWeather } from "../SCWeather/layerWeather";
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
@@ -41,29 +41,20 @@ function Map3D() {
     }
     if (isWeatherActive) {
       //debugger;
-      //removeLayer("WForecast");
-      //Katmanlar güncellenmiyor ve yeni bir katman eklenmiyor. Eski katman kalıyor. 
-      // Rastgele koordinat bulma fonksiyonunda hata var. Hep aynı bölgede buluyor. 
+      removeLayer(WeathericonLayer);
       const longitude = event.coordinate[0];
-        const latitude = event.coordinate[1];
-        setClickPosition({ x: latitude, y: longitude });
+      const latitude = event.coordinate[1];
+      setClickPosition({ x: latitude, y: longitude });
+      try {
+        // Hava durumu verilerini kullanarak iconları haritaya ekle
+        const layer = await createWeatherIconLayer(latitude, longitude, 3);
+        debugger;
+        setWeatherIconLayer(layer);
 
-        try {
-            // Hava durumu verilerini asenkron olarak al
-            const data = await FetchWeatherData(latitude, longitude);
 
-            // Hava durumu verilerinin doğruluğunu kontrol et
-            if (data && data.coordinates) {
-                const weatherLatitude = data.coordinates[0];
-                const weatherLongitude = data.coordinates[1];
-                // Hava durumu verilerini kullanarak iconları haritaya ekle
-                createWeatherIconLayer(weatherLongitude, weatherLatitude, 3);
-            } else {
-                console.error('Invalid weather data:', data);
-            }
-        } catch (error) {
-            console.error('Error in handleMapClick:', error);
-        }
+      } catch (error) {
+        console.error('Error in handleMapClick:', error);
+      }
     }
   };
   const initialState = {
@@ -267,27 +258,26 @@ function Map3D() {
 
   async function createWeatherIconLayer(centerLatitude, centerLongitude, numberOfCoordinates) {
     try {
-      debugger;
-      const lat= 42.4962;
-      const long= -90.3484;
+
+      removeLayer(WeathericonLayer);
       // Tıklanan nokta için hava durumu verilerini al
-      const weatherData = await FetchWeatherData(lat, long);
+      const weatherData = await FetchWeatherData(centerLatitude, centerLongitude);
 
       // Yakın yerlerin koordinatlarını hesapla
-      const nearbyCoordinates = await getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, 10, 100, 100);
+      const nearbyCoordinates = await getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, 10000);
 
       // IconLayer için kullanılacak veri
       const iconData = [];
 
       // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
-      for (const coord of nearbyCoordinates.randomCoordinates) {
+      for (const coord of nearbyCoordinates) {
+        debugger;
         // Yakın noktadaki hava durumu verilerini al
         const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
         // IconLayer için icon verisi oluştur
         iconData.push(nearbyWeatherData);
       }
       iconData.push(weatherData)
-      debugger;
       return await CreatelayerWeather(iconData);
 
     }
@@ -584,8 +574,10 @@ function Map3D() {
         return;
       }
       if (key == "WForecast") {
+        removeLayer(WeathericonLayer);
         const layer = await createWeatherIconLayer(42.569663, -92.479646, 3);
         loadLayerwithLayer(layer);
+        setWeatherIconLayer(layer);
         return;
       }
 
@@ -678,7 +670,7 @@ function Map3D() {
               }}
               onClick={handleMapClick}
               controller
-              layers={[mapLayers, WeathericonLayer]}
+              layers={[mapLayers, WeathericonLayer ? [WeathericonLayer] : []]}
               getTooltip={({ object }) => {
                 if (object) {
                   debugger;

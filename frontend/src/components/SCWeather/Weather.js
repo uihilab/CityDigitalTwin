@@ -6,20 +6,20 @@ export async function FetchWeatherData(latitude = 42.569663, longitude = -92.479
     try {
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`, options);
         const data = await response.json();
-        var result = convertToMarkers(data);
+        var result = WconvertToMarkers(data);
         return result;
 
     } catch (error) {
         console.error('Error fetching train schedule:', error);
     }
 }
-export function convertToMarkers(jsonData) {
+export function WconvertToMarkers(jsonData) {
     const coordinates = [jsonData.longitude, jsonData.latitude];
     const interval = jsonData.current.interval || '';
     const humidity = jsonData.current.relative_humidity_2m || '';
     const temperature = jsonData.current.temperature_2m || '';
     const year = new Date(jsonData.current.time).getFullYear() || '';
-    
+
     return {
         coordinates,
         interval,
@@ -29,36 +29,58 @@ export function convertToMarkers(jsonData) {
     };
 }
 // Belirli bir merkez noktaya yakın yerlerin koordinatlarını hesaplayan fonksiyon
-export async function getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, zoomLevel, mapWidth, mapHeight) {
+// export async function getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, zoomLevel, mapWidth, mapHeight) {
 
-    // Merkez noktayı kullanarak görünür alanı temsil eden bir dikdörtgen oluştur
-    const halfMapWidth = mapWidth / 2;
-    const halfMapHeight = mapHeight / 2;
-    const latitudePerPixel = 360 / Math.pow(2, zoomLevel + 8);
-    const longitudePerPixel = 360 / Math.pow(2, zoomLevel + 8);
-    
-    const minLatitude = centerLatitude - halfMapHeight * latitudePerPixel;
-    const maxLatitude = centerLatitude + halfMapHeight * latitudePerPixel;
-    const minLongitude = centerLongitude - halfMapWidth * longitudePerPixel;
-    const maxLongitude = centerLongitude + halfMapWidth * longitudePerPixel;
-    
-    // Dikdörtgenin köşe noktalarını kullanarak koordinatları oluştur
-    const topLeft = [maxLatitude, minLongitude];
-    const topRight = [maxLatitude, maxLongitude];
-    const bottomRight = [minLatitude, maxLongitude];
-    const bottomLeft = [minLatitude, minLongitude];
+//     // Merkez noktayı kullanarak görünür alanı temsil eden bir dikdörtgen oluştur
+//     const halfMapWidth = mapWidth / 2;
+//     const halfMapHeight = mapHeight / 2;
+//     const latitudePerPixel = 360 / Math.pow(2, zoomLevel + 8);
+//     const longitudePerPixel = 360 / Math.pow(2, zoomLevel + 8);
 
-    const visibleCoordinates = [topLeft, topRight, bottomRight, bottomLeft];
+//     const minLatitude = centerLatitude - halfMapHeight * latitudePerPixel;
+//     const maxLatitude = centerLatitude + halfMapHeight * latitudePerPixel;
+//     const minLongitude = centerLongitude - halfMapWidth * longitudePerPixel;
+//     const maxLongitude = centerLongitude + halfMapWidth * longitudePerPixel;
 
-    // Rastgele koordinatları seç
+//     // Dikdörtgenin köşe noktalarını kullanarak koordinatları oluştur
+//     const topLeft = [maxLatitude, minLongitude];
+//     const topRight = [maxLatitude, maxLongitude];
+//     const bottomRight = [minLatitude, maxLongitude];
+//     const bottomLeft = [minLatitude, minLongitude];
+
+//     const visibleCoordinates = [topLeft, topRight, bottomRight, bottomLeft];
+
+//     // Rastgele koordinatları seç
+//     const randomCoordinates = [];
+//     for (let i = 0; i < numberOfCoordinates; i++) {
+//         const randomLatitude = minLatitude + Math.random() * (maxLatitude - minLatitude);
+//         const randomLongitude = minLongitude + Math.random() * (maxLongitude - minLongitude);
+//         randomCoordinates.push([randomLatitude, randomLongitude]);
+//     }
+
+//     return { visibleCoordinates, randomCoordinates };
+// }
+
+export async function getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, maxDistanceInMeters) {
+    const earthRadius = 6371000; // Dünya'nın yarıçapı metre cinsinden
     const randomCoordinates = [];
+
     for (let i = 0; i < numberOfCoordinates; i++) {
-        const randomLatitude = minLatitude + Math.random() * (maxLatitude - minLatitude);
-        const randomLongitude = minLongitude + Math.random() * (maxLongitude - minLongitude);
+        // Rastgele bir mesafe ve yön belirle
+        const distance = Math.random() * maxDistanceInMeters;
+        const angle = Math.random() * 2 * Math.PI;
+
+        // Lat/long hesaplamalarını yap
+        const deltaLatitude = (distance / earthRadius) * (180 / Math.PI);
+        const deltaLongitude = (distance / (earthRadius * Math.cos(centerLatitude * Math.PI / 180))) * (180 / Math.PI);
+
+        const randomLatitude = centerLatitude + deltaLatitude * Math.cos(angle);
+        const randomLongitude = centerLongitude + deltaLongitude * Math.sin(angle);
+
         randomCoordinates.push([randomLatitude, randomLongitude]);
     }
 
-    return { visibleCoordinates, randomCoordinates };
+    return randomCoordinates;
 }
 
 

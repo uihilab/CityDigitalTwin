@@ -123,7 +123,6 @@ function SCTrain({
       rounded: true,
       trailLength,
       currentTime: time,
-
       shadowEnabled: false
     })
   ];
