@@ -1,12 +1,11 @@
 
 import { IconLayer } from "@deck.gl/layers";
 
-export async function CreatelayerWeather(weatherdata)
+export function CreatelayerWeather(weatherdata)
 {
     const ICON__MAPPING = {
         marker: { x: 0, y: 0, width: 128, height: 128 }
       };
-debugger;
       // IconLayer bileşeni
       const layerWeather = new IconLayer({
         id: 'WForecast',
@@ -23,6 +22,5 @@ debugger;
         onHover: ({ object, x, y }) => {
       }
       });
-      debugger;
       return layerWeather;
 }

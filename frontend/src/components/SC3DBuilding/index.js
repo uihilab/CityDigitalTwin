@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo, StrictMode } from "react";
 import DeckGL from "@deck.gl/react";
-
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
@@ -15,15 +14,14 @@ import { FetchWeatherData, getCoordinates } from "../SCWeather/Weather";
 import Popup from './Popup';
 import { CreatelayerWeather } from "../SCWeather/layerWeather";
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
+import { startAnimation } from "./animation";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function Map3D() {
-  const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
-    debugger;
     const isAQualityActive = activeItems[layers.findIndex(item => item.key === "AQuality")];
     const isWeatherActive = activeItems[layers.findIndex(item => item.key === "WForecast")];
     if (isAQualityActive) {
@@ -40,7 +38,6 @@ function Map3D() {
         });
     }
     if (isWeatherActive) {
-      //debugger;
       removeLayer(WeathericonLayer);
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
@@ -48,7 +45,6 @@ function Map3D() {
       try {
         // Hava durumu verilerini kullanarak iconları haritaya ekle
         const layer = await createWeatherIconLayer(latitude, longitude, 3);
-        debugger;
         setWeatherIconLayer(layer);
 
 
@@ -69,8 +65,43 @@ function Map3D() {
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
-  const [mapLayers, setMapLayers] = useState(maplayersTestData);
+  const [mapLayers, setMapLayersState] = useState(maplayersTestData);
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
+  const [layersStatic, setLayersStatic] = useState([]);
+  const [layersAnimation, setLayersAnimation] = useState([]);
+
+  function setMapLayers(newLayers) {
+    debugger;
+    layersStatic.push(newLayers);
+    setLayersStatic(layersStatic);
+    const layersCopy = layersStatic.slice();
+    //layersCopy.push(layersAnimation);
+    setMapLayersState(layersCopy);
+  }
+
+  function setAnimationLayers(animationLayers) {
+    const allLayers = [];
+    //setLayersAnimation(animationLayers);
+    allLayers.push(animationLayers);
+    const layersCopy = layersStatic.slice();
+    allLayers.push(layersCopy);
+    setMapLayersState(allLayers);
+  }
+
+  function checkLayerExists(layerName) {
+    const foundIndex = layersStatic.findIndex((x) => x.id === layerName);
+    return foundIndex;
+  }
+
+  function removeLayer(layerName) {
+    const foundIndex = checkLayerExists(layerName);
+    if (foundIndex > -1) {
+      layersStatic.splice(foundIndex, 1);
+      const newLayers = layersStatic.slice();
+      setMapLayers(newLayers);
+    }
+  }
+
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
   const [checkboxState, setCheckboxState] = useState(initialState);
@@ -92,13 +123,11 @@ function Map3D() {
 
 
   async function loadJsonData(url) {
-    debugger;
     const response = await fetch(url);
     return response.json();
   }
 
   async function CreateGeoJsonLayer(id, data) {
-    debugger;
     const layer = new GeoJsonLayer({
       id,
       data,
@@ -109,7 +138,6 @@ function Map3D() {
   }
 
   async function CreateColourfulGeoJsonLayer(id, data, color) {
-    debugger;
     const layer = new GeoJsonLayer({
       id,
       data,
@@ -119,7 +147,6 @@ function Map3D() {
     });
     return layer;
   }
-
 
   function loadTruck(data) {
     return new ScenegraphLayer({
@@ -135,39 +162,29 @@ function Map3D() {
   }
 
   async function loadLayer(key, dataPath) {
-    debugger;
     const jsonData = await loadJsonData(dataPath);
     const layer = await CreateGeoJsonLayer(key, jsonData);
-    const newLayers = mapLayers.slice();
-    newLayers.push(layer);
-    setMapLayers(newLayers);
+    setMapLayers(layer);
   }
 
   async function loadLayerwithData(key, jsonData) {
     const layer = await CreateGeoJsonLayer(key, jsonData);
-    const newLayers = mapLayers.slice();
-    newLayers.push(layer);
-    setMapLayers(newLayers);
+    setMapLayers(layer);
   }
+
   async function loadColourfulLayerwithData(key, jsonData, color) {
     const layer = await CreateColourfulGeoJsonLayer(key, jsonData, color);
-    const newLayers = mapLayers.slice();
-    newLayers.push(layer);
-    setMapLayers(newLayers);
+    setMapLayers(layer);
   }
 
   async function loadLayerwithLayer(layer) {
-    debugger;
-    const newLayers = mapLayers.slice();
-    newLayers.push(layer);
-    setMapLayers(newLayers);
+    setMapLayers(layer);
   }
 
   async function BuildingLayer() {
     const response = await fetch("/data/waterloo_buildings.geojson");
     const data = await response.json();
 
-    debugger;
     var filteredData = data.features.filter(feature => feature.properties && feature.properties.building);
 
     const layerBuilding = new GeoJsonLayer({
@@ -187,10 +204,7 @@ function Map3D() {
       }
     });
 
-    const newLayers = mapLayers.slice();
-    newLayers.push(layerBuilding);
-    setMapLayers(newLayers);
-
+    setMapLayers(layerBuilding);
   }
 
   async function loadPowerPlantData() {
@@ -229,7 +243,6 @@ function Map3D() {
 
   async function loadTransportationEvents() {
 
-    debugger;
     try {
       const trafficEventData = await getTrafficEventData();
 
@@ -271,14 +284,13 @@ function Map3D() {
 
       // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
       for (const coord of nearbyCoordinates) {
-        debugger;
         // Yakın noktadaki hava durumu verilerini al
         const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
         // IconLayer için icon verisi oluştur
         iconData.push(nearbyWeatherData);
       }
       iconData.push(weatherData)
-      return await CreatelayerWeather(iconData);
+      return CreatelayerWeather(iconData);
 
     }
     catch (error) {
@@ -411,20 +423,6 @@ function Map3D() {
       </div>
     );
   };
-  function checkLayerExists(layerName) {
-    const foundIndex = mapLayers.findIndex((x) => x.id === layerName);
-    return foundIndex;
-  }
-
-  function removeLayer(layerName) {
-    const foundIndex = checkLayerExists(layerName);
-    if (foundIndex > -1) {
-      mapLayers.splice(foundIndex, 1);
-      const newLayers = mapLayers.slice();
-      setMapLayers(newLayers);
-      debugger;
-    }
-  }
 
   // Checkbox durumlarını güncellemek için bir fonksiyon
   const handleCheckboxChange = async (event) => {
@@ -462,7 +460,6 @@ function Map3D() {
       // Yol çizgilerine özgü renk belirleme
       const color = [255, 0, 0]; // Örneğin kırmızı renk
       loadColourfulLayerwithData("primary", combinedData, color);
-      debugger;
     }
 
     if (checked && name == 'secondary') {
@@ -470,7 +467,6 @@ function Map3D() {
       // Yol çizgilerine özgü renk belirleme
       const color = [0, 0, 255]; // mavi renk
       loadColourfulLayerwithData("secondary", data_secondary, color);
-      debugger;
     }
 
     if (checked && name == 'residential') {
@@ -478,7 +474,6 @@ function Map3D() {
       // Yol çizgilerine özgü renk belirleme
       const color = [95, 95, 95]; // koyu gri
       loadColourfulLayerwithData("residential", data_residential, color);
-      debugger;
     }
 
     if (checked && name == 'service') {
@@ -486,7 +481,6 @@ function Map3D() {
       // Yol çizgilerine özgü renk belirleme
       const color = [190, 190, 190]; // Gri renk 
       loadColourfulLayerwithData("service", data_service, color);
-      debugger;
     }
 
     if (checked && name == 'motorway') {
@@ -500,7 +494,6 @@ function Map3D() {
 
       const color = [80, 80, 80]; // Gri renk 
       loadColourfulLayerwithData("motorway", combinedData, color);
-      debugger;
     }
 
     if (checked && name == 'cycleway') {
@@ -508,38 +501,31 @@ function Map3D() {
       // Yol çizgilerine özgü renk belirleme
       const color = [255, 0, 0]; // Gri renk 
       loadColourfulLayerwithData("cycleway", data_cycleway, color);
-      debugger;
     }
 
 
     if (!checked && name == 'primary') {
       removeLayer("primary");
-      debugger;
     }
     if (!checked && name == 'secondary') {
       removeLayer("secondary");
-      debugger;
     }
 
     if (!checked && name == 'residential') {
       removeLayer("residential");
-      debugger;
     }
 
     if (!checked && name == 'service') {
       removeLayer("service");
-      debugger;
     }
 
     if (!checked && name == 'motorway') {
       removeLayer("motorway_link");
-      removeLayer("motorway")
-      debugger;
+      removeLayer("motorway");
     }
 
     if (!checked && name == 'cycleway') {
-      removeLayer("cycleway")
-      debugger;
+      removeLayer("cycleway");
     }
   }
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
@@ -554,7 +540,6 @@ function Map3D() {
 
 
   async function layerLinkHandler(key, isActive, dataPath) {
-
     if (isActive) {
       if (key == "Electricgrid") {
         await loadPowerPlantData();
@@ -576,19 +561,22 @@ function Map3D() {
       if (key == "WForecast") {
         removeLayer(WeathericonLayer);
         const layer = await createWeatherIconLayer(42.569663, -92.479646, 3);
-        loadLayerwithLayer(layer);
-        setWeatherIconLayer(layer);
+        setMapLayers(layer);
+        //loadLayerwithLayer(layer);
+        //setWeatherIconLayer(layer);
+        
         return;
       }
-
+      if (key == "TrafficFlow") {
+        var stopAnimation = startAnimation(setAnimationLayers, { showPaths: false, tracking: false });
+        return;
+      }
       if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
-        debugger;
         handlePublicTransitRoutesClick(true);
         return;
       }
 
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
-        debugger;
         handleHighwayClick(true);
         checkboxState.primary = false;
         checkboxState.secondary = false;
@@ -601,15 +589,11 @@ function Map3D() {
       await loadLayer(key, dataPath);
 
     } else {
-
-      debugger;
       if (isRouteCheckboxMenuOpen == true) {
-        debugger;
         handlePublicTransitRoutesClick(false);
         return;
       }
       if (isHighwayCheckboxMenuOpen == true) {
-        debugger;
         handleHighwayClick(false);
         removeLayer("primary");
         removeLayer("secondary");
@@ -628,7 +612,7 @@ function Map3D() {
       }
     }
   }
-
+  const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
   });
@@ -643,66 +627,66 @@ function Map3D() {
         activeItems={activeItems}
         setActiveItems={setActiveItems}
       />
-      <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
-        {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
-        {isRouteCheckboxMenuOpen && (
+      <div>
+        <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
+          {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
+          {isRouteCheckboxMenuOpen && (
 
-          <CheckboxLayerEvent handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
-        )}
-      </div>
-      <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
-        {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
-        {isHighwayCheckboxMenuOpen && (
+            <CheckboxLayerEvent handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+          )}
+        </div>
+        <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
+          {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
+          {isHighwayCheckboxMenuOpen && (
 
-          <CheckboxLayerHighway handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
-        )}
-      </div>
-      <div id="map" style={{ width: "100%", height: "90vh" }}>
-        <StrictMode>
-          <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-            <DeckGL
-              initialViewState={{
-                longitude: -92.345,
-                latitude: 42.4937,
-                zoom: 19,
-                heading: 1,
-                pitch: 45,
-              }}
-              onClick={handleMapClick}
-              controller
-              layers={[mapLayers, WeathericonLayer ? [WeathericonLayer] : []]}
-              getTooltip={({ object }) => {
-                if (object) {
-                  debugger;
-                  if (object.properties && object.properties.building === "yes") {
-                    return "building";
+            <CheckboxLayerHighway handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+          )}
+        </div>
+        <div id="map" style={{ width: "100%", height: "90vh" }}>
+          <StrictMode>
+            <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+              <DeckGL
+                initialViewState={{
+                  longitude: -92.345,
+                  latitude: 42.4937,
+                  zoom: 19,
+                  heading: 1,
+                  pitch: 45,
+                }}
+                onClick={handleMapClick}
+                controller
+                layers={[mapLayers]}
+                getTooltip={({ object }) => {
+                  if (object) {
+                    if (object.properties && object.properties.building === "yes") {
+                      return "building";
+                    }
+                    else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !== null) {
+                      return object.properties && object.properties.building;
+                    }
+                    else if (object.name != undefined) {
+                      return `${object.name}`;
+                    }
+                    else if (object && object.temperature != undefined) {
+                      return `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`;
+                    }
                   }
-                  else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !== null) {
-                    return object.properties && object.properties.building;
-                  }
-                  else if (object.name != undefined) {
-                    return `${object.name}`;
-                  }
-                  else if (object && object.temperature != undefined) {
-                    debugger;
-                    return `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`;
-                  }
+                  // object && (`${object.properties.building}` || `${object.name}`)
                 }
-                // object && (`${object.properties.building}` || `${object.name}`)
-              }
-              }
-            >
-              <Map mapId={GOOGLE_MAP_ID} />
-              {/* Canvas */}
-              <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10, left: 10, zIndex: 1, width: 100, height: 100, pointerEvents: "yes", opacity: 0.5, padding: 10 }}></canvas>
-              <div>
-                {/* {hoverInfo && renderTooltip(hoverInfo)} */}
-                <Popup clickPosition={clickPosition} object={clickedObject} />
-              </div>
-              <div id="App"></div>
-            </DeckGL>
-          </APIProvider>
-        </StrictMode>
+                }
+              >
+                <Map mapId={GOOGLE_MAP_ID} />
+                {/* Canvas */}
+                <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10, left: 10, zIndex: 1, width: 100, height: 100, pointerEvents: "yes", opacity: 0.5, padding: 10 }}></canvas>
+                <div>
+                  {/* {hoverInfo && renderTooltip(hoverInfo)} */}
+                  <Popup clickPosition={clickPosition} object={clickedObject} />
+                </div>
+                <div id="App"></div>
+              </DeckGL>
+            </APIProvider>
+          </StrictMode>
+        </div>
       </div>
     </>
   );
