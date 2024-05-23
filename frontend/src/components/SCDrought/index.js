@@ -15,7 +15,6 @@ const INITIAL_VIEW_STATE = {
 export async function FetchDroughtData()
 {
     const response = await fetch("/data/drought_map.geojson");
-    debugger;
     const data = await response.json();
     return data;
     // try {
@@ -41,9 +40,17 @@ export async function FetchDroughtData()
     //     console.error('Error loading or parsing KML:', error);
     //   }
 }
+// Function to convert hex color to [R, G, B, A]
+const hexToRGBA = (hex, alpha = 255) => {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return [r, g, b, alpha];
+    };
+
 export async function DroughtLayer(JsonData)
 {
-    debugger;
     return new GeoJsonLayer({
         id: 'Drought',
         data: JsonData,
@@ -51,8 +58,9 @@ export async function DroughtLayer(JsonData)
         pointRadiusMinPixels: 2,
         pointRadiusScale: 2000,
         getPointRadius: f => 10,
-        getFillColor: [255, 0, 0, 180],
-        getLineColor: [255, 255, 255, 200],
+        getFillColor: d => hexToRGBA(d.properties.fillColor, 200), // 200 for alpha
+getLineColor: d => hexToRGBA(d.properties.lineColor, 255), // 255 for full opacity
+
         pickable: true,
         autoHighlight: true,
         onClick: info => {
@@ -61,8 +69,9 @@ export async function DroughtLayer(JsonData)
           }
         }
       });
-      return geoJsonLayer;
+      return GeoJsonLayer;
 }
+
 
 //  const  Drought = () => {
 //   const [data, setData] = useState(null);
