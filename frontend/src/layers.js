@@ -101,6 +101,12 @@ let layers = [
   },
   {
     type: "mydesign",
+    name: "Drought",
+    key: "Drought",
+    icon: <Icon fontSize="small">Drought</Icon>,
+  },
+  {
+    type: "mydesign",
     name: "Weather Forecast",
     key: "WForecast",
     icon: <Icon fontSize="small">Weather Forecast</Icon>,

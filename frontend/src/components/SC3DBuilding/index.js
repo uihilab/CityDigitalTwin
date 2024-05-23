@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, StrictMode } from "react";
-import DeckGL from "@deck.gl/react";
+import { DeckGL, TileLayer, LoadGeoJsonLayer } from "@deck.gl/react";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
@@ -15,6 +15,8 @@ import Popup from './Popup';
 import { CreatelayerWeather } from "../SCWeather/layerWeather";
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
 import { startAnimation } from "./animation";
+import { Drought, DroughtLayer, FetchDroughtData } from "../SCDrought/index";
+
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -53,6 +55,8 @@ function Map3D() {
       }
     }
   };
+
+
   const initialState = {
     electricGrid: false,
     transEvents: false,
@@ -182,14 +186,14 @@ function Map3D() {
   }
 
   async function BuildingLayer() {
-    const response = await fetch("/data/waterloo_buildings.geojson");
+    const response = await fetch("/data/waterloo_buildings_wgs84.geojson");
     const data = await response.json();
 
-    var filteredData = data.features.filter(feature => feature.properties && feature.properties.building);
+    //var filteredData = data.features.filter(feature => feature.properties && feature.properties.occ_cls && feature.properties.prim_occ);
 
     const layerBuilding = new GeoJsonLayer({
       id: "Buildings",
-      data: filteredData,
+      data: data,
       pickable: true,
       stroked: false,
       filled: true,
@@ -203,7 +207,7 @@ function Map3D() {
       onHover: ({ object, x, y }) => {
       }
     });
-
+    debugger;
     setMapLayers(layerBuilding);
   }
 
@@ -553,6 +557,34 @@ function Map3D() {
         await BuildingLayer();
         return;
       }
+      if (key == "Drought") {
+
+        try {
+          const drData = await FetchDroughtData();
+          if (drData) {
+            console.log('Drought Data:', drData);
+            const layer = await DroughtLayer(drData);
+            await loadLayerwithLayer(layer);
+
+          } else {
+            console.error('No data returned from Drought function');
+          }
+        } catch (error) {
+          console.error('Error loading drought data:', error);
+        }
+
+        // try {
+        //   debugger;
+        //   var drData = await Drought();
+        //   if (drData) {
+        //     var layer = DroughtLayer(drData);
+        //     loadLayerwithLayer(layer);
+        //   }
+        // } catch (error) {
+        //   console.error('Error loading drought data:', error);
+        // }
+      }
+
       if (key == "AQuality") {
         const AQualiy = await FetchAirQuality();
         await renderAirQualityChart(AQualiy);
@@ -564,7 +596,7 @@ function Map3D() {
         setMapLayers(layer);
         //loadLayerwithLayer(layer);
         //setWeatherIconLayer(layer);
-        
+
         return;
       }
       if (key == "TrafficFlow") {
@@ -593,6 +625,10 @@ function Map3D() {
         handlePublicTransitRoutesClick(false);
         return;
       }
+      if (key === "Drought") {
+        
+        //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
+      }
       if (isHighwayCheckboxMenuOpen == true) {
         handleHighwayClick(false);
         removeLayer("primary");
@@ -616,6 +652,7 @@ function Map3D() {
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
   });
+
 
   return (
     <>
@@ -658,11 +695,9 @@ function Map3D() {
                 layers={[mapLayers]}
                 getTooltip={({ object }) => {
                   if (object) {
-                    if (object.properties && object.properties.building === "yes") {
-                      return "building";
-                    }
-                    else if (object.properties && object.properties.building !== "yes" && object.properties && object.properties.building !== null) {
-                      return object.properties && object.properties.building;
+
+                    if (object.properties && object.properties.occ_cls !== null && object.properties.prim_occ !== null) {
+                      return object.properties && object.properties.occ_cls && object.properties.prim_occ;
                     }
                     else if (object.name != undefined) {
                       return `${object.name}`;
