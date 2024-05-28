@@ -4,7 +4,7 @@ import { Checkbox } from '@mui/material'; // Kullanacağınız checkbox kütüph
 // Verilen bir anahtar ve veri yolundaki GeoJSON verilerini yükler ve belirli bir özelliğe göre filtreler
 export async function loadFilteredGeoJsonData(dataPath, propertyName) {
   const jsonData = await fetch(dataPath);
-  const data = await jsonData.json();;
+  const data = await jsonData.json();
   const filteredData = data.features.filter(feature => feature.properties.highway === propertyName);
   return filteredData;
 }
