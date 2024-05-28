@@ -1,6 +1,7 @@
+import { ArcLayer, GeoJsonLayer } from '@deck.gl/layers';
+import { DeckGL } from '@deck.gl/react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import DeckGL, { GeoJsonLayer, ArcLayer } from 'deck.gl';
 
 // source: Natural Earth http://www.naturalearthdata.com/ via geojson.xyz
 const COUNTRIES =
