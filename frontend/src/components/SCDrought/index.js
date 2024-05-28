@@ -17,28 +17,6 @@ export async function FetchDroughtData()
     const response = await fetch("/data/drought_map.geojson");
     const data = await response.json();
     return data;
-    // try {
-    //     const response = await fetch(proxyUrl);
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok');
-    //     }
-    //     const arrayBuffer = await response.arrayBuffer();
-        
-    //     // Debug: KML dosyasının içeriğini kontrol edin
-    // const textDecoder = new TextDecoder();
-    // const textContent = textDecoder.decode(arrayBuffer);
-    // console.log('KML File Content:', textContent); // İçeriği kontrol edin
-
-    //  // KML içeriğinin XML formatında olduğunu doğrulayın
-    //  if (!textContent.startsWith('<?xml') && !textContent.includes('<kml')) {
-    //     throw new Error('Invalid KML format');
-    //   }
-
-    //     const data = await load(arrayBuffer, KMLLoader);
-    //     return data;
-    //   } catch (error) {
-    //     console.error('Error loading or parsing KML:', error);
-    //   }
 }
 // Function to convert hex color to [R, G, B, A]
 const hexToRGBA = (hex, alpha = 255) => {
@@ -69,7 +47,6 @@ getLineColor: d => hexToRGBA(d.properties.lineColor, 255), // 255 for full opaci
           }
         }
       });
-      return GeoJsonLayer;
 }
 
 
