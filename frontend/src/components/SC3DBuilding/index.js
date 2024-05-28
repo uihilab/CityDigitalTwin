@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo, StrictMode } from "react";
-import { DeckGL, TileLayer, LoadGeoJsonLayer } from "@deck.gl/react";
+import React, { useState, useEffect, useMemo, StrictMode, useRef } from "react";
+import DeckGL from "@deck.gl/react";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
@@ -14,9 +14,7 @@ import { FetchWeatherData, getCoordinates } from "../SCWeather/Weather";
 import Popup from './Popup';
 import { CreatelayerWeather } from "../SCWeather/layerWeather";
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
-import { startAnimation } from "./animation";
-import { Drought, DroughtLayer, FetchDroughtData } from "../SCDrought/index";
-
+import { startTrafficSimulator } from "components/TrafficSimulator";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -66,6 +64,22 @@ function Map3D() {
   const maplayersTestData = [
   ];
 
+  const [viewport, setViewport] = useState({
+    longitude: -92.345,
+    latitude: 42.4937,
+    zoom: 19,
+    heading: 1,
+    pitch: 45
+  });
+
+  const viewportRef = useRef(viewport);
+
+  useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
+
+  //Deck element reference to pass and use in animation or other sub components.
+  const deckRef = useRef(null);
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
@@ -532,6 +546,7 @@ function Map3D() {
       removeLayer("cycleway");
     }
   }
+
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
   const handlePublicTransitRoutesClick = (open) => {
     setIsRouteCheckboxMenuOpen(open);
@@ -542,6 +557,10 @@ function Map3D() {
     removeLayer("primary");
   };
 
+  function getViewPort()
+  {
+    return viewport;
+  }
 
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
@@ -597,10 +616,12 @@ function Map3D() {
         //loadLayerwithLayer(layer);
         //setWeatherIconLayer(layer);
 
+
         return;
       }
       if (key == "TrafficFlow") {
-        var stopAnimation = startAnimation(setAnimationLayers, { showPaths: false, tracking: false });
+        await startTrafficSimulator(setAnimationLayers, viewportRef);
+        //var stopAnimation = startTrafficFlow(setAnimationLayers, map);
         return;
       }
       if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
@@ -683,13 +704,9 @@ function Map3D() {
           <StrictMode>
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
-                initialViewState={{
-                  longitude: -92.345,
-                  latitude: 42.4937,
-                  zoom: 19,
-                  heading: 1,
-                  pitch: 45,
-                }}
+                ref={deckRef}
+                initialViewState={viewport}
+                onViewStateChange={({ viewState }) => setViewport(viewState)}
                 onClick={handleMapClick}
                 controller
                 layers={[mapLayers]}

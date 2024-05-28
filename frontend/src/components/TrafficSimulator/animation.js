@@ -1,12 +1,12 @@
 import {ScenegraphLayer} from "@deck.gl/mesh-layers";
-import TripBuilder from './trip-builder';
+import TripBuilder from '../TrafficSimulator/trip-builder';
 import { tripData } from "./trip-data";
+import { PathLayer } from "@deck.gl/layers";
 
-function startAnimation(setMapLayers, options)
+function startAnimation(routeData, setMapLayers, options, simulator)
 {
     const MODEL_URL = "/data/CesiumMilkTruck.glb";
-    const data = tripData;
-    debugger;
+    const data = routeData;//tripData;
     const trips = data.map((waypoints) => new TripBuilder({ waypoints, loop: true }));
     let timestamp = 0;
     let animation = null;
@@ -15,7 +15,7 @@ function startAnimation(setMapLayers, options)
 
       const frame = trips.map(trip => trip.getFrame(timestamp));
 
-      // Set the camera to follow the first truck
+      // Set the camera to follow the first truck      
       if (options.tracking) {
         map.moveCamera({
           center: {lat: frame[0].point[1], lng: frame[0].point[0]},
@@ -24,16 +24,16 @@ function startAnimation(setMapLayers, options)
       }
 
       const layers = [
-        // options.showPaths &&
-        //   new PathLayer({
-        //     id: 'animation-trip-lines',
-        //     data: trips,
-        //     getPath: d => d.keyframes.map(f => f.point),
-        //     getColor: _ => [128 * Math.random(), 255 * Math.random(), 255],
-        //     jointRounded: true,
-        //     opacity: 0.5,
-        //     getWidth: 0.5
-        //   }),
+        options.showPaths &&
+          new PathLayer({
+            id: 'animation-trip-lines',
+            data: trips,
+            getPath: d => d.keyframes.map(f => f.point),
+            getColor: _ => [128 * Math.random(), 255 * Math.random(), 255],
+            jointRounded: true,
+            opacity: 0.5,
+            getWidth: 10
+          }),
         new ScenegraphLayer({
           id: 'animation-truck',
           data: frame,

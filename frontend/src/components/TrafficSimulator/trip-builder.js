@@ -1,12 +1,11 @@
-/* eslint-disable no-underscore-dangle */
-import getDistance from "@turf/rhumb-distance";
-import getBearing from "@turf/rhumb-bearing";
+import getDistance from '@turf/rhumb-distance';
+import getBearing from '@turf/rhumb-bearing';
 
 export default class TripBuilder {
   constructor({
     waypoints,
-    speed = 10, // meters
-    turnSpeed = 45, // degrees
+    speed = 10, // meters per second
+    turnSpeed = 45, // degrees per second
     loop = false,
   }) {
     this.keyframes = [];
@@ -34,7 +33,7 @@ export default class TripBuilder {
     }
 
     const prevKeyframe = this.keyframes[this.keyframes.length - 1];
-    const distance = getDistance(prevKeyframe.point, point, { units: "kilometers" }) * 1000;
+    const distance = getDistance(prevKeyframe.point, point, { units: 'kilometers' }) * 1000;
     const heading = getBearing(prevKeyframe.point, point);
 
     if (distance < 0.1) {
