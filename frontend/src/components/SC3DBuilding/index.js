@@ -13,10 +13,9 @@ import { renderAirQualityChart, FetchAirQuality } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
 import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
-import { DroughtLayer, FetchDroughtData } from "../SCDrought/index";
-import { loadArcGISData, FloodLayer } from "components/SCFlood";
-import {ElectricgridLayer } from "../SCElectric/index"
-import {BuildingLayer } from "../SCBuilding/layerBuilding"
+import { startTrafficSimulator } from "components/TrafficSimulator";
+import { Drought, DroughtLayer, FetchDroughtData } from "../SCDrought/index";
+import { getFloodLayer } from "components/SCFlood";
 
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
@@ -78,7 +77,6 @@ function Map3D() {
   const [layersStatic, setLayersStatic] = useState([]);
 
   function setMapLayers(newLayers) {
-    debugger;
     layersStatic.push(newLayers);
     setLayersStatic(layersStatic);
     const layersCopy = layersStatic.slice();
@@ -530,7 +528,11 @@ function Map3D() {
         handlePublicTransitRoutesClick(true);
         return;
       }
-
+      if (key == "Flood" && isRouteCheckboxMenuOpen == false) {
+        var floodLayer = await getFloodLayer();
+        setMapLayers(floodLayer);
+        return;
+      }
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
         handleHighwayClick(true);
         checkboxState.primary = false;
@@ -642,8 +644,7 @@ function Map3D() {
                 }
                 }
               >
-                <Map mapId={GOOGLE_MAP_ID}
-                  defaultCenter={{ lat: 42, lng: -92 }} defaultZoom={12} />
+                <Map mapId={GOOGLE_MAP_ID} defaultCenter={{lat: 42.4937, lng: -92.345}} defaultZoom={12} />
                 {/* Canvas */}
                 <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10, left: 10, zIndex: 1, width: 100, height: 100, pointerEvents: "yes", opacity: 0.5, padding: 10 }}></canvas>
                 <div>
