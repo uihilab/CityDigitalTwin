@@ -1,3 +1,4 @@
+import { CreatelayerWeather } from "../SCWeather/layerWeather";
 export async function FetchWeatherData(latitude = 42.569663, longitude = -92.479646) {
     const lat = latitude;
     const lon = longitude;
@@ -82,6 +83,45 @@ export async function getCoordinates(centerLatitude, centerLongitude, numberOfCo
 
     return randomCoordinates;
 }
+
+function removeLayer(layerName) {
+    const foundIndex = checkLayerExists(layerName);
+    if (foundIndex > -1) {
+      layersStatic.splice(foundIndex, 1);
+      const newLayers = layersStatic.slice();
+      setMapLayers(newLayers);
+    }
+  }
+
+export async function createWeatherIconLayer(centerLatitude, centerLongitude, numberOfCoordinates) {
+    try {
+  
+      // removeLayer(WeathericonLayer);
+      // Tıklanan nokta için hava durumu verilerini al
+      const weatherData = await FetchWeatherData(centerLatitude, centerLongitude);
+  
+      // Yakın yerlerin koordinatlarını hesapla
+      const nearbyCoordinates = await getCoordinates(centerLatitude, centerLongitude, numberOfCoordinates, 10000);
+  
+      // IconLayer için kullanılacak veri
+      const iconData = [];
+      debugger;
+  
+      // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
+      for (const coord of nearbyCoordinates) {
+        // Yakın noktadaki hava durumu verilerini al
+        const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
+        // IconLayer için icon verisi oluştur
+        iconData.push(nearbyWeatherData);
+      }
+      iconData.push(weatherData)
+      return CreatelayerWeather(iconData);
+  
+    }
+    catch (error) {
+      console.error('Error fetching event:', error);
+    }
+  }
 
 
 

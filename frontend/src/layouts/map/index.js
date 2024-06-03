@@ -23,7 +23,7 @@ import MDBox from "components/MDBox";
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import Footer from "examples/Footer";
-import SCBuilding from "components/SCBuilding";
+import SCBuilding from "components/SCBuilding/index";
 function Map() {
   return (
     <DashboardLayout>

@@ -24,3 +24,4 @@ export function CreatelayerWeather(weatherdata)
       });
       return layerWeather;
 }
+
