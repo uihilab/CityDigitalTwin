@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, StrictMode } from "react";
+import React, { useState, useEffect, useRef, StrictMode } from "react";
 import { DeckGL } from "@deck.gl/react";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
 import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
@@ -14,8 +14,8 @@ import { createWeatherIconLayer } from "../SCWeather/Weather";
 import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
 import { DroughtLayer, FetchDroughtData } from "../SCDrought/index";
-import {ElectricgridLayer } from "../SCElectric/index"
-import {BuildingLayer } from "../SCBuilding/layerBuilding"
+import { ElectricgridLayer } from "../SCElectric/index"
+import { BuildingLayer } from "../SCBuilding/layerBuilding"
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "../SCFlood";
 
@@ -71,6 +71,22 @@ function Map3D() {
   const maplayersTestData = [
   ];
 
+  const [viewport, setViewport] = useState({
+    longitude: -92.345,
+    latitude: 42.4937,
+    zoom: 19,
+    heading: 1,
+    pitch: 45
+  });
+
+  const viewportRef = useRef(viewport);
+
+  useEffect(() => {
+    viewportRef.current = viewport;
+  }, [viewport]);
+
+  //Deck element reference to pass and use in animation or other sub components.
+  const deckRef = useRef(null);
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
@@ -467,11 +483,15 @@ function Map3D() {
     removeLayer("primary");
   };
 
+  function getViewPort() {
+    return viewport;
+  }
+
   async function layerLinkHandler(key, isActive, dataPath) {
     debugger;
     if (isActive) {
       if (key == "Electricgrid") {
-        const layerElectric=await ElectricgridLayer();
+        const layerElectric = await ElectricgridLayer();
         setMapLayers(layerElectric);
         return;
       }
@@ -480,7 +500,7 @@ function Map3D() {
         return;
       }
       if (key == "Buildings") {
-        const layerBuilding= await BuildingLayer();
+        const layerBuilding = await BuildingLayer();
         setMapLayers(layerBuilding);
         return;
       }
@@ -502,12 +522,8 @@ function Map3D() {
       }
 
       if (key == "Flood") {
-        //debugger;
-        loadArcGISData().then(floodplainLayer => {
-        settileLayer(FloodLayer(floodplainLayer));
-        });
-
-        //await DroughtLayer(data);
+        var floodLayer = await getFloodLayer();
+        setMapLayers(floodLayer);
         return;
       }
       if (key == "AQuality") {
@@ -523,16 +539,15 @@ function Map3D() {
         return;
       }
       if (key == "TrafficFlow") {
-        var stopAnimation = startAnimation(setAnimationLayers, { showPaths: false, tracking: false });
+        await startTrafficSimulator(setAnimationLayers, viewportRef);
         return;
       }
-      if (key == "PublicTransitRoutes" && isRouteCheckboxMenuOpen == false) {
+      if (key == "PublicTransitRoutes") {
         handlePublicTransitRoutesClick(true);
         return;
       }
-      if (key == "Flood" && isRouteCheckboxMenuOpen == false) {
-        var floodLayer = await getFloodLayer();
-        setMapLayers(floodLayer);
+      if (key == "Flood") {
+
         return;
       }
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
@@ -619,16 +634,12 @@ function Map3D() {
           <StrictMode>
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
-                initialViewState={{
-                  longitude: -92.345,
-                  latitude: 42.4937,
-                  zoom: 19,
-                  heading: 1,
-                  pitch: 45,
-                }}
+                ref={deckRef}
+                initialViewState={viewport}
+                onViewStateChange={({ viewState }) => setViewport(viewState)}
                 onClick={handleMapClick}
                 controller
-                layers={[mapLayers, tileLayer]}
+                layers={[mapLayers]}
                 getTooltip={({ object }) => {
                   if (object) {
 
@@ -646,7 +657,7 @@ function Map3D() {
                 }
                 }
               >
-                <Map mapId={GOOGLE_MAP_ID} defaultCenter={{lat: 42.4937, lng: -92.345}} defaultZoom={12} />
+                <Map mapId={GOOGLE_MAP_ID} defaultCenter={{ lat: 42.4937, lng: -92.345 }} defaultZoom={12} />
                 {/* Canvas */}
                 <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10, left: 10, zIndex: 1, width: 100, height: 100, pointerEvents: "yes", opacity: 0.5, padding: 10 }}></canvas>
                 <div>

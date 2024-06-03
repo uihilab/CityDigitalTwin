@@ -1,5 +1,4 @@
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
-import { PathLayer } from "@deck.gl/layers";
 import { WebMercatorViewport } from '@deck.gl/core';
 
 class DeckglAnimation {

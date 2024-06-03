@@ -1,8 +1,6 @@
 import { TileLayer } from '@deck.gl/geo-layers';
 import { BitmapLayer } from '@deck.gl/layers';
 
-const imageCache = {};
-
 async function getFloodLayer() {
   const subLayerIds = await fetchAvailableLayerIds();
 
