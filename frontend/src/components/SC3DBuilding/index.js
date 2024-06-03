@@ -13,9 +13,11 @@ import { renderAirQualityChart, FetchAirQuality } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
 import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
+import { DroughtLayer, FetchDroughtData } from "../SCDrought/index";
+import {ElectricgridLayer } from "../SCElectric/index"
+import {BuildingLayer } from "../SCBuilding/layerBuilding"
 import { startTrafficSimulator } from "components/TrafficSimulator";
-import { Drought, DroughtLayer, FetchDroughtData } from "../SCDrought/index";
-import { getFloodLayer } from "components/SCFlood";
+import { getFloodLayer } from "../SCFlood";
 
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";

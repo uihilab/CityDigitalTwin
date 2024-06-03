@@ -14,7 +14,7 @@ const initialViewState = {
     bearing: 0
   };
   
-  function SCBuilding() {
+  export default function SCBuilding() {
     useEffect(() => {
       // Leaflet harita oluşturma
       const map = L.map('map').setView([42.4928, -92.3341], 14);
@@ -39,4 +39,3 @@ const initialViewState = {
     return <div id="map" style={{ width: '100%', height: '100vh' }}></div>;
   }
   
-  export default SCBuilding;
