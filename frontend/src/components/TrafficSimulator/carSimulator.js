@@ -21,7 +21,7 @@ class CarSimulator {
         if (!car.tripBuilder) {
           car.tripBuilder = new TripBuilder({
             waypoints: road.geometry.coordinates,
-            speed: 10, // meters per second
+            speed: road.maxSpeed, // meters per second
             loop: true
           });
         }

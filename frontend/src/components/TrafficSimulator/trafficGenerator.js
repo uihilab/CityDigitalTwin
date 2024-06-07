@@ -7,32 +7,29 @@ const turf = {
 };
 
 class TrafficGenerator {
-  constructor(geojsonData) {
-    this.geojsonData = geojsonData;
+  constructor(roadData) {
+    this.roadData = roadData;
   }
 
   getRandomRoad() {
-    const features = this.geojsonData.features.filter(
-      feature => feature.geometry.type === 'LineString'
-    );
-    const randomIndex = Math.floor(Math.random() * features.length);
+    const randomIndex = Math.floor(Math.random() * roadData.length);
     return features[randomIndex];
   }
 
-  getRandomPointOnLineString(lineString) {
-    const length = turf.length(lineString);
+  getRandomPointOnLineString(geojson) {
+    const length = turf.length(geojson);
     const randomDistance = Math.random() * length;
-    return turf.along(lineString, randomDistance);
+    return turf.along(geojson, randomDistance);
   }
 
   generateRandomCars(numCarsPerRoad) {
-    const roads = [];
+    //const roads = [];
 
-    this.geojsonData.features.forEach((road, index) => {
+    this.roadData.forEach((road, index) => {
       if (road.geometry.type === 'LineString') {
         const cars = [];
         for (let i = 0; i < numCarsPerRoad; i++) {
-          const randomPoint = this.getRandomPointOnLineString(road);
+          const randomPoint = this.getRandomPointOnLineString(road.geometry);
           const car = {
             id: `car_${index}_${i + 1}`,
             position: randomPoint.geometry.coordinates,
@@ -40,17 +37,17 @@ class TrafficGenerator {
           };
           cars.push(car);
         }
-
-        roads.push({
-          id: road.id || `road_${index + 1}`,
-          name: road.properties.name || `Road ${index + 1}`,
-          cars: cars,
-          geometry: road.geometry
-        });
+        road.cars = cars;
+        // roads.push({
+        //   id: road.id || `road_${index + 1}`,
+        //   name: road.properties.name || `Road ${index + 1}`,
+        //   cars: cars,
+        //   geometry: road.geometry
+        // });
       }
     });
 
-    return roads;
+    return this.roadData;
   }
 }
 

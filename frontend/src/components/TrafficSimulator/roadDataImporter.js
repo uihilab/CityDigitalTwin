@@ -1,0 +1,56 @@
+import RoadModel from "./RoadModel";
+
+export function importOSMRoadsFromGeoJSON(geoJSON) {
+  const roads = [];
+
+  geoJSON.features.forEach((feature, index) => {
+    const properties = feature.properties;
+    const geometry = feature.geometry;
+    const id = properties.full_id || index; // Use full_id if available, otherwise use the index
+    const coordinates = geometry.coordinates;
+    const roadType = properties.highway;
+    const maxSpeedMilesPerHour = properties.maxspeed ? parseInt(properties.maxspeed, 10) : 30;
+    const maxSpeedMetersPerSec = mphToMps(maxSpeedMilesPerHour);
+    const isOneway = properties.oneway === "yes";
+    const laneCount = properties.lanes ? parseInt(properties.lanes, 10) : null;
+    const name = properties.name;
+
+    const road = new RoadModel(id, coordinates, roadType, maxSpeedMetersPerSec, isOneway, laneCount, name, geometry);
+    roads.push(road);
+  });
+
+  return roads;
+}
+
+function mphToMps(mph) {
+  const metersPerMile = 1609.34;
+  const secondsPerHour = 3600;
+
+  // Convert mph to mps
+  let mps = (mph * metersPerMile) / secondsPerHour;
+  return mps;
+}
+
+export function importRoadsFromGeoJSON_v2(geojson) {
+  const roads = [];
+  const features = geojson.features;
+
+  features.forEach(feature => {
+    const properties = feature.properties;
+    const geometry = feature.geometry;
+
+    const id = properties.id;
+    const coordinates = geometry.coordinates.flat(); // Flatten the MultiLineString coordinates
+    const roadType = properties.road_syste === 4 ? 'residential' : 'highway'; // Example mapping
+    const maxSpeedMilesPerHour = properties.speed_limi;
+    const maxSpeedMetersPerSec = mphToMps(maxSpeedMilesPerHour);
+    const isOneway = properties.lane_direc === 'C' ? false : true;
+    const laneCount = properties.number_lan;
+    const name = properties.municipal_;
+
+    const road = new Road(id, coordinates, roadType, maxSpeedMetersPerSec, isOneway, laneCount, name);
+    roads.push(road);
+  });
+
+  return roads;
+}
