@@ -15,19 +15,30 @@ import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
 import { DroughtLayer, FetchDroughtData } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index"
+import { fetchDataFromApis, drawBlackHawkCounty, isPointInsidePolygon, handleButtonClick, useChartData } from "components/SCDemographicData"
 import { BuildingLayer } from "../SCBuilding/layerBuilding"
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "../SCFlood";
-
+import { point, polygon } from '@turf/helpers';
+import { Bar } from 'react-chartjs-2';
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function Map3D() {
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isChartVisible, setIsChartVisible] = useState(false);
+  const [chartData, setChartData] = useState(null);
+  const [menuContent, setMenuContent] = useState("Loading");
+  const [countyName, setCountyName] = useState("Black Hawk County");
+
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
+    debugger;
     const isAQualityActive = activeItems[layers.findIndex(item => item.key === "AQuality")];
     const isWeatherActive = activeItems[layers.findIndex(item => item.key === "WForecast")];
+    const isDemographicActive = activeItems[layers.findIndex(item => item.key === "DemographicHousingData")];
     if (isAQualityActive) {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
@@ -41,8 +52,37 @@ function Map3D() {
           console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
         });
     }
+
+    if (isDemographicActive) {
+      const longitude = event.coordinate[0];
+      const latitude = event.coordinate[1];
+      //setClickPosition({ x: latitude, y: longitude });
+
+      const blackHawkCountyBorder = [
+        { lat: 42.642729, lng: -92.508407 },
+        { lat: 42.299418, lng: -92.482915 },
+        { lat: 42.299418, lng: -92.060234 },
+        { lat: 42.642729, lng: -92.060234 },
+        { lat: 42.642729, lng: -92.508407 }
+      ];
+
+      const poly = polygon([blackHawkCountyBorder]);
+      const pt = point([latitude, longitude]);
+      const in_or_out = isPointInsidePolygon(pt, poly);
+
+      if (in_or_out) {
+        debugger;
+        setIsMenuOpen(true);
+        const data = await fetchDataFromApis();
+        setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
+        //setCountyName(data.source1.location);
+        setIsChartVisible(false);
+        
+      }
+
+    }
     if (isWeatherActive) {
-      removeLayer(WeathericonLayer);
+      removeLayer(WeathericonLayer.id);
       setMapLayers(null);
       debugger;
       const longitude = event.coordinate[0];
@@ -94,7 +134,9 @@ function Map3D() {
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
 
+
   function setMapLayers(newLayers) {
+    debugger;
     layersStatic.push(newLayers);
     setLayersStatic(layersStatic);
     const layersCopy = layersStatic.slice();
@@ -132,20 +174,6 @@ function Map3D() {
   const [checkboxState, setCheckboxState] = useState(initialState);
   const [isRouteCheckboxMenuOpen, setIsRouteCheckboxMenuOpen] = useState(false);
   const [isHighwayCheckboxMenuOpen, setIsHighwayCheckboxMenuOpen] = useState(false);
-  const [tileLayer, settileLayer] = useState(null);
-
-  // const data = getTrafficEventData();
-
-  // // DeckGL ScatterplotLayer
-
-  // const scatterplotLayer = new ScatterplotLayer({
-  //   id: 'scatterplot-layer',
-  //   data,
-  //   getPosition: d => d.position,
-  //   getFillColor: [255, 0, 0],
-  //   getRadius: 100,
-  // });
-
 
   async function loadJsonData(url) {
     const response = await fetch(url);
@@ -368,7 +396,6 @@ function Map3D() {
       </div>
     );
   };
-
   // Checkbox durumlarını güncellemek için bir fonksiyon
   const handleCheckboxChange = async (event) => {
     const { name, checked } = event.target;
@@ -538,6 +565,18 @@ function Map3D() {
         setMapLayers(layer);
         return;
       }
+      if (key == "DemographicHousingData") {
+        const layer = await drawBlackHawkCounty();
+        setIsMenuOpen(true);
+        const data = await fetchDataFromApis();
+
+        //setCountyName(data.source1.location);
+        setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
+       debugger;
+         setMapLayers(layer);
+        //const data= await fetchDataFromApis();
+        return;
+      }
       if (key == "TrafficFlow") {
         await startTrafficSimulator(setAnimationLayers, viewportRef);
         return;
@@ -580,6 +619,10 @@ function Map3D() {
         setMapLayers(null);
         return;
       }
+      if (key == "DemographicHousingData") {
+
+        return;
+      }
       if (isHighwayCheckboxMenuOpen == true) {
         handleHighwayClick(false);
         removeLayer("primary");
@@ -603,8 +646,6 @@ function Map3D() {
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
   });
-
-
   return (
     <>
       <Sidenav
@@ -668,6 +709,87 @@ function Map3D() {
               </DeckGL>
             </APIProvider>
           </StrictMode>
+          {isMenuOpen && (
+          <div
+            style={{
+              position: 'fixed',
+              right: 0,
+              top: '10px',
+              width: '300px',
+              height: '400px',
+              backgroundColor: 'white',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+              borderRadius: '15px',
+              zIndex: 1000,
+              right: '5px',
+              overflowY: 'auto',
+            }}
+          >
+            <p style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>{countyName} Summary</p>
+            <p style={{ fontSize: '14px', marginBottom: '20px', textAlign: 'justify' }}>{menuContent}</p>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <button
+                style={{
+                  fontSize: '10px',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  backgroundColor: 'lightblue',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginRight: '10px',
+                }}
+                onClick={() => handleButtonClick('language', setChartData, setIsChartVisible,setMenuContent)}
+              >
+                Language
+              </button>
+              <button
+                style={{
+                  fontSize: '10px',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  backgroundColor: 'lightblue',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                onClick={() => handleButtonClick('expenses', setChartData, setIsChartVisible,setMenuContent)}
+              >
+                Expenses
+              </button>
+            </div>
+            {isChartVisible && (
+              <Bar
+                data={chartData}
+                options={{
+                  title: {
+                    display: true,
+                    text: 'Language vs Expenses',
+                    fontSize: 16,
+                    padding: 10,
+                  },
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                  },
+                }}
+              />
+            )}
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button
+                style={{
+                  fontSize: '10px',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  backgroundColor: 'lightblue',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </>

@@ -119,12 +119,6 @@ let layers = [
     dataPath: "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m",
   },
   {
-    type: "mydesign",
-    name: "Water levels and discharge",
-    key: "Waterlevels",
-    icon: <Icon fontSize="small">Water</Icon>,
-  },
-  {
     type: "divider",
     key: "divide2",
   },
@@ -160,6 +154,24 @@ let layers = [
     icon: <Icon fontSize="small">Events</Icon>,
     dataPath: "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
   },
+  {
+    type: "divider",
+    key: "divide3",
+  },
+  {
+    type: "title",
+    title: "Demographic and Housing Data",
+    key: "DHData",
+    icon: <Icon fontSize="small">Demographic and Housing Data</Icon>,
+    
+  },
+  {
+    type: "mydesign",
+    name: "Demographic Data",
+    key: "DemographicHousingData",
+    icon: <Icon fontSize="small">DemographicHousing</Icon>,
+    dataPath:"https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex",
+  }
 ];
 
 export default layers;

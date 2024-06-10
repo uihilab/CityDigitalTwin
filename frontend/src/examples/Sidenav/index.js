@@ -13,7 +13,6 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 import React, { useState } from 'react'; // Import useState hook
-import React, { useState } from 'react'; // Import useState hook
 
 import { useEffect } from "react";
 
@@ -38,7 +37,6 @@ import MDButton from "components/MDButton";
 import SidenavCollapse from "examples/Sidenav/SidenavCollapse";
 
 
-
 // Custom styles for the Sidenav
 import SidenavRoot from "examples/Sidenav/SidenavRoot";
 import sidenavLogoLabel from "examples/Sidenav/styles/sidenav";
@@ -52,22 +50,12 @@ import {
 } from "context";
 import { green, red } from "@mui/material/colors";
 import Switch from "@mui/material/Switch";
-import { green, red } from "@mui/material/colors";
-import Switch from "@mui/material/Switch";
 
-function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems, ...rest }) {
 function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems, ...rest }) {
   const [controller, dispatch] = useMaterialUIController();
   const { miniSidenav, transparentSidenav, whiteSidenav, darkMode, sidenavColor } = controller;
   const location = useLocation();
   const collapseName = location.pathname.replace("/", "");
-
-
-  const handleClick = (index) => {
-    const newActiveItems = [...activeItems];
-    newActiveItems[index] = !newActiveItems[index]; // Toggle active state
-    setActiveItems(newActiveItems);
-  };
 
 
   const handleClick = (index) => {
@@ -105,7 +93,6 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
     // Remove event listener on cleanup
     return () => window.removeEventListener("resize", handleMiniSidenav);
   }, [dispatch, location]);
-
 
 
   // Render all the routes from the routes.js (All the visible items on the Sidenav)
@@ -254,9 +241,6 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
       </MDBox>
     </SidenavRoot>
   );
-}
-function clickFunc() {
-  console.log(Tıklandı);
 }
 function clickFunc() {
   console.log(Tıklandı);

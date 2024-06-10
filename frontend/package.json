@@ -34,6 +34,7 @@
     "@turf/point-to-line-distance": "^6.5.0",
     "@turf/rhumb-bearing": "^6.5.0",
     "@turf/rhumb-distance": "^6.5.0",
+    "@turf/turf": "^6.5.0",
     "@vis.gl/react-google-maps": "^1.0.1",
     "chart.js": "4.3.0",
     "chroma-js": "2.4.2",
