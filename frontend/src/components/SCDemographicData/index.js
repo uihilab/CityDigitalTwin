@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 // API verilerini almak için asenkron bir fonksiyon tanımlayın
 export async function fetchDataFromApis() {
 
@@ -119,7 +120,7 @@ export const useChartData = () => {
 
 
 
-export const handleButtonClick = async(buttonType, setChartData, setIsChartVisible, setMenuContent) => {
+export const handleButtonClick = async(buttonType, setChartData, setIsChartVisible, setMenuContent, setShowBackButton) => {
    
     const fetchChartData = async () => {
         // API çağrısı burada yapılmalı
@@ -164,8 +165,16 @@ export const handleButtonClick = async(buttonType, setChartData, setIsChartVisib
             ]
         });
     }
+    if (buttonType === 'back') {
+        const data = await fetchDataFromApis(); // Veriyi tekrar almak için
+        setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
+        setIsChartVisible(false);
+        setShowBackButton(false); // Geri butonunu gizlemek için
+        return; // İşlevi sonlandırmak için
+    }
     setIsChartVisible(true);
     setMenuContent(null);
+    setShowBackButton(true);
 };
 
 

@@ -21,6 +21,7 @@ import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "../SCFlood";
 import { point, polygon } from '@turf/helpers';
 import { Bar } from 'react-chartjs-2';
+import { useNavigate } from 'react-router-dom';
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -32,6 +33,8 @@ function Map3D() {
   const [chartData, setChartData] = useState(null);
   const [menuContent, setMenuContent] = useState("Loading");
   const [countyName, setCountyName] = useState("Black Hawk County");
+  const [showBackButton, setShowBackButton] = useState(false); 
+  const navigate = useNavigate();
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
@@ -76,8 +79,7 @@ function Map3D() {
         const data = await fetchDataFromApis();
         setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
         //setCountyName(data.source1.location);
-        setIsChartVisible(false);
-        
+        setIsChartVisible(false); 
       }
 
     }
@@ -132,6 +134,7 @@ function Map3D() {
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
   const [mapLayers, setMapLayersState] = useState(maplayersTestData);
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
+  const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
 
 
@@ -154,7 +157,7 @@ function Map3D() {
   }
 
   function checkLayerExists(layerName) {
-    const foundIndex = layersStatic.findIndex((x) => x.id === layerName);
+    const foundIndex =  layersStatic.findIndex((x) => x && x.id === layerName);
     debugger;
     return foundIndex;
   }
@@ -569,11 +572,11 @@ function Map3D() {
         const layer = await drawBlackHawkCounty();
         setIsMenuOpen(true);
         const data = await fetchDataFromApis();
+        setBlackHawkLayer(layer);
 
         //setCountyName(data.source1.location);
         setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
-       debugger;
-         setMapLayers(layer);
+        setMapLayers(layer);
         //const data= await fetchDataFromApis();
         return;
       }
@@ -620,7 +623,10 @@ function Map3D() {
         return;
       }
       if (key == "DemographicHousingData") {
-
+        removeLayer(BlackHawkLayer.id);
+        setMapLayers(null);
+        setIsMenuOpen(false);
+        setIsChartVisible(false); 
         return;
       }
       if (isHighwayCheckboxMenuOpen == true) {
@@ -738,7 +744,7 @@ function Map3D() {
                   cursor: 'pointer',
                   marginRight: '10px',
                 }}
-                onClick={() => handleButtonClick('language', setChartData, setIsChartVisible,setMenuContent)}
+                onClick={() => handleButtonClick('language', setChartData, setIsChartVisible,setMenuContent, setShowBackButton)}
               >
                 Language
               </button>
@@ -751,10 +757,25 @@ function Map3D() {
                   border: 'none',
                   cursor: 'pointer',
                 }}
-                onClick={() => handleButtonClick('expenses', setChartData, setIsChartVisible,setMenuContent)}
+                onClick={() => handleButtonClick('expenses', setChartData, setIsChartVisible,setMenuContent, setShowBackButton)}
               >
                 Expenses
               </button>
+              {showBackButton && <button
+                style={{
+                  fontSize: '10px',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  backgroundColor: 'lightcoral',
+                  border: 'none',
+                  cursor: 'pointer',
+                  marginLeft: '10px',
+                }}
+                onClick={() => handleButtonClick('back', setChartData, setIsChartVisible,setMenuContent, setShowBackButton)}
+              >
+                Back
+              </button>
+              }
             </div>
             {isChartVisible && (
               <Bar
