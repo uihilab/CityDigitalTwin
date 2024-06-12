@@ -107,6 +107,12 @@ let layers = [
   },
   {
     type: "mydesign",
+    name: "Well",
+    key: "Well",
+    icon: <Icon fontSize="small">Well</Icon>,
+  },
+  {
+    type: "mydesign",
     name: "Flood",
     key: "Flood",
     icon: <Icon fontSize="small">Flood</Icon>,
@@ -134,6 +140,12 @@ let layers = [
     key: "RoadNetworks",
     icon: <Icon fontSize="small">Road Networks</Icon>,
     dataPath: "/data/highway_waterloo.geojson",
+  },
+  {
+    type: "mydesign",
+    name: "Railway Networks",
+    key: "RailwayNetwork",
+    icon: <Icon fontSize="small">Railway Networks</Icon>,
   },
   {
     type: "mydesign",

@@ -21,7 +21,8 @@ import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "../SCFlood";
 import { point, polygon } from '@turf/helpers';
 import { Bar } from 'react-chartjs-2';
-import { useNavigate } from 'react-router-dom';
+import { getWellData, createWellLayer } from "../SCWell/well";
+import { fetchRailwayData, CreateRailwayLayer } from "../SCRailway/index";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -33,8 +34,12 @@ function Map3D() {
   const [chartData, setChartData] = useState(null);
   const [menuContent, setMenuContent] = useState("Loading");
   const [countyName, setCountyName] = useState("Black Hawk County");
-  const [showBackButton, setShowBackButton] = useState(false); 
-  const navigate = useNavigate();
+  const [showBackButton, setShowBackButton] = useState(false);
+  const [tooltip, setTooltip] = useState(null);
+  const [wellData, setWellData] = useState([]);
+  const [railwayData, setrailwayData] = useState([]);
+  const [clickPosition, setClickPosition] = useState({ x: null, y: null });
+  const [clickedObject, setClickedObject] = useState(null);
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
@@ -79,7 +84,7 @@ function Map3D() {
         const data = await fetchDataFromApis();
         setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
         //setCountyName(data.source1.location);
-        setIsChartVisible(false); 
+        setIsChartVisible(false);
       }
 
     }
@@ -102,7 +107,6 @@ function Map3D() {
       }
     }
   };
-
 
   const initialState = {
     electricGrid: false,
@@ -157,7 +161,7 @@ function Map3D() {
   }
 
   function checkLayerExists(layerName) {
-    const foundIndex =  layersStatic.findIndex((x) => x && x.id === layerName);
+    const foundIndex = layersStatic.findIndex((x) => x && x.id === layerName);
     debugger;
     return foundIndex;
   }
@@ -172,8 +176,6 @@ function Map3D() {
     }
   }
 
-  const [clickPosition, setClickPosition] = useState({ x: null, y: null });
-  const [clickedObject, setClickedObject] = useState(null);
   const [checkboxState, setCheckboxState] = useState(initialState);
   const [isRouteCheckboxMenuOpen, setIsRouteCheckboxMenuOpen] = useState(false);
   const [isHighwayCheckboxMenuOpen, setIsHighwayCheckboxMenuOpen] = useState(false);
@@ -592,6 +594,22 @@ function Map3D() {
 
         return;
       }
+      if (key == "Well") {
+
+        const wellData = await getWellData();
+        setWellData(wellData);
+        const wellLayer = createWellLayer(wellData, setTooltip);
+        setMapLayers(wellLayer);
+
+      }
+      if(key=="RailwayNetwork")
+        {
+          const RailwayData = await fetchRailwayData();
+          const railLayer = CreateRailwayLayer(RailwayData);
+          setMapLayers(railLayer);
+          setrailwayData(railLayer);
+
+        }
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
         handleHighwayClick(true);
         checkboxState.primary = false;
@@ -616,6 +634,14 @@ function Map3D() {
         return;
         //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
       }
+      if (key === "RailwayNetwork") {
+
+        debugger;
+        removeLayer(railwayData.id);
+        setMapLayers(null);
+        return;
+        //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
+      }
       if (key == "WForecast") {
         debugger;
         removeLayer(WeathericonLayer.id);
@@ -626,7 +652,7 @@ function Map3D() {
         removeLayer(BlackHawkLayer.id);
         setMapLayers(null);
         setIsMenuOpen(false);
-        setIsChartVisible(false); 
+        setIsChartVisible(false);
         return;
       }
       if (isHighwayCheckboxMenuOpen == true) {
@@ -699,6 +725,9 @@ function Map3D() {
                     else if (object && object.temperature != undefined) {
                       return `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`;
                     }
+                    else if (object.county && object.depth) {
+                      return `County: ${object.county}, Depth: ${object.depth}`;
+                    }
                   }
                   // object && (`${object.properties.building}` || `${object.name}`)
                 }
@@ -716,101 +745,101 @@ function Map3D() {
             </APIProvider>
           </StrictMode>
           {isMenuOpen && (
-          <div
-            style={{
-              position: 'fixed',
-              right: 0,
-              top: '10px',
-              width: '300px',
-              height: '400px',
-              backgroundColor: 'white',
-              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-              borderRadius: '15px',
-              zIndex: 1000,
-              right: '5px',
-              overflowY: 'auto',
-            }}
-          >
-            <p style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>{countyName} Summary</p>
-            <p style={{ fontSize: '14px', marginBottom: '20px', textAlign: 'justify' }}>{menuContent}</p>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <button
-                style={{
-                  fontSize: '10px',
-                  padding: '5px 10px',
-                  borderRadius: '5px',
-                  backgroundColor: 'lightblue',
-                  border: 'none',
-                  cursor: 'pointer',
-                  marginRight: '10px',
-                }}
-                onClick={() => handleButtonClick('language', setChartData, setIsChartVisible,setMenuContent, setShowBackButton)}
-              >
-                Language
-              </button>
-              <button
-                style={{
-                  fontSize: '10px',
-                  padding: '5px 10px',
-                  borderRadius: '5px',
-                  backgroundColor: 'lightblue',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-                onClick={() => handleButtonClick('expenses', setChartData, setIsChartVisible,setMenuContent, setShowBackButton)}
-              >
-                Expenses
-              </button>
-              {showBackButton && <button
-                style={{
-                  fontSize: '10px',
-                  padding: '5px 10px',
-                  borderRadius: '5px',
-                  backgroundColor: 'lightcoral',
-                  border: 'none',
-                  cursor: 'pointer',
-                  marginLeft: '10px',
-                }}
-                onClick={() => handleButtonClick('back', setChartData, setIsChartVisible,setMenuContent, setShowBackButton)}
-              >
-                Back
-              </button>
-              }
+            <div
+              style={{
+                position: 'fixed',
+                right: 0,
+                top: '10px',
+                width: '300px',
+                height: '400px',
+                backgroundColor: 'white',
+                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
+                borderRadius: '15px',
+                zIndex: 1000,
+                right: '5px',
+                overflowY: 'auto',
+              }}
+            >
+              <p style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>{countyName} Summary</p>
+              <p style={{ fontSize: '14px', marginBottom: '20px', textAlign: 'justify' }}>{menuContent}</p>
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <button
+                  style={{
+                    fontSize: '10px',
+                    padding: '5px 10px',
+                    borderRadius: '5px',
+                    backgroundColor: 'lightblue',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginRight: '10px',
+                  }}
+                  onClick={() => handleButtonClick('language', setChartData, setIsChartVisible, setMenuContent, setShowBackButton)}
+                >
+                  Language
+                </button>
+                <button
+                  style={{
+                    fontSize: '10px',
+                    padding: '5px 10px',
+                    borderRadius: '5px',
+                    backgroundColor: 'lightblue',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => handleButtonClick('expenses', setChartData, setIsChartVisible, setMenuContent, setShowBackButton)}
+                >
+                  Expenses
+                </button>
+                {showBackButton && <button
+                  style={{
+                    fontSize: '10px',
+                    padding: '5px 10px',
+                    borderRadius: '5px',
+                    backgroundColor: 'lightcoral',
+                    border: 'none',
+                    cursor: 'pointer',
+                    marginLeft: '10px',
+                  }}
+                  onClick={() => handleButtonClick('back', setChartData, setIsChartVisible, setMenuContent, setShowBackButton)}
+                >
+                  Back
+                </button>
+                }
+              </div>
+              {isChartVisible && (
+                <Bar
+                  data={chartData}
+                  options={{
+                    title: {
+                      display: true,
+                      text: 'Language vs Expenses',
+                      fontSize: 16,
+                      padding: 10,
+                    },
+                    legend: {
+                      display: true,
+                      position: 'bottom',
+                    },
+                  }}
+                />
+              )}
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <button
+                  style={{
+                    fontSize: '10px',
+                    padding: '5px 10px',
+                    borderRadius: '5px',
+                    backgroundColor: 'lightblue',
+                    border: 'none',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
-            {isChartVisible && (
-              <Bar
-                data={chartData}
-                options={{
-                  title: {
-                    display: true,
-                    text: 'Language vs Expenses',
-                    fontSize: 16,
-                    padding: 10,
-                  },
-                  legend: {
-                    display: true,
-                    position: 'bottom',
-                  },
-                }}
-              />
-            )}
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <button
-                style={{
-                  fontSize: '10px',
-                  padding: '5px 10px',
-                  borderRadius: '5px',
-                  backgroundColor: 'lightblue',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+          )}
         </div>
       </div>
     </>
