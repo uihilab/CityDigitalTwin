@@ -14,7 +14,7 @@ const INITIAL_VIEW_STATE = {
 //const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(dataPath);
 export async function FetchDroughtData()
 {
-    const response = await fetch("/data/drought_map.geojson");
+    const response = await fetch("./data/drought_map.geojson");
     const data = await response.json();
     return data;
 }

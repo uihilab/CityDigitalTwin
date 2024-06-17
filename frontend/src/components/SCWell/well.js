@@ -2,7 +2,7 @@ import { ScatterplotLayer } from '@deck.gl/layers';
 
 export async function getWellData() {
   try {
-    const response = await fetch("/data/BlackHawkWell.geojson");
+    const response = await fetch("./data/BlackHawkWell.geojson");
     const data = await response.json();
     return data.features.map(feature => ({
       coordinates: feature.geometry.coordinates,
@@ -24,7 +24,7 @@ export const createWellLayer = (wellData, setTooltip) => {
     radiusMinPixels: 1,
     getPosition: d => d.coordinates,
     getIcon: d => ({
-      url: "/data/${location-icon-atlas}.png",
+      url: "./data/${location-icon-atlas}.png",
       width: 64,
       height: 64,
       anchorY: 64,

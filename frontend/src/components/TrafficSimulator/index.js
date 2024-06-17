@@ -2,8 +2,8 @@ import CarSimulator from "./carSimulator";
 import DeckglAnimation from "./deckglAnimation";
 import { importOSMRoadsFromGeoJSON } from "./roadDataImporter";
 
-const roadDataPath = "/data/highway_waterloo.geojson";
-//const roadDataPath = "/data/waterloo_roads_v2.geojson";
+const roadDataPath = "./data/highway_waterloo.geojson";
+//const roadDataPath = "./data/waterloo_roads_v2.geojson";
 async function loadRoadData()
 {
     const response = await fetch(roadDataPath);

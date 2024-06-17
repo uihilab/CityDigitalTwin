@@ -66,7 +66,7 @@ let layers = [
     key: "Electricgrid",
     status: true,
     icon: <Icon fontSize="small">Electric grid</Icon>,
-    dataPath: "/data/PowerPlants.json",
+    dataPath: "./data/PowerPlants.json",
   },
   {
     type: "mydesign",
@@ -74,14 +74,14 @@ let layers = [
     key: "Bridges",
     status: false,
     icon: <Icon fontSize="small">Bridges</Icon>,
-    dataPath: "/data/iowa_bridges.geojson",
+    dataPath: "./data/iowa_bridges.geojson",
   },
   {
     type: "mydesign",
     name: "Buildings",
     key: "Buildings",
     icon: <Icon fontSize="small">Buildings</Icon>,
-    dataPath: "/data/waterloo_buildings.geojson",
+    dataPath: "./data/waterloo_buildings.geojson",
   },
   {
     type: "divider",
@@ -139,7 +139,7 @@ let layers = [
     name: "Road Networks",
     key: "RoadNetworks",
     icon: <Icon fontSize="small">Road Networks</Icon>,
-    dataPath: "/data/highway_waterloo.geojson",
+    dataPath: "./data/highway_waterloo.geojson",
   },
   {
     type: "mydesign",

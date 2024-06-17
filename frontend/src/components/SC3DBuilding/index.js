@@ -209,8 +209,8 @@ function Map3D() {
   function loadTruck(data) {
     return new ScenegraphLayer({
       id: "truck",
-      data, // "/data/test.json",
-      scenegraph: "/data/CesiumMilkTruck.glb",
+      data, // "./data/test.json",
+      scenegraph: "./data/CesiumMilkTruck.glb",
       sizeScale: 2,
       getPosition: (d) => d.coordinates,
       getTranslation: [0, 0, 1],
@@ -428,8 +428,8 @@ function Map3D() {
     // }
 
     if (checked && name == 'primary') {
-      var data_primary = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "primary");
-      var primary_link = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "primary_link");
+      var data_primary = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "primary");
+      var primary_link = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "primary_link");
 
       // Verileri birleştir
       const combinedData = data_primary.concat(primary_link);
@@ -440,29 +440,29 @@ function Map3D() {
     }
 
     if (checked && name == 'secondary') {
-      var data_secondary = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "secondary");
+      var data_secondary = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "secondary");
       // Yol çizgilerine özgü renk belirleme
       const color = [0, 0, 255]; // mavi renk
       loadColourfulLayerwithData("secondary", data_secondary, color);
     }
 
     if (checked && name == 'residential') {
-      var data_residential = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "residential");
+      var data_residential = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "residential");
       // Yol çizgilerine özgü renk belirleme
       const color = [95, 95, 95]; // koyu gri
       loadColourfulLayerwithData("residential", data_residential, color);
     }
 
     if (checked && name == 'service') {
-      var data_service = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "service");
+      var data_service = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "service");
       // Yol çizgilerine özgü renk belirleme
       const color = [190, 190, 190]; // Gri renk 
       loadColourfulLayerwithData("service", data_service, color);
     }
 
     if (checked && name == 'motorway') {
-      var data_motorway_link = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "motorway_link");
-      var data_motorway = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "motorway");
+      var data_motorway_link = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "motorway_link");
+      var data_motorway = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "motorway");
       // Yol çizgilerine özgü renk belirleme
 
       // Verileri birleştir
@@ -474,7 +474,7 @@ function Map3D() {
     }
 
     if (checked && name == 'cycleway') {
-      var data_cycleway = await loadFilteredGeoJsonData("/data/highway_waterloo.geojson", "cycleway");
+      var data_cycleway = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "cycleway");
       // Yol çizgilerine özgü renk belirleme
       const color = [255, 0, 0]; // Gri renk 
       loadColourfulLayerwithData("cycleway", data_cycleway, color);

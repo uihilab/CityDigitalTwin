@@ -4,7 +4,7 @@
 
 // function startAnimation(routeData, setMapLayers, options, simulator)
 // {
-//     const MODEL_URL = "/data/CesiumMilkTruck.glb";
+//     const MODEL_URL = "./data/CesiumMilkTruck.glb";
 //     const data = routeData;//tripData;
 //     const trips = data.map((waypoints) => new TripBuilder({ waypoints, loop: true }));
 //     let timestamp = 0;
