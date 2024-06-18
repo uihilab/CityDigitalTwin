@@ -29,7 +29,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-2-green": {
 	  "x": 512,
@@ -101,7 +101,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-5-pink": {
 	  "x": 1664,

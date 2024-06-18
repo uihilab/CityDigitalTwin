@@ -9,12 +9,13 @@ import layers from "layers";
 import { IconLayer } from "@deck.gl/layers";
 import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
-import { renderAirQualityChart, FetchAirQuality } from "../SCAQ/index";
+import { renderAirQualityChart, FetchAirQuality, createMenu } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
 import Popup from './Popup';
 import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
-import { DroughtLayer, FetchDroughtData } from "../SCDrought/index";
+import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index"
+import { BridgesgridLayer } from "../SCBridge/index"
 import { fetchDataFromApis, drawBlackHawkCounty, isPointInsidePolygon, handleButtonClick, useChartData } from "components/SCDemographicData"
 import { BuildingLayer } from "../SCBuilding/layerBuilding"
 import { startTrafficSimulator } from "components/TrafficSimulator";
@@ -51,14 +52,18 @@ function Map3D() {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
       setClickPosition({ x: latitude, y: longitude });
+      try {
 
-      FetchAirQuality(latitude, longitude)
-        .then(airQualityData => {
-          renderAirQualityChart(airQualityData);
-        })
-        .catch(error => {
-          console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
-        });
+        const canvas = document.getElementById('airQualityCanvas');
+        canvas.remove();
+
+
+        const airQualityData = await FetchAirQuality(latitude, longitude);
+        renderAirQualityChart(airQualityData);
+
+      } catch (error) {
+        console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
+      }
     }
 
     if (isDemographicActive) {
@@ -515,22 +520,25 @@ function Map3D() {
     removeLayer("primary");
   };
 
-  function getViewPort() {
-    return viewport;
-  }
-
   async function layerLinkHandler(key, isActive, dataPath) {
-    debugger;
     if (isActive) {
       if (key == "Electricgrid") {
         const layerElectric = await ElectricgridLayer();
         setMapLayers(layerElectric);
         return;
       }
+
+      if (key == "Bridges") {
+        const layerBridges = await BridgesgridLayer();
+        setMapLayers(layerBridges);
+        return;
+      }
+
       if (key == "TransEvents") {
         await loadTransportationEvents();
         return;
       }
+
       if (key == "Buildings") {
         const layerBuilding = await BuildingLayer();
         setMapLayers(layerBuilding);
@@ -538,12 +546,20 @@ function Map3D() {
       }
       if (key == "Drought") {
 
+        debugger;
         try {
           const drData = await FetchDroughtData();
           if (drData) {
             console.log('Drought Data:', drData);
             const layer = await DroughtLayer(drData);
             await loadLayerwithLayer(layer);
+
+            // Legend HTML oluşturma ve ekleme
+            const legendHTML = createLegendHTML();
+            const mapContainer = document.getElementById('map-container');
+            if (mapContainer) {
+              mapContainer.insertAdjacentHTML('beforeend', legendHTML);
+            }
 
           } else {
             console.error('No data returned from Drought function');
@@ -559,8 +575,9 @@ function Map3D() {
         return;
       }
       if (key == "AQuality") {
-        const AQualiy = await FetchAirQuality();
-        await renderAirQualityChart(AQualiy);
+        // Hava kalitesi verilerini al ve grafiği render et
+        createMenu();
+        FetchAirQuality().then(data => renderAirQualityChart(data));
         return;
       }
       if (key == "WForecast") {
@@ -602,14 +619,13 @@ function Map3D() {
         setMapLayers(wellLayer);
 
       }
-      if(key=="RailwayNetwork")
-        {
-          const RailwayData = await fetchRailwayData();
-          const railLayer = CreateRailwayLayer(RailwayData);
-          setMapLayers(railLayer);
-          setrailwayData(railLayer);
+      if (key == "RailwayNetwork") {
+        const RailwayData = await fetchRailwayData();
+        const railLayer = CreateRailwayLayer(RailwayData);
+        setMapLayers(railLayer);
+        setrailwayData(railLayer);
 
-        }
+      }
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
         handleHighwayClick(true);
         checkboxState.primary = false;
@@ -629,7 +645,8 @@ function Map3D() {
       }
       if (key === "Drought") {
 
-        removeLayer(layersStatic[0].id);
+        debugger;
+        removeLayer("Drought");
         setMapLayers(null);
         return;
         //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
@@ -668,9 +685,8 @@ function Map3D() {
       }
       removeLayer(key);
       if (key === "AQuality") {
-        const canvas = document.getElementById('airQualityCanvas');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const menu = document.getElementById('rightmenu');
+        menu.remove();
       }
     }
   }
@@ -705,6 +721,7 @@ function Map3D() {
         </div>
         <div id="map" style={{ width: "100%", height: "90vh" }}>
           <StrictMode>
+            <div id="map-container" style={{ width: "100%", height: "90vh", position: "relative" }}></div>
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
                 ref={deckRef}

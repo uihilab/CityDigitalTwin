@@ -74,6 +74,8 @@ let layers = [
     key: "Bridges",
     status: false,
     icon: <Icon fontSize="small">Bridges</Icon>,
+    iconAtlas: 'frontend/public/icons/icon_atlas.png',
+    iconMapping: 'frontend/public/icons/icon_atlas_map.json',
     dataPath: "/data/iowa_bridges.geojson",
   },
   {
