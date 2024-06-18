@@ -1,9 +1,39 @@
 import RoadModel from "./RoadModel";
+import length from "@turf/length";
+
+const turf = {
+  length,
+};
+
+function filterRoadTypes(roads) {
+  const roadTypes = [
+    "motorway",
+    "trunk",
+    "primary",
+    "secondary",
+    "tertiary",
+    "unclassified",
+    "residential",
+  ];
+
+  return roads.filter((road) => roadTypes.includes(road.properties.highway));
+}
 
 export function importOSMRoadsFromGeoJSON(geoJSON) {
   const roads = [];
 
-  geoJSON.features.forEach((feature, index) => {
+  const filteredRoads = filterRoadTypes(geoJSON.features);
+  // geoJSON.features.filter(feature => {
+  //   const highwayType = feature.properties.highway;
+  //   return (
+  //     highwayType === "primary" ||
+  //     highwayType === "secondary" ||
+  //     highwayType === "trunk" ||
+  //     highwayType === "tertiary"
+  //   );
+  // });
+
+  filteredRoads.forEach((feature, index) => {
     const properties = feature.properties;
     const geometry = feature.geometry;
     const id = properties.full_id || index; // Use full_id if available, otherwise use the index
@@ -14,8 +44,18 @@ export function importOSMRoadsFromGeoJSON(geoJSON) {
     const isOneway = properties.oneway === "yes";
     const laneCount = properties.lanes ? parseInt(properties.lanes, 10) : null;
     const name = properties.name;
-
-    const road = new RoadModel(id, coordinates, roadType, maxSpeedMetersPerSec, isOneway, laneCount, name, geometry);
+    const roadLength = turf.length(geometry);
+    const road = new RoadModel(
+      id,
+      coordinates,
+      roadType,
+      maxSpeedMetersPerSec,
+      isOneway,
+      laneCount,
+      name,
+      geometry,
+      roadLength
+    );
     roads.push(road);
   });
 
@@ -34,21 +74,31 @@ function mphToMps(mph) {
 export function importRoadsFromGeoJSON_v2(geojson) {
   const roads = [];
   const features = geojson.features;
+  debugger;
 
-  features.forEach(feature => {
+  features.forEach((feature) => {
     const properties = feature.properties;
     const geometry = feature.geometry;
 
     const id = properties.id;
     const coordinates = geometry.coordinates.flat(); // Flatten the MultiLineString coordinates
-    const roadType = properties.road_syste === 4 ? 'residential' : 'highway'; // Example mapping
+    const roadType = properties.road_syste === 4 ? "residential" : "highway"; // Example mapping
     const maxSpeedMilesPerHour = properties.speed_limi;
     const maxSpeedMetersPerSec = mphToMps(maxSpeedMilesPerHour);
-    const isOneway = properties.lane_direc === 'C' ? false : true;
+    const isOneway = properties.lane_direc === "C" ? false : true;
     const laneCount = properties.number_lan;
     const name = properties.municipal_;
 
-    const road = new Road(id, coordinates, roadType, maxSpeedMetersPerSec, isOneway, laneCount, name);
+    const road = new RoadModel(
+      id,
+      coordinates,
+      roadType,
+      maxSpeedMetersPerSec,
+      isOneway,
+      laneCount,
+      name,
+      geometry
+    );
     roads.push(road);
   });
 
