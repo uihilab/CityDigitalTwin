@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"name": "carefacilities_",
+"features": [
+{ "type": "Feature", "properties": { "name": "ALLEN MEMORIAL HOSPITAL", "address": "1825 LOGAN AVENUE", "city": "WATERLOO", "zipcode": "50703", "statea": "IA", "phonenumbe": "(319) 235-3941", "usage": "Hospital", "cost": 10275.67, "backuppowe": 0, "numbeds": 12, "ahaid": null, "latitude": 42.52675482, "longitude": -92.33893747, "comment": "GENERAL MEDICAL AND SURGICAL HOSPITALS" }, "geometry": { "type": "Point", "coordinates": [ -92.3389375, 42.5267548 ] } },
+{ "type": "Feature", "properties": { "name": "COVENANT MEDICAL CENTER", "address": "3421 WEST 9TH STREET", "city": "WATERLOO", "zipcode": "50702", "statea": "IA", "phonenumbe": "(319) 272-8000", "usage": "Hospital", "cost": 247595.52, "backuppowe": 0, "numbeds": 346, "ahaid": null, "latitude": 42.46118287, "longitude": -92.34587362000001, "comment": "GENERAL MEDICAL AND SURGICAL HOSPITALS" }, "geometry": { "type": "Point", "coordinates": [ -92.3458736, 42.4611829 ] } },
+{ "type": "Feature", "properties": { "name": "SARTORI MEMORIAL HOSPITAL", "address": "515 COLLEGE STREET", "city": "CEDAR FALLS", "zipcode": "50613", "statea": "IA", "phonenumbe": "(319) 268-3000", "usage": "Hospital", "cost": 72799.39, "backuppowe": 0, "numbeds": 101, "ahaid": null, "latitude": 42.53353888, "longitude": -92.45793731000001, "comment": "GENERAL MEDICAL AND SURGICAL HOSPITALS" }, "geometry": { "type": "Point", "coordinates": [ -92.4579373, 42.5335389 ] } },
+{ "type": "Feature", "properties": { "name": "WATERLOO VETERANS AFFAIRS OUTPATIENT ...", "address": "1015 SOUTH HACKETT ROAD", "city": "WATERLOO", "zipcode": "50701", "statea": "IA", "phonenumbe": null, "usage": "Hospital", "cost": 2640.61, "backuppowe": 0, "numbeds": 0, "ahaid": null, "latitude": 42.4999583, "longitude": -92.3944008, "comment": "OTHER OUTPATIENT CARE CENTERS" }, "geometry": { "type": "Point", "coordinates": [ -92.3944008, 42.4999583 ] } }
+]
+}

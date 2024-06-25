@@ -70,13 +70,27 @@ let layers = [
   },
   {
     type: "mydesign",
+    name: "Electric power",
+    key: "Electricpower",
+    status: true,
+    icon: <Icon fontSize="small">Electric power</Icon>,
+    dataPath: "/data/electiricpowerfacilities.geojson",
+  },
+  {
+    type: "mydesign",
     name: "Bridges",
     key: "Bridges",
     status: false,
     icon: <Icon fontSize="small">Bridges</Icon>,
-    iconAtlas: 'frontend/public/icons/icon_atlas.png',
-    iconMapping: 'frontend/public/icons/icon_atlas_map.json',
     dataPath: "/data/iowa_bridges.geojson",
+  },
+  {
+    type: "mydesign",
+    name: "Railway Bridge",
+    key: "RailBridge",
+    status: false,
+    icon: <Icon fontSize="small">Railway Bridges</Icon>,
+    dataPath: "/data/railwaybridge.geojson",
   },
   {
     type: "mydesign",
@@ -118,6 +132,13 @@ let layers = [
     name: "Flood",
     key: "Flood",
     icon: <Icon fontSize="small">Flood</Icon>,
+  },
+  {
+    type: "mydesign",
+    name: "Waste Water",
+    key: "wastewater",
+    icon: <Icon fontSize="small">WasteWater</Icon>,
+    dataPath: "/data/wastewater.geojson",
   },
   {
     type: "mydesign",
@@ -185,7 +206,52 @@ let layers = [
     key: "DemographicHousingData",
     icon: <Icon fontSize="small">DemographicHousing</Icon>,
     dataPath:"https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex",
-  }
+  },
+  {
+    type: "divider",
+    key: "divide4",
+  },
+  {
+    type: "title",
+    title: "Ameties",
+    key: "Ameties",
+    icon: <Icon fontSize="small">Ameties</Icon>,
+  },
+  {
+    type: "mydesign",
+    name: "School",
+    key: "School",
+    icon: <Icon fontSize="small">School</Icon>,
+    dataPath: "/data/Ameties_School.geojson",
+  },
+  {
+    type: "mydesign",
+    name: "PoliceStations",
+    key: "PoliceStations",
+    icon: <Icon fontSize="small">Police Stations</Icon>,
+    dataPath: "/data/policestation.geojson",
+  },
+  {
+    type: "mydesign",
+    name: "FireStations",
+    key: "FireStations",
+    icon: <Icon fontSize="small">Fire Stations</Icon>,
+    dataPath: "/data/firestation.geojson",
+  },
+  {
+    type: "mydesign",
+    name: "CareFacilities",
+    key: "CareFacilities",
+    icon: <Icon fontSize="small">Care Facilities</Icon>,
+    dataPath: "/data/carefacilities.geojson",
+  },
+  {
+    type: "mydesign",
+    name: "CommunicationFacilities",
+    key: "Communication",
+    icon: <Icon fontSize="small">Communication Facilities</Icon>,
+    dataPath: "/data/communicationfacilities.geojson",
+  },
 ];
 
 export default layers;

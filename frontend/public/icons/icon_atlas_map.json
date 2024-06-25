@@ -53,7 +53,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-3-green": {
 	  "x": 896,
@@ -85,7 +85,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-5-green": {
 	  "x": 1408,
@@ -109,7 +109,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-5-red": {
 	  "x": 1792,
@@ -117,7 +117,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	}
   }
   

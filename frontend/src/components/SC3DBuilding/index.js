@@ -24,6 +24,14 @@ import { point, polygon } from '@turf/helpers';
 import { Bar } from 'react-chartjs-2';
 import { getWellData, createWellLayer } from "../SCWell/well";
 import { fetchRailwayData, CreateRailwayLayer } from "../SCRailway/index";
+import { RailwayBridgesLayer } from "../SCRailwayBridge/index";
+import { createSchoolLayer, getSchoolData } from "../SCAmeties/school_index";
+import { getPolicestationData, createPoliceStationsLayer } from "../SCAmeties/police_station";
+import { getFirestationData, createFireStationsLayer } from "../SCAmeties/fire_station";
+import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/carefacilities";
+import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
+import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
+import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -148,9 +156,9 @@ function Map3D() {
 
 
   function setMapLayers(newLayers) {
-    debugger;
     layersStatic.push(newLayers);
     setLayersStatic(layersStatic);
+    debugger
     const layersCopy = layersStatic.slice();
     //layersCopy.push(layersAnimation);
     setMapLayersState(layersCopy);
@@ -262,9 +270,9 @@ function Map3D() {
         id: 'TransEvents',
         data: trafficEventData,
         pickable: true,
-        iconAtlas: 'data/location-icon-atlas.png', // Replace with the path to your icon atlas
-        iconMapping: 'data/location-icon-mapping.json',
-        getIcon: d => 'marker',
+        iconAtlas: '/icons/icon_atlas.png',
+        iconMapping: '/icons/icon_atlas_map.json',
+        getIcon: d => 'paragon-5-red',
         sizeScale: 1,
         getPosition: d => d.coordinates,
         getSize: d => 50,
@@ -520,16 +528,32 @@ function Map3D() {
     removeLayer("primary");
   };
 
+
+
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
       if (key == "Electricgrid") {
-        const layerElectric = await ElectricgridLayer();
-        setMapLayers(layerElectric);
+        const Layer = await ElectricgridLayer();
+        setMapLayers(Layer);
+        return;
+      }
+
+      if (key == "Electricpower") {
+        const Data = await getElectricData();
+        debugger;
+        const powerLayer = createElectricPowerLayer(Data, setTooltip);
+        setMapLayers(powerLayer);
         return;
       }
 
       if (key == "Bridges") {
         const layerBridges = await BridgesgridLayer();
+        setMapLayers(layerBridges);
+        return;
+      }
+
+      if (key == "RailBridge") {
+        const layerBridges = await RailwayBridgesLayer();
         setMapLayers(layerBridges);
         return;
       }
@@ -581,7 +605,8 @@ function Map3D() {
         return;
       }
       if (key == "WForecast") {
-        removeLayer(WeathericonLayer);
+        debugger;
+        removeLayer("WForecast");
         const layer = await createWeatherIconLayer(42.569663, -92.479646, 3);
         setWeatherIconLayer(layer);
         setMapLayers(layer);
@@ -636,21 +661,90 @@ function Map3D() {
         checkboxState.cycleway = false;
         return;
       }
+      if (key == "School") {
+        const Data = await getSchoolData();
+        debugger;
+        const schoolLayer = createSchoolLayer(Data, setTooltip);
+        setMapLayers(schoolLayer);
+        return;
+      }
+      if (key == "PoliceStations") {
+        const Data = await getPolicestationData();
+        debugger;
+        const policeLayer = createPoliceStationsLayer(Data, setTooltip);
+        setMapLayers(policeLayer);
+        return;
+      }
+      if (key == "FireStations") {
+        const Data = await getFirestationData();
+        debugger;
+        const fireLayer = createFireStationsLayer(Data, setTooltip);
+        setMapLayers(fireLayer);
+        return;
+      }
+      if (key == "CareFacilities") {
+        const Data = await getCareFacilitiesData();
+        debugger;
+        const careLayer = createCareFacilitiesLayer(Data, setTooltip);
+        setMapLayers(careLayer);
+        return;
+      }
+      if (key == "Communication") {
+        const Data = await getCommunicationData();
+        debugger;
+        const communicationLayer = createCommunicationLayer(Data, setTooltip);
+        setMapLayers(communicationLayer);
+        return;
+      }
+      if (key == "wastewater") {
+        const Data = await getWasteWaterData();
+        debugger;
+        const wastewaterLayer = createWasteWaterLayer(Data, setTooltip);
+        setMapLayers(wastewaterLayer);
+        return;
+      }
       await loadLayer(key, dataPath);
 
     } else {
+
       if (isRouteCheckboxMenuOpen == true) {
         handlePublicTransitRoutesClick(false);
         return;
       }
+
       if (key === "Drought") {
 
         debugger;
         removeLayer("Drought");
+        const legendElement = document.querySelector('.legend-container');
+        if (legendElement) {
+          legendElement.remove();
+        }
         setMapLayers(null);
         return;
-        //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
+
       }
+
+      if (key == "Electricgrid") {
+        removeLayer("Electricgrid");
+        return;
+      }
+
+      if (key=="RailwayNetwork") {
+        removeLayer("RailwayNetwork");
+        return;
+
+      }
+
+      if (key == "Electricpower") {
+        removeLayer("Electricpower");
+        return;
+      }
+
+      if (key === "Well") {
+        removeLayer("WellLayer");
+      }
+
       if (key === "RailwayNetwork") {
 
         debugger;
@@ -659,12 +753,14 @@ function Map3D() {
         return;
         //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
       }
+
       if (key == "WForecast") {
         debugger;
         removeLayer(WeathericonLayer.id);
         setMapLayers(null);
         return;
       }
+
       if (key == "DemographicHousingData") {
         removeLayer(BlackHawkLayer.id);
         setMapLayers(null);
@@ -672,6 +768,7 @@ function Map3D() {
         setIsChartVisible(false);
         return;
       }
+
       if (isHighwayCheckboxMenuOpen == true) {
         handleHighwayClick(false);
         removeLayer("primary");
@@ -683,13 +780,21 @@ function Map3D() {
         removeLayer("cycleway");
         return;
       }
+
       removeLayer(key);
+
       if (key === "AQuality") {
         const menu = document.getElementById('rightmenu');
         menu.remove();
       }
     }
   }
+
+  // Capitalize function
+  function capitalizeWords(str) {
+    return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+  }
+
   const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
@@ -737,16 +842,34 @@ function Map3D() {
                       return object.properties && object.properties.occ_cls && object.properties.prim_occ;
                     }
                     else if (object.name != undefined) {
+                      debugger;
                       return `${object.name}`;
                     }
                     else if (object && object.temperature != undefined) {
                       return `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`;
                     }
-                    else if (object.county && object.depth) {
+                    else if (object.county && object.depth != undefined) {
                       return `County: ${object.county}, Depth: ${object.depth}`;
                     }
+                    else if (object.comment != undefined) {
+                      return `Name: ${capitalizeWords(object.Name)}\n Number of Student: ${object.Number_Student} \n Comment: ${capitalizeWords(object.comment)}`;
+                    }
+                    else if (object.policestations_name && object.policestations_phonenumber != undefined) {
+                      return `Name: ${capitalizeWords(object.policestations_name)}\n City: ${capitalizeWords(object.policestations_city)} \n Phone Number: ${object.policestations_phonenumber}`;
+                    }
+                    else if (object.firestations_name && object.firestations_city != undefined) {
+                      return `Name: ${capitalizeWords(object.firestations_name)}\n City: ${capitalizeWords(object.firestations_city)} \n Address: ${capitalizeWords(object.firestations_address)}`;
+                    }
+                    else if (object.carefacilities_name != undefined) {
+                      return `Name: ${capitalizeWords(object.carefacilities_name)}\n City: ${capitalizeWords(object.carefacilities_city)} \n Phone Number: ${object.carefacilities_phonenumber} \n Address: ${capitalizeWords(object.carefacilities_address)} \n Number of beds: ${object.carefacilities_numbeds}`;
+                    }
+                    else if (object.comm_owner != undefined) {
+                      return `City: ${capitalizeWords(object.comm_city)}\n Owner: ${capitalizeWords(object.comm_owner)}`;
+                    }
+                    else if (object.wastewater_name != undefined) {
+                      return `Name: ${capitalizeWords(object.wastewater_name)}\n City: ${capitalizeWords(object.wastewater_city)} \n Address: ${capitalizeWords(object.wastewater_address)}`;
+                    }
                   }
-                  // object && (`${object.properties.building}` || `${object.name}`)
                 }
                 }
               >

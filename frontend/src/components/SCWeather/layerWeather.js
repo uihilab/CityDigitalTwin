@@ -11,9 +11,9 @@ export function CreatelayerWeather(weatherdata)
         id: 'WForecast',
         data: weatherdata,
         pickable: true,
-        iconAtlas: 'data/location-icon-atlas.png', // Replace with the path to your icon atlas
-        iconMapping: ICON__MAPPING,
-        getIcon: d => 'marker',
+        iconAtlas: '/icons/icon_atlas.png',
+        iconMapping: '/icons/icon_atlas_map.json',
+        getIcon: d => 'paragon-5-pink',
         sizeScale: 1,
         getPosition: d => d.coordinates,
         getSize: d => 50,

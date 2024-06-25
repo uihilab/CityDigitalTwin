@@ -59,8 +59,8 @@ function renderTooltip(info) {
 /* eslint-disable react/no-deprecated */
 export default function App({
   data = "data/events.json",
-  iconMapping = "data/location-icon-mapping.json",
-  iconAtlas = "data/location-icon-atlas.png",
+  iconMapping = "/icons/icon_atlas_map.json",
+  iconAtlas = "/icons/icon_atlas.png",
   showCluster = true,
   mapStyle = MAP_STYLE,
 }) {
@@ -99,13 +99,14 @@ export default function App({
   const layer = showCluster
     ? new IconClusterLayer({ ...layerProps, id: "icon-cluster", sizeScale: 40 })
     : new IconLayer({
-        ...layerProps,
-        id: "icon",
-        getIcon: (d) => "marker",
-        sizeUnits: "meters",
-        sizeScale: 2000,
-        sizeMinPixels: 6,
-      });
+      ...layerProps,
+      id: "icon",
+      iconAtlas: '/icons/icon_atlas.png',
+      iconMapping: '/icons/icon_atlas_map.json',
+      getIcon: d => 'paragon-1-blue',
+      sizeScale: 15,
+      getSize: d => 5,
+    });
 
   return (
     <DeckGL

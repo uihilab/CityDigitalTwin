@@ -1,4 +1,4 @@
-import { ScatterplotLayer } from '@deck.gl/layers';
+import { IconLayer } from '@deck.gl/layers';
 
 export async function getWellData() {
   try {
@@ -15,32 +15,28 @@ export async function getWellData() {
 }
 
 export const createWellLayer = (wellData, setTooltip) => {
-  return new ScatterplotLayer({
-    id: 'Well',
+  return new IconLayer({
+    id: 'WellLayer',
     data: wellData,
     pickable: true,
-    opacity: 0.8,
-    radiusScale: 1,
-    radiusMinPixels: 1,
+    iconAtlas: '/icons/icon_atlas.png',
+    iconMapping: '/icons/icon_atlas_map.json',
+    getIcon: d => 'paragon-5-blue',
+    sizeScale: 10,
     getPosition: d => d.coordinates,
-    getIcon: d => ({
-      url: "/data/${location-icon-atlas}.png",
-      width: 64,
-      height: 64,
-      anchorY: 64,
-    }),
+    getSize: d => 3, // İkon boyutunu ayarlayın
     onHover: ({ object, x, y }) => {
-        if (object) {
-            setTooltip({
-              x,
-              y,
-              county: object.county,
-              depth: object.depth,
-              name: object.name
-            });
-          } else {
-            setTooltip(null);
-          }
-        },
+      if (object) {
+        setTooltip({
+          x,
+          y,
+          county: object.county,
+          depth: object.depth,
+          name: object.name
+        });
+      } else {
+        setTooltip(null);
+      }
+    },
   });
 };
