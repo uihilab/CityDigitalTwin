@@ -22,7 +22,10 @@ function filterRoadTypes(roads) {
 export function importOSMRoadsFromGeoJSON(geoJSON) {
   const roads = [];
 
-  const filteredRoads = filterRoadTypes(geoJSON.features);
+  const filteredRoads = filterRoadTypes(geoJSON.features)
+  //.filter((x) => x.properties.name === "West Park Avenue")
+  ;
+  //console.log(filteredRoads);
   // geoJSON.features.filter(feature => {
   //   const highwayType = feature.properties.highway;
   //   return (
