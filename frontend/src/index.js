@@ -26,7 +26,7 @@ const root = createRoot(container);
 
 root.render(
    // basename="/lab/dt"
-  <BrowserRouter>
+  <BrowserRouter basename="/lab/dt">
     <MaterialUIControllerProvider>
       <App />
     </MaterialUIControllerProvider>

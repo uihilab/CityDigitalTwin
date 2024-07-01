@@ -213,9 +213,9 @@ let layers = [
   },
   {
     type: "title",
-    title: "Ameties",
+    title: "Amenities",
     key: "Ameties",
-    icon: <Icon fontSize="small">Ameties</Icon>,
+    icon: <Icon fontSize="small">Amenities</Icon>,
   },
   {
     type: "mydesign",
