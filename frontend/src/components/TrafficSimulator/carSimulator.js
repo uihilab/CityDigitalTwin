@@ -2,9 +2,9 @@ import TrafficGenerator from './trafficGenerator';
 import TripBuilder from './trip-builder';
 
 class CarSimulator {
-  constructor(geojsonData, numCarsPerRoad) {
+  constructor(geojsonData) {
     this.trafficGenerator = new TrafficGenerator(geojsonData);
-    this.roads = this.trafficGenerator.generateRandomCars(numCarsPerRoad);
+    this.roads = this.trafficGenerator.generateRandomCars();
     this.lastTimestamp = null;
   }
 

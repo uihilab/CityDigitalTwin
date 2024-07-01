@@ -2,7 +2,7 @@
 import { GeoJsonLayer } from "@deck.gl/layers";
 export async function BuildingLayer() {
     
-    const response = await fetch("/data/waterloo_buildings_wgs84.geojson");
+    const response = await fetch("./data/waterloo_buildings_wgs84.geojson");
     const data = await response.json();
 
     //var filteredData = data.features.filter(feature => feature.properties && feature.properties.occ_cls && feature.properties.prim_occ);

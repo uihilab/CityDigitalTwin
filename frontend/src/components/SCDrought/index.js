@@ -12,7 +12,7 @@ const legendData = [
 
 // GeoJSON verilerini fetch etme
 export async function FetchDroughtData() {
-  const response = await fetch("/data/drought_map.geojson");
+  const response = await fetch("./data/drought_map.geojson");
   const data = await response.json();
   return data;
 }

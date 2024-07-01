@@ -59,7 +59,7 @@ function renderTooltip(info) {
 /* eslint-disable react/no-deprecated */
 export default function App({
   data = FetchWeatherData(latitude = 42.569663, longitude = -92.479646), // Bu alanı güncelleyebilirsiniz
-  iconAtlas = "/data/location-icon-atlas.png",
+  iconAtlas = "./data/location-icon-atlas.png",
   showCluster = true,
   mapStyle = MAP_STYLE,
 }) {

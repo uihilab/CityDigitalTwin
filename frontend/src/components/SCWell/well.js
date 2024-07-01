@@ -2,7 +2,7 @@ import { IconLayer } from '@deck.gl/layers';
 
 export async function getWellData() {
   try {
-    const response = await fetch("/data/BlackHawkWell.geojson");
+    const response = await fetch("./data/BlackHawkWell.geojson");
     const data = await response.json();
     return data.features.map(feature => ({
       coordinates: feature.geometry.coordinates,
@@ -19,8 +19,8 @@ export const createWellLayer = (wellData, setTooltip) => {
     id: 'WellLayer',
     data: wellData,
     pickable: true,
-    iconAtlas: '/icons/icon_atlas.png',
-    iconMapping: '/icons/icon_atlas_map.json',
+    iconAtlas: './icons/icon_atlas.png',
+    iconMapping: './icons/icon_atlas_map.json',
     getIcon: d => 'paragon-5-blue',
     sizeScale: 10,
     getPosition: d => d.coordinates,

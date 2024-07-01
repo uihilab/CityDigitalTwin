@@ -14,8 +14,7 @@ class DeckglAnimation {
   }
 
   startAnimation(routeData, options, viewportRef) {
-    debugger;
-    const MODEL_URL = "/data/CesiumMilkTruck.glb";
+    const MODEL_URL = "./data/CesiumMilkTruck.glb";
     //const data = routeData;
     let timestamp = 0;
     let animation = null;
@@ -33,7 +32,7 @@ class DeckglAnimation {
         zoom: viewport.zoom
       });
       
-      console.log(viewport.latitude, viewport.longitude);
+      //console.log(viewport.latitude, viewport.longitude);
 
       let allTripFrames = [];
 
@@ -69,7 +68,7 @@ class DeckglAnimation {
         //   getWidth: 10
         // }),
         new ScenegraphLayer({
-          id: 'animation-truck',
+          id: "animation-truck",
           data: visibleFrame,
           scenegraph: MODEL_URL,
           sizeScale: 2,

@@ -1,7 +1,8 @@
 import { IconLayer, GeoJsonLayer } from "@deck.gl/layers";
 
 export async function ElectricgridLayer() {
-  const response = await fetch("/data/PowerPlants.json");
+
+  const response = await fetch("./data/PowerPlants.json");
   const data = await response.json();
   // const layerPower = new GeoJsonLayer({
   //   id: "Electricgrid",

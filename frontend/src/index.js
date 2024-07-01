@@ -25,6 +25,7 @@ const container = document.getElementById("app");
 const root = createRoot(container);
 
 root.render(
+   // basename="/lab/dt"
   <BrowserRouter>
     <MaterialUIControllerProvider>
       <App />

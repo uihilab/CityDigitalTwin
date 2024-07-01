@@ -1,9 +1,17 @@
-import length from '@turf/length';
-import along from '@turf/along';
+import along from "@turf/along";
 
 const turf = {
-  length,
-  along
+  along,
+};
+
+const numCarsPerMiles = {
+  motorway: 39.6,
+  trunk: 13.2,
+  primary: 6.6,
+  secondary: 4.9,
+  tertiary: 2.6,
+  unclassified: 3.3,
+  residential: 2.2
 };
 
 class TrafficGenerator {
@@ -16,24 +24,22 @@ class TrafficGenerator {
     return features[randomIndex];
   }
 
-  getRandomPointOnLineString(geojson) {
-    const length = turf.length(geojson);
-    const randomDistance = Math.random() * length;
+  getRandomPointOnLineString(roadLength, geojson) {
+    const randomDistance = Math.random() * roadLength;
     return turf.along(geojson, randomDistance);
   }
 
-  generateRandomCars(numCarsPerRoad) {
-    //const roads = [];
-
+  generateRandomCars() {
     this.roadData.forEach((road, index) => {
-      if (road.geometry.type === 'LineString') {
+      if (road.geometry.type === "LineString") {
+        const numCars = numCarsPerMiles[road.roadType] || 0;
         const cars = [];
-        for (let i = 0; i < numCarsPerRoad; i++) {
-          const randomPoint = this.getRandomPointOnLineString(road.geometry);
+        for (let i = 0; i < numCars; i++) {
+          const randomPoint = this.getRandomPointOnLineString(road.roadLength, road.geometry);
           const car = {
             id: `car_${index}_${i + 1}`,
             position: randomPoint.geometry.coordinates,
-            direction: Math.random() < 0.5 ? 'forward' : 'backward' // Random initial direction
+            direction: Math.random() < 0.5 ? "forward" : "backward", // Random initial direction
           };
           cars.push(car);
         }

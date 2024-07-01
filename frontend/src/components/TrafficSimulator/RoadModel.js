@@ -1,5 +1,5 @@
 class RoadModel {
-  constructor(id, coordinates, roadType, maxSpeed, isOneway, laneCount, name, geometry) {
+  constructor(id, coordinates, roadType, maxSpeed, isOneway, laneCount, name, geometry, roadLength) {
     this.id = id; // Unique identifier for the road
     this.coordinates = coordinates; // Array of coordinates representing the LineString
     this.roadType = roadType; // Type of the road (e.g., highway, residential)
@@ -8,6 +8,7 @@ class RoadModel {
     this.laneCount = laneCount; // Number of lanes on the road
     this.name = name;
     this.geometry = geometry;
+    this.roadLength = roadLength;
   }
 
   addCar(car) {
