@@ -58,9 +58,9 @@ function renderTooltip(info) {
 
 /* eslint-disable react/no-deprecated */
 export default function App({
-  data = "data/events.json",
-  iconMapping = "/icons/icon_atlas_map.json",
-  iconAtlas = "/icons/icon_atlas.png",
+  data = `${process.env.PUBLIC_URL}/data/events.json`,
+  iconMapping = `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
+  iconAtlas = `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
   showCluster = true,
   mapStyle = MAP_STYLE,
 }) {
@@ -99,14 +99,14 @@ export default function App({
   const layer = showCluster
     ? new IconClusterLayer({ ...layerProps, id: "icon-cluster", sizeScale: 40 })
     : new IconLayer({
-      ...layerProps,
-      id: "icon",
-      iconAtlas: '/icons/icon_atlas.png',
-      iconMapping: '/icons/icon_atlas_map.json',
-      getIcon: d => 'paragon-1-blue',
-      sizeScale: 15,
-      getSize: d => 5,
-    });
+        ...layerProps,
+        id: "icon",
+        iconAtlas: `${process.env.PUBLIC_URL  }/icons/icon_atlas.png`,
+        iconMapping: `${process.env.PUBLIC_URL  }/icons/icon_atlas_map.json`,
+        getIcon: (d) => "paragon-1-blue",
+        sizeScale: 15,
+        getSize: (d) => 5,
+      });
 
   return (
     <DeckGL

@@ -2,7 +2,7 @@ import CarSimulator from "components/TrafficSimulator/carSimulator";
 import { startAnimation } from "./animation";
 import PathFinder from 'geojson-path-finder';
 
-const roadDataPath = "./data/highway_waterloo.geojson";
+const roadDataPath = `${process.env.PUBLIC_URL }/data/highway_waterloo.geojson`;
 let roadData = null;
 
 export async function startTrafficFlow(setAnimationLayers, map) {

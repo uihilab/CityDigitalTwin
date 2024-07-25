@@ -14,7 +14,7 @@ class DeckglAnimation {
   }
 
   startAnimation(routeData, options, viewportRef) {
-    const MODEL_URL = "./data/CesiumMilkTruck.glb";
+    const MODEL_URL = `${process.env.PUBLIC_URL }/data/CesiumMilkTruck.glb`;
     //const data = routeData;
     let timestamp = 0;
     let animation = null;

@@ -11,8 +11,8 @@ export function CreatelayerWeather(weatherdata)
         id: 'WForecast',
         data: weatherdata,
         pickable: true,
-        iconAtlas: '/icons/icon_atlas.png',
-        iconMapping: '/icons/icon_atlas_map.json',
+        iconAtlas: process.env.PUBLIC_URL +'/icons/icon_atlas.png',
+        iconMapping: process.env.PUBLIC_URL +'/icons/icon_atlas_map.json',
         getIcon: d => 'paragon-5-pink',
         sizeScale: 1,
         getPosition: d => d.coordinates,
@@ -24,4 +24,3 @@ export function CreatelayerWeather(weatherdata)
       });
       return layerWeather;
 }
-

@@ -11,17 +11,28 @@ import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index"
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
-import Popup from './Popup';
-import { createStruct, createStationsStruct, getTrainData, getTrainStationsData } from "../SCTrain/AmtrakData";
+import Popup from "./Popup";
+import {
+  createStruct,
+  createStationsStruct,
+  getTrainData,
+  getTrainStationsData,
+} from "../SCTrain/AmtrakData";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
-import { ElectricgridLayer } from "../SCElectric/index"
-import { BridgesgridLayer } from "../SCBridge/index"
-import { fetchDataFromApis, drawBlackHawkCounty, isPointInsidePolygon, handleButtonClick, useChartData } from "components/SCDemographicData"
-import { BuildingLayer } from "../SCBuilding/layerBuilding"
+import { ElectricgridLayer } from "../SCElectric/index";
+import { BridgesgridLayer } from "../SCBridge/index";
+import {
+  fetchDataFromApis,
+  drawBlackHawkCounty,
+  isPointInsidePolygon,
+  handleButtonClick,
+  useChartData,
+} from "components/SCDemographicData";
+import { BuildingLayer } from "../SCBuilding/layerBuilding";
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "../SCFlood";
-import { point, polygon } from '@turf/helpers';
-import { Bar } from 'react-chartjs-2';
+import { point, polygon } from "@turf/helpers";
+import { Bar } from "react-chartjs-2";
 import { getWellData, createWellLayer } from "../SCWell/well";
 import { fetchRailwayData, CreateRailwayLayer } from "../SCRailway/index";
 import { RailwayBridgesLayer } from "../SCRailwayBridge/index";
@@ -37,7 +48,6 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function Map3D() {
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
   const [chartData, setChartData] = useState(null);
@@ -53,22 +63,20 @@ function Map3D() {
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
     debugger;
-    const isAQualityActive = activeItems[layers.findIndex(item => item.key === "AQuality")];
-    const isWeatherActive = activeItems[layers.findIndex(item => item.key === "WForecast")];
-    const isDemographicActive = activeItems[layers.findIndex(item => item.key === "DemographicHousingData")];
+    const isAQualityActive = activeItems[layers.findIndex((item) => item.key === "AQuality")];
+    const isWeatherActive = activeItems[layers.findIndex((item) => item.key === "WForecast")];
+    const isDemographicActive =
+      activeItems[layers.findIndex((item) => item.key === "DemographicHousingData")];
     if (isAQualityActive) {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
       setClickPosition({ x: latitude, y: longitude });
       try {
-
-        const canvas = document.getElementById('airQualityCanvas');
+        const canvas = document.getElementById("airQualityCanvas");
         canvas.remove();
-
 
         const airQualityData = await FetchAirQuality(latitude, longitude);
         renderAirQualityChart(airQualityData);
-
       } catch (error) {
         console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
       }
@@ -84,7 +92,7 @@ function Map3D() {
         { lat: 42.299418, lng: -92.482915 },
         { lat: 42.299418, lng: -92.060234 },
         { lat: 42.642729, lng: -92.060234 },
-        { lat: 42.642729, lng: -92.508407 }
+        { lat: 42.642729, lng: -92.508407 },
       ];
 
       const poly = polygon([blackHawkCountyBorder]);
@@ -95,11 +103,12 @@ function Map3D() {
         debugger;
         setIsMenuOpen(true);
         const data = await fetchDataFromApis();
-        setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
+        setMenuContent(
+          `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
+        );
         //setCountyName(data.source1.location);
         setIsChartVisible(false);
       }
-
     }
     if (isWeatherActive) {
       removeLayer(WeathericonLayer.id);
@@ -113,10 +122,8 @@ function Map3D() {
         const layer = await createWeatherIconLayer(latitude, longitude, 3);
         setWeatherIconLayer(layer);
         setMapLayers(layer);
-
-
       } catch (error) {
-        console.error('Error in handleMapClick:', error);
+        console.error("Error in handleMapClick:", error);
       }
     }
   };
@@ -124,18 +131,17 @@ function Map3D() {
   const initialState = {
     electricGrid: false,
     transEvents: false,
-    publicTransitRoutes: false
+    publicTransitRoutes: false,
   };
 
-  const maplayersTestData = [
-  ];
+  const maplayersTestData = [];
 
   const [viewport, setViewport] = useState({
     longitude: -92.345,
     latitude: 42.4937,
     zoom: 19,
     heading: 1,
-    pitch: 45
+    pitch: 45,
   });
 
   const viewportRef = useRef(viewport);
@@ -154,11 +160,10 @@ function Map3D() {
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
 
-
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
     setLayersStatic(layersStatic);
-    debugger
+    debugger;
     const layersCopy = layersStatic.slice();
     //layersCopy.push(layersAnimation);
     setMapLayersState(layersCopy);
@@ -223,7 +228,7 @@ function Map3D() {
     return new ScenegraphLayer({
       id: "truck",
       data, // "./data/test.json",
-      scenegraph: "./data/CesiumMilkTruck.glb",
+      scenegraph: `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`,
       sizeScale: 2,
       getPosition: (d) => d.coordinates,
       getTranslation: [0, 0, 1],
@@ -262,49 +267,50 @@ function Map3D() {
   };
 
   async function loadTransportationEvents() {
-
     try {
       const trafficEventData = await getTrafficEventData();
 
       const layerEvent = new IconLayer({
-        id: 'TransEvents',
+        id: "TransEvents",
         data: trafficEventData,
         pickable: true,
-        iconAtlas: '/icons/icon_atlas.png',
-        iconMapping: '/icons/icon_atlas_map.json',
-        getIcon: d => 'paragon-5-red',
+        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
+        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
+        getIcon: (d) => "paragon-5-red",
         sizeScale: 1,
-        getPosition: d => d.coordinates,
-        getSize: d => 50,
-        getColor: d => [255, 255, 255],
-        getAngle: d => 0,
-        onClick: info => {
-          expandTooltip(info)
-        }
-      })
+        getPosition: (d) => d.coordinates,
+        getSize: (d) => 50,
+        getColor: (d) => [255, 255, 255],
+        getAngle: (d) => 0,
+        onClick: (info) => {
+          expandTooltip(info);
+        },
+      });
 
       loadLayerwithLayer(layerEvent);
     } catch (error) {
-      console.error('Error fetching event:', error);
+      console.error("Error fetching event:", error);
     }
   }
 
   const CheckboxLayerEvent = ({ handleCheckboxChange, checkboxState }) => {
     return (
-      <div style={{
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        padding: "10px",
-        boxSizing: "border-box",
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        zIndex: 999,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: '5px'
-      }}>
-        <label style={{ marginRight: '10px' }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "0",
+          left: "0",
+          padding: "10px",
+          boxSizing: "border-box",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          zIndex: 999,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          borderRadius: "5px",
+        }}
+      >
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="Train"
@@ -314,7 +320,7 @@ function Map3D() {
           Train Stations and Amtract Train Routes
         </label>
         <br />
-        <label style={{ marginRight: '10px' }}>
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="Bus"
@@ -339,20 +345,22 @@ function Map3D() {
 
   const CheckboxLayerHighway = ({ handleCheckboxChange, checkboxState }) => {
     return (
-      <div style={{
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        padding: "10px",
-        boxSizing: "border-box",
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
-        zIndex: 999,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderRadius: '5px'
-      }}>
-        <label style={{ marginRight: '10px' }}>
+      <div
+        style={{
+          position: "absolute",
+          top: "0",
+          left: "0",
+          padding: "10px",
+          boxSizing: "border-box",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          zIndex: 999,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          borderRadius: "5px",
+        }}
+      >
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="primary"
@@ -362,7 +370,7 @@ function Map3D() {
           Primary
         </label>
         <br />
-        <label style={{ marginRight: '10px' }}>
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="secondary"
@@ -372,7 +380,7 @@ function Map3D() {
           Secondary
         </label>
         <br />
-        <label style={{ marginRight: '10px' }}>
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="residential"
@@ -382,7 +390,7 @@ function Map3D() {
           Residential
         </label>
         <br />
-        <label style={{ marginRight: '10px' }}>
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="service"
@@ -392,7 +400,7 @@ function Map3D() {
           Service
         </label>
         <br />
-        <label style={{ marginRight: '10px' }}>
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="motorway"
@@ -402,7 +410,7 @@ function Map3D() {
           Motorway
         </label>
         <br />
-        <label style={{ marginRight: '10px' }}>
+        <label style={{ marginRight: "10px" }}>
           <input
             type="checkbox"
             name="cycleway"
@@ -418,9 +426,9 @@ function Map3D() {
   const handleCheckboxChange = async (event) => {
     const { name, checked } = event.target;
 
-    setCheckboxState(prevState => ({
+    setCheckboxState((prevState) => ({
       ...prevState,
-      [name]: checked
+      [name]: checked,
     }));
 
     // if (checked && name == 'Train') {
@@ -440,9 +448,15 @@ function Map3D() {
     //   loadLayerwithLayer(trainStationsLayer);
     // }
 
-    if (checked && name == 'primary') {
-      var data_primary = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "primary");
-      var primary_link = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "primary_link");
+    if (checked && name == "primary") {
+      let data_primary = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
+        "primary"
+      );
+      let primary_link = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
+        "primary_link"
+      );
 
       // Verileri birleştir
       const combinedData = data_primary.concat(primary_link);
@@ -452,72 +466,88 @@ function Map3D() {
       loadColourfulLayerwithData("primary", combinedData, color);
     }
 
-    if (checked && name == 'secondary') {
-      var data_secondary = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "secondary");
+    if (checked && name == "secondary") {
+      let data_secondary = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
+        "secondary"
+      );
       // Yol çizgilerine özgü renk belirleme
       const color = [0, 0, 255]; // mavi renk
       loadColourfulLayerwithData("secondary", data_secondary, color);
     }
 
-    if (checked && name == 'residential') {
-      var data_residential = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "residential");
+    if (checked && name == "residential") {
+      let data_residential = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
+        "residential"
+      );
       // Yol çizgilerine özgü renk belirleme
       const color = [95, 95, 95]; // koyu gri
       loadColourfulLayerwithData("residential", data_residential, color);
     }
 
-    if (checked && name == 'service') {
-      var data_service = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "service");
+    if (checked && name == "service") {
+      let data_service = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
+        "service"
+      );
       // Yol çizgilerine özgü renk belirleme
-      const color = [190, 190, 190]; // Gri renk 
+      const color = [190, 190, 190]; // Gri renk
       loadColourfulLayerwithData("service", data_service, color);
     }
 
-    if (checked && name == 'motorway') {
-      var data_motorway_link = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "motorway_link");
-      var data_motorway = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "motorway");
+    if (checked && name == "motorway") {
+      let data_motorway_link = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL  }/data/highway_waterloo.geojson`,
+        "motorway_link"
+      );
+      let data_motorway = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL  }/data/highway_waterloo.geojson`,
+        "motorway"
+      );
       // Yol çizgilerine özgü renk belirleme
 
       // Verileri birleştir
       const combinedData = data_motorway_link.concat(data_motorway);
 
-
-      const color = [80, 80, 80]; // Gri renk 
+      const color = [80, 80, 80]; // Gri renk
       loadColourfulLayerwithData("motorway", combinedData, color);
     }
 
-    if (checked && name == 'cycleway') {
-      var data_cycleway = await loadFilteredGeoJsonData("./data/highway_waterloo.geojson", "cycleway");
+    if (checked && name == "cycleway") {
+      let data_cycleway = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL  }/data/highway_waterloo.geojson`,
+        "cycleway"
+      );
       // Yol çizgilerine özgü renk belirleme
-      const color = [255, 0, 0]; // Gri renk 
+      const color = [255, 0, 0]; // Gri renk
       loadColourfulLayerwithData("cycleway", data_cycleway, color);
     }
 
-
-    if (!checked && name == 'primary') {
+    if (!checked && name == "primary") {
       removeLayer("primary");
     }
-    if (!checked && name == 'secondary') {
+    if (!checked && name == "secondary") {
       removeLayer("secondary");
     }
 
-    if (!checked && name == 'residential') {
+    if (!checked && name == "residential") {
       removeLayer("residential");
     }
 
-    if (!checked && name == 'service') {
+    if (!checked && name == "service") {
       removeLayer("service");
     }
 
-    if (!checked && name == 'motorway') {
+    if (!checked && name == "motorway") {
       removeLayer("motorway_link");
       removeLayer("motorway");
     }
 
-    if (!checked && name == 'cycleway') {
+    if (!checked && name == "cycleway") {
       removeLayer("cycleway");
     }
-  }
+  };
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
   const handlePublicTransitRoutesClick = (open) => {
     setIsRouteCheckboxMenuOpen(open);
@@ -527,8 +557,6 @@ function Map3D() {
     setIsHighwayCheckboxMenuOpen(open);
     removeLayer("primary");
   };
-
-
 
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
@@ -569,39 +597,37 @@ function Map3D() {
         return;
       }
       if (key == "Drought") {
-
         debugger;
         try {
           const drData = await FetchDroughtData();
           if (drData) {
-            console.log('Drought Data:', drData);
+            console.log("Drought Data:", drData);
             const layer = await DroughtLayer(drData);
             await loadLayerwithLayer(layer);
 
             // Legend HTML oluşturma ve ekleme
             const legendHTML = createLegendHTML();
-            const mapContainer = document.getElementById('map-container');
+            const mapContainer = document.getElementById("map-container");
             if (mapContainer) {
-              mapContainer.insertAdjacentHTML('beforeend', legendHTML);
+              mapContainer.insertAdjacentHTML("beforeend", legendHTML);
             }
-
           } else {
-            console.error('No data returned from Drought function');
+            console.error("No data returned from Drought function");
           }
         } catch (error) {
-          console.error('Error loading drought data:', error);
+          console.error("Error loading drought data:", error);
         }
       }
 
       if (key == "Flood") {
-        var floodLayer = await getFloodLayer();
+        let floodLayer = await getFloodLayer();
         setMapLayers(floodLayer);
         return;
       }
       if (key == "AQuality") {
         // Hava kalitesi verilerini al ve grafiği render et
         createMenu();
-        FetchAirQuality().then(data => renderAirQualityChart(data));
+        FetchAirQuality().then((data) => renderAirQualityChart(data));
         return;
       }
       if (key == "WForecast") {
@@ -619,7 +645,9 @@ function Map3D() {
         setBlackHawkLayer(layer);
 
         //setCountyName(data.source1.location);
-        setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
+        setMenuContent(
+          `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
+        );
         setMapLayers(layer);
         //const data= await fetchDataFromApis();
         return;
@@ -633,23 +661,19 @@ function Map3D() {
         return;
       }
       if (key == "Flood") {
-
         return;
       }
       if (key == "Well") {
-
         const wellData = await getWellData();
         setWellData(wellData);
         const wellLayer = createWellLayer(wellData, setTooltip);
         setMapLayers(wellLayer);
-
       }
       if (key == "RailwayNetwork") {
         const RailwayData = await fetchRailwayData();
         const railLayer = CreateRailwayLayer(RailwayData);
         setMapLayers(railLayer);
         setrailwayData(railLayer);
-
       }
       if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
         handleHighwayClick(true);
@@ -704,25 +728,21 @@ function Map3D() {
         return;
       }
       await loadLayer(key, dataPath);
-
     } else {
-
       if (isRouteCheckboxMenuOpen == true) {
         handlePublicTransitRoutesClick(false);
         return;
       }
 
       if (key === "Drought") {
-
         debugger;
         removeLayer("Drought");
-        const legendElement = document.querySelector('.legend-container');
+        const legendElement = document.querySelector(".legend-container");
         if (legendElement) {
           legendElement.remove();
         }
         setMapLayers(null);
         return;
-
       }
 
       if (key == "Electricgrid") {
@@ -730,10 +750,9 @@ function Map3D() {
         return;
       }
 
-      if (key=="RailwayNetwork") {
+      if (key == "RailwayNetwork") {
         removeLayer("RailwayNetwork");
         return;
-
       }
 
       if (key == "Electricpower") {
@@ -746,7 +765,6 @@ function Map3D() {
       }
 
       if (key === "RailwayNetwork") {
-
         debugger;
         removeLayer(railwayData.id);
         setMapLayers(null);
@@ -784,7 +802,7 @@ function Map3D() {
       removeLayer(key);
 
       if (key === "AQuality") {
-        const menu = document.getElementById('rightmenu');
+        const menu = document.getElementById("rightmenu");
         menu.remove();
       }
     }
@@ -792,7 +810,10 @@ function Map3D() {
 
   // Capitalize function
   function capitalizeWords(str) {
-    return str.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   }
 
   const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
@@ -813,20 +834,27 @@ function Map3D() {
         <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isRouteCheckboxMenuOpen && (
-
-            <CheckboxLayerEvent handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+            <CheckboxLayerEvent
+              handleCheckboxChange={handleCheckboxChange}
+              checkboxState={checkboxState}
+            />
           )}
         </div>
         <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (
-
-            <CheckboxLayerHighway handleCheckboxChange={handleCheckboxChange} checkboxState={checkboxState} />
+            <CheckboxLayerHighway
+              handleCheckboxChange={handleCheckboxChange}
+              checkboxState={checkboxState}
+            />
           )}
         </div>
         <div id="map" style={{ width: "100%", height: "90vh" }}>
           <StrictMode>
-            <div id="map-container" style={{ width: "100%", height: "90vh", position: "relative" }}></div>
+            <div
+              id="map-container"
+              style={{ width: "100%", height: "90vh", position: "relative" }}
+            ></div>
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
                 ref={deckRef}
@@ -837,45 +865,84 @@ function Map3D() {
                 layers={[mapLayers]}
                 getTooltip={({ object }) => {
                   if (object) {
-
-                    if (object.properties && object.properties.occ_cls !== null && object.properties.prim_occ !== null) {
-                      return object.properties && object.properties.occ_cls && object.properties.prim_occ;
-                    }
-                    else if (object.name != undefined) {
+                    if (
+                      object.properties &&
+                      object.properties.occ_cls !== null &&
+                      object.properties.prim_occ !== null
+                    ) {
+                      return (
+                        object.properties && object.properties.occ_cls && object.properties.prim_occ
+                      );
+                    } else if (object.name != undefined) {
                       debugger;
                       return `${object.name}`;
-                    }
-                    else if (object && object.temperature != undefined) {
-                      return `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`;
-                    }
-                    else if (object.county && object.depth != undefined) {
+                    } else if (object && object.temperature != undefined) {
+                      return (
+                        `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`
+                      );
+                    } else if (object.county && object.depth != undefined) {
                       return `County: ${object.county}, Depth: ${object.depth}`;
-                    }
-                    else if (object.comment != undefined) {
-                      return `Name: ${capitalizeWords(object.Name)}\n Number of Student: ${object.Number_Student} \n Comment: ${capitalizeWords(object.comment)}`;
-                    }
-                    else if (object.policestations_name && object.policestations_phonenumber != undefined) {
-                      return `Name: ${capitalizeWords(object.policestations_name)}\n City: ${capitalizeWords(object.policestations_city)} \n Phone Number: ${object.policestations_phonenumber}`;
-                    }
-                    else if (object.firestations_name && object.firestations_city != undefined) {
-                      return `Name: ${capitalizeWords(object.firestations_name)}\n City: ${capitalizeWords(object.firestations_city)} \n Address: ${capitalizeWords(object.firestations_address)}`;
-                    }
-                    else if (object.carefacilities_name != undefined) {
-                      return `Name: ${capitalizeWords(object.carefacilities_name)}\n City: ${capitalizeWords(object.carefacilities_city)} \n Phone Number: ${object.carefacilities_phonenumber} \n Address: ${capitalizeWords(object.carefacilities_address)} \n Number of beds: ${object.carefacilities_numbeds}`;
-                    }
-                    else if (object.comm_owner != undefined) {
-                      return `City: ${capitalizeWords(object.comm_city)}\n Owner: ${capitalizeWords(object.comm_owner)}`;
-                    }
-                    else if (object.wastewater_name != undefined) {
-                      return `Name: ${capitalizeWords(object.wastewater_name)}\n City: ${capitalizeWords(object.wastewater_city)} \n Address: ${capitalizeWords(object.wastewater_address)}`;
+                    } else if (object.comment != undefined) {
+                      return `Name: ${capitalizeWords(object.Name)}\n Number of Student: ${
+                        object.Number_Student
+                      } \n Comment: ${capitalizeWords(object.comment)}`;
+                    } else if (
+                      object.policestations_name &&
+                      object.policestations_phonenumber != undefined
+                    ) {
+                      return `Name: ${capitalizeWords(
+                        object.policestations_name
+                      )}\n City: ${capitalizeWords(object.policestations_city)} \n Phone Number: ${
+                        object.policestations_phonenumber
+                      }`;
+                    } else if (object.firestations_name && object.firestations_city != undefined) {
+                      return `Name: ${capitalizeWords(
+                        object.firestations_name
+                      )}\n City: ${capitalizeWords(
+                        object.firestations_city
+                      )} \n Address: ${capitalizeWords(object.firestations_address)}`;
+                    } else if (object.carefacilities_name != undefined) {
+                      return `Name: ${capitalizeWords(
+                        object.carefacilities_name
+                      )}\n City: ${capitalizeWords(object.carefacilities_city)} \n Phone Number: ${
+                        object.carefacilities_phonenumber
+                      } \n Address: ${capitalizeWords(
+                        object.carefacilities_address
+                      )} \n Number of beds: ${object.carefacilities_numbeds}`;
+                    } else if (object.comm_owner != undefined) {
+                      return `City: ${capitalizeWords(object.comm_city)}\n Owner: ${capitalizeWords(
+                        object.comm_owner
+                      )}`;
+                    } else if (object.wastewater_name != undefined) {
+                      return `Name: ${capitalizeWords(
+                        object.wastewater_name
+                      )}\n City: ${capitalizeWords(
+                        object.wastewater_city
+                      )} \n Address: ${capitalizeWords(object.wastewater_address)}`;
                     }
                   }
-                }
-                }
+                }}
               >
-                <Map mapId={GOOGLE_MAP_ID} defaultCenter={{ lat: 42.4937, lng: -92.345 }} defaultZoom={12} />
+                <Map
+                  mapId={GOOGLE_MAP_ID}
+                  defaultCenter={{ lat: 42.4937, lng: -92.345 }}
+                  defaultZoom={12}
+                />
                 {/* Canvas */}
-                <canvas id="airQualityCanvas" style={{ position: "absolute", bottom: 10, left: 10, zIndex: 1, width: 100, height: 100, pointerEvents: "yes", opacity: 0.5, padding: 10 }}></canvas>
+                <canvas
+                  id="airQualityCanvas"
+                  style={{
+                    position: "absolute",
+                    bottom: 10,
+                    left: 10,
+                    zIndex: 1,
+                    width: 100,
+                    height: 100,
+                    pointerEvents: "yes",
+                    opacity: 0.5,
+                    padding: 10,
+                  }}
+                ></canvas>
                 <div>
                   {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                   <Popup clickPosition={clickPosition} object={clickedObject} />
@@ -887,64 +954,93 @@ function Map3D() {
           {isMenuOpen && (
             <div
               style={{
-                position: 'fixed',
+                position: "fixed",
                 right: 0,
-                top: '10px',
-                width: '300px',
-                height: '400px',
-                backgroundColor: 'white',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)',
-                borderRadius: '15px',
+                top: "10px",
+                width: "300px",
+                height: "400px",
+                backgroundColor: "white",
+                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+                borderRadius: "15px",
                 zIndex: 1000,
-                right: '5px',
-                overflowY: 'auto',
+                right: "5px",
+                overflowY: "auto",
               }}
             >
-              <p style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>{countyName} Summary</p>
-              <p style={{ fontSize: '14px', marginBottom: '20px', textAlign: 'justify' }}>{menuContent}</p>
-              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <p style={{ fontSize: "18px", marginBottom: "10px", textAlign: "center" }}>
+                {countyName} Summary
+              </p>
+              <p style={{ fontSize: "14px", marginBottom: "20px", textAlign: "justify" }}>
+                {menuContent}
+              </p>
+              <div style={{ textAlign: "center", marginBottom: "20px" }}>
                 <button
                   style={{
-                    fontSize: '10px',
-                    padding: '5px 10px',
-                    borderRadius: '5px',
-                    backgroundColor: 'lightblue',
-                    border: 'none',
-                    cursor: 'pointer',
-                    marginRight: '10px',
+                    fontSize: "10px",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    backgroundColor: "lightblue",
+                    border: "none",
+                    cursor: "pointer",
+                    marginRight: "10px",
                   }}
-                  onClick={() => handleButtonClick('language', setChartData, setIsChartVisible, setMenuContent, setShowBackButton)}
+                  onClick={() =>
+                    handleButtonClick(
+                      "language",
+                      setChartData,
+                      setIsChartVisible,
+                      setMenuContent,
+                      setShowBackButton
+                    )
+                  }
                 >
                   Language
                 </button>
                 <button
                   style={{
-                    fontSize: '10px',
-                    padding: '5px 10px',
-                    borderRadius: '5px',
-                    backgroundColor: 'lightblue',
-                    border: 'none',
-                    cursor: 'pointer',
+                    fontSize: "10px",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    backgroundColor: "lightblue",
+                    border: "none",
+                    cursor: "pointer",
                   }}
-                  onClick={() => handleButtonClick('expenses', setChartData, setIsChartVisible, setMenuContent, setShowBackButton)}
+                  onClick={() =>
+                    handleButtonClick(
+                      "expenses",
+                      setChartData,
+                      setIsChartVisible,
+                      setMenuContent,
+                      setShowBackButton
+                    )
+                  }
                 >
                   Expenses
                 </button>
-                {showBackButton && <button
-                  style={{
-                    fontSize: '10px',
-                    padding: '5px 10px',
-                    borderRadius: '5px',
-                    backgroundColor: 'lightcoral',
-                    border: 'none',
-                    cursor: 'pointer',
-                    marginLeft: '10px',
-                  }}
-                  onClick={() => handleButtonClick('back', setChartData, setIsChartVisible, setMenuContent, setShowBackButton)}
-                >
-                  Back
-                </button>
-                }
+                {showBackButton && (
+                  <button
+                    style={{
+                      fontSize: "10px",
+                      padding: "5px 10px",
+                      borderRadius: "5px",
+                      backgroundColor: "lightcoral",
+                      border: "none",
+                      cursor: "pointer",
+                      marginLeft: "10px",
+                    }}
+                    onClick={() =>
+                      handleButtonClick(
+                        "back",
+                        setChartData,
+                        setIsChartVisible,
+                        setMenuContent,
+                        setShowBackButton
+                      )
+                    }
+                  >
+                    Back
+                  </button>
+                )}
               </div>
               {isChartVisible && (
                 <Bar
@@ -952,26 +1048,26 @@ function Map3D() {
                   options={{
                     title: {
                       display: true,
-                      text: 'Language vs Expenses',
+                      text: "Language vs Expenses",
                       fontSize: 16,
                       padding: 10,
                     },
                     legend: {
                       display: true,
-                      position: 'bottom',
+                      position: "bottom",
                     },
                   }}
                 />
               )}
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
                 <button
                   style={{
-                    fontSize: '10px',
-                    padding: '5px 10px',
-                    borderRadius: '5px',
-                    backgroundColor: 'lightblue',
-                    border: 'none',
-                    cursor: 'pointer',
+                    fontSize: "10px",
+                    padding: "5px 10px",
+                    borderRadius: "5px",
+                    backgroundColor: "lightblue",
+                    border: "none",
+                    cursor: "pointer",
                   }}
                   onClick={() => setIsMenuOpen(false)}
                 >

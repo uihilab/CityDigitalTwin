@@ -1,8 +1,8 @@
 import { IconLayer, GeoJsonLayer } from "@deck.gl/layers";
 export async function getElectricData() {
-
+  console.log(process.env.PUBLIC_URL);
   debugger;
-  const response = await fetch("/data/electiricpowerfacilities.geojson");
+  const response = await fetch(`${process.env.PUBLIC_URL }/data/electiricpowerfacilities.geojson`);
   const data = await response.json();
 
   return data.features.map(feature => ({
@@ -24,14 +24,13 @@ export const createElectricPowerLayer = (powerData, setTooltip) => {
     id: 'Electricpower',
     data: powerData,
     pickable: true,
-    iconAtlas: './icons/icon_atlas.png',
-    iconMapping: './icons/icon_atlas_map.json',
+    iconAtlas: `${process.env.PUBLIC_URL }/icons/icon_atlas.png`,
+    iconMapping: `${process.env.PUBLIC_URL }/icons/icon_atlas_map.json`,
     getIcon: d => 'paragon-3-blue',
     sizeScale: 10,
     getPosition: d => d.coordinates,
     getSize: d => 3, // İkon boyutunu ayarlayın
     onHover: ({ object, x, y }) => {
-      debugger;
       if (object) {
         setTooltip({
           x,

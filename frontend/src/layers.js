@@ -66,7 +66,7 @@ let layers = [
     key: "Electricgrid",
     status: true,
     icon: <Icon fontSize="small">Electric grid</Icon>,
-    dataPath: "./data/PowerPlants.json",
+    dataPath: `${process.env.PUBLIC_URL }/data/PowerPlants.json`,
   },
   {
     type: "mydesign",
@@ -74,7 +74,7 @@ let layers = [
     key: "Electricpower",
     status: true,
     icon: <Icon fontSize="small">Electric power</Icon>,
-    dataPath: "./data/electiricpowerfacilities.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/electiricpowerfacilities.geojson`,
   },
   {
     type: "mydesign",
@@ -82,7 +82,7 @@ let layers = [
     key: "Bridges",
     status: false,
     icon: <Icon fontSize="small">Bridges</Icon>,
-    dataPath: "./data/iowa_bridges.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/iowa_bridges.geojson`,
   },
   {
     type: "mydesign",
@@ -90,14 +90,14 @@ let layers = [
     key: "RailBridge",
     status: false,
     icon: <Icon fontSize="small">Railway Bridges</Icon>,
-    dataPath: "./data/railwaybridge.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/railwaybridge.geojson`,
   },
   {
     type: "mydesign",
     name: "Buildings",
     key: "Buildings",
     icon: <Icon fontSize="small">Buildings</Icon>,
-    dataPath: "./data/waterloo_buildings.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/waterloo_buildings.geojson`,
   },
   {
     type: "divider",
@@ -138,7 +138,7 @@ let layers = [
     name: "Waste Water",
     key: "wastewater",
     icon: <Icon fontSize="small">WasteWater</Icon>,
-    dataPath: "./data/wastewater.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/wastewater.geojson`,
   },
   {
     type: "mydesign",
@@ -162,7 +162,7 @@ let layers = [
     name: "Road Networks",
     key: "RoadNetworks",
     icon: <Icon fontSize="small">Road Networks</Icon>,
-    dataPath: "./data/highway_waterloo.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/highway_waterloo.geojson`,
   },
   {
     type: "mydesign",
@@ -222,35 +222,35 @@ let layers = [
     name: "School",
     key: "School",
     icon: <Icon fontSize="small">School</Icon>,
-    dataPath: "./data/Ameties_School.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/Ameties_School.geojson`,
   },
   {
     type: "mydesign",
     name: "PoliceStations",
     key: "PoliceStations",
     icon: <Icon fontSize="small">Police Stations</Icon>,
-    dataPath: "./data/policestation.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/policestation.geojson`,
   },
   {
     type: "mydesign",
     name: "FireStations",
     key: "FireStations",
     icon: <Icon fontSize="small">Fire Stations</Icon>,
-    dataPath: "./data/firestation.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/firestation.geojson`,
   },
   {
     type: "mydesign",
     name: "CareFacilities",
     key: "CareFacilities",
     icon: <Icon fontSize="small">Care Facilities</Icon>,
-    dataPath: "./data/carefacilities.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/carefacilities.geojson`,
   },
   {
     type: "mydesign",
     name: "CommunicationFacilities",
     key: "Communication",
     icon: <Icon fontSize="small">Communication Facilities</Icon>,
-    dataPath: "./data/communicationfacilities.geojson",
+    dataPath: `${process.env.PUBLIC_URL }/data/communicationfacilities.geojson`,
   },
 ];
 

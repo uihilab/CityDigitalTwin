@@ -1,8 +1,7 @@
 import { IconLayer, GeoJsonLayer } from "@deck.gl/layers";
 
 export async function ElectricgridLayer() {
-
-  const response = await fetch("./data/PowerPlants.json");
+  const response = await fetch(`${process.env.PUBLIC_URL  }/data/PowerPlants.json`);
   const data = await response.json();
   // const layerPower = new GeoJsonLayer({
   //   id: "Electricgrid",
@@ -25,8 +24,8 @@ export async function ElectricgridLayer() {
     id: 'Electricgrid',
     data: data.features,
     pickable: true,
-    iconAtlas: '/icons/icon_atlas.png',
-    iconMapping: '/icons/icon_atlas_map.json',
+    iconAtlas: `${process.env.PUBLIC_URL }/icons/icon_atlas.png`,
+    iconMapping: `${process.env.PUBLIC_URL }/icons/icon_atlas_map.json`,
     getIcon: d => 'paragon-1-blue',
     sizeScale: 15,
     getPosition: d => d.geometry.coordinates,
