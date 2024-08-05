@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
 function Tooltip({ x, y, content }) {
-    debugger;
     const [style, setStyle] = useState({
         display: "none",
         position: "absolute",
