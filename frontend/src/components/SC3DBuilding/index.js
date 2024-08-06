@@ -30,7 +30,7 @@ import {
 } from "components/SCDemographicData";
 import { BuildingLayer } from "../SCBuilding/layerBuilding";
 import { startTrafficSimulator } from "components/TrafficSimulator";
-import { getFloodLayer } from "../SCFlood";
+import { getFloodLayer } from "../SCFlood/index";
 import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import { getWellData, createWellLayer } from "../SCWell/well";
@@ -50,6 +50,7 @@ const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 function Map3D() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
+  const [mapLayersFlood, setMapLayersFlood] = useState([]);
   const [chartData, setChartData] = useState(null);
   const [menuContent, setMenuContent] = useState("Loading");
   const [countyName, setCountyName] = useState("Black Hawk County");
@@ -59,6 +60,7 @@ function Map3D() {
   const [railwayData, setrailwayData] = useState([]);
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
+
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
@@ -159,6 +161,8 @@ function Map3D() {
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
+  const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
+  const [currentLayerFlood, setCurrentLayerFlood] = useState("_100yr");
 
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
@@ -558,6 +562,11 @@ function Map3D() {
     removeLayer("primary");
   };
 
+  async function updateLayer(currentLayerFlood) {
+    let floodLayer = await getFloodLayer(currentLayerFlood);
+    setMapLayersFlood(floodLayer);
+  }
+
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
       if (key == "Electricgrid") {
@@ -620,8 +629,13 @@ function Map3D() {
       }
 
       if (key == "Flood") {
-        let floodLayer = await getFloodLayer();
-        setMapLayers(floodLayer);
+        debugger;
+        setIsFloodLayerSelected(true);
+        setCurrentLayerFlood("_100yr"); 
+       // await updateLayer(currentLayerFlood);
+        const layer= getFloodLayer(key, `/data/flood${currentLayerFlood}.geojson`);
+        setMapLayersFlood(prevLayers => [...prevLayers, layer]);
+
         return;
       }
       if (key == "AQuality") {
@@ -658,9 +672,6 @@ function Map3D() {
       }
       if (key == "PublicTransitRoutes") {
         handlePublicTransitRoutesClick(true);
-        return;
-      }
-      if (key == "Flood") {
         return;
       }
       if (key == "Well") {
@@ -786,6 +797,11 @@ function Map3D() {
         setIsChartVisible(false);
         return;
       }
+      if(key=="Flood")
+        {
+          setIsFloodLayerSelected(false);
+          setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
+        }
 
       if (isHighwayCheckboxMenuOpen == true) {
         handleHighwayClick(false);
@@ -820,8 +836,28 @@ function Map3D() {
   mydesignLayers.forEach((element) => {
     element.clickFunc = layerLinkHandler;
   });
+
+  const handleLayerSelectChangeFlood = async (event) => {
+    debugger;
+    const selectedLayer = event.target.value;
+    setCurrentLayerFlood(selectedLayer);
+    await updateLayer(selectedLayer);
+    const layer = await getFloodLayer(key, `/data/flood/${selectedLayer}.geojson`);
+    setMapLayersFlood(prevLayers => [...prevLayers, layer]);
+
+  };
+
   return (
     <>
+    {isFloodLayerSelected && (
+    <div id="layerSelector" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1000 }}>
+        <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
+        <select id="layerSelect" onChange={handleLayerSelectChangeFlood}>
+        <option value="-50yr">FloodRisk50yr</option>
+        <option value="_100yr">FloodRisk100yr</option>
+        </select>
+      </div>
+    )}
       <Sidenav
         color={sidenavColor}
         brand={transparentSidenav && !darkMode}
@@ -831,11 +867,12 @@ function Map3D() {
         setActiveItems={setActiveItems}
       />
       <div>
+
         <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isRouteCheckboxMenuOpen && (
             <CheckboxLayerEvent
-              handleCheckboxChange={handleCheckboxChange}
+              handleCheckboxChange={(event) => setCheckboxState(event.target.checked)}
               checkboxState={checkboxState}
             />
           )}
@@ -844,7 +881,7 @@ function Map3D() {
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (
             <CheckboxLayerHighway
-              handleCheckboxChange={handleCheckboxChange}
+            handleCheckboxChange={(event) => setCheckboxState(event.target.checked)}
               checkboxState={checkboxState}
             />
           )}
