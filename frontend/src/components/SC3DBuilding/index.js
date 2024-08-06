@@ -1,12 +1,21 @@
 import React, { useState, useEffect, useRef, StrictMode } from "react";
 import { DeckGL } from "@deck.gl/react";
 import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { GeoJsonLayer, ScatterplotLayer } from "@deck.gl/layers";
+import { GeoJsonLayer, ScatterplotLayer, IconLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
 import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
-import { IconLayer } from "@deck.gl/layers";
+import {
+  fetchDataFromApis,
+  drawBlackHawkCounty,
+  isPointInsidePolygon,
+  handleButtonClick,
+  useChartData,
+} from "components/SCDemographicData";
+import { startTrafficSimulator } from "components/TrafficSimulator";
+import { point, polygon } from "@turf/helpers";
+import { Bar } from "react-chartjs-2";
 import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu } from "../SCAQ/index";
@@ -21,18 +30,8 @@ import {
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index";
 import { BridgesgridLayer } from "../SCBridge/index";
-import {
-  fetchDataFromApis,
-  drawBlackHawkCounty,
-  isPointInsidePolygon,
-  handleButtonClick,
-  useChartData,
-} from "components/SCDemographicData";
 import { BuildingLayer } from "../SCBuilding/layerBuilding";
-import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "../SCFlood/index";
-import { point, polygon } from "@turf/helpers";
-import { Bar } from "react-chartjs-2";
 import { getWellData, createWellLayer } from "../SCWell/well";
 import { fetchRailwayData, CreateRailwayLayer } from "../SCRailway/index";
 import { RailwayBridgesLayer } from "../SCRailwayBridge/index";
@@ -64,7 +63,6 @@ function Map3D() {
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
-    debugger;
     const isAQualityActive = activeItems[layers.findIndex((item) => item.key === "AQuality")];
     const isWeatherActive = activeItems[layers.findIndex((item) => item.key === "WForecast")];
     const isDemographicActive =
@@ -87,7 +85,7 @@ function Map3D() {
     if (isDemographicActive) {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
-      //setClickPosition({ x: latitude, y: longitude });
+      // setClickPosition({ x: latitude, y: longitude });
 
       const blackHawkCountyBorder = [
         { lat: 42.642729, lng: -92.508407 },
@@ -102,20 +100,18 @@ function Map3D() {
       const in_or_out = isPointInsidePolygon(pt, poly);
 
       if (in_or_out) {
-        debugger;
         setIsMenuOpen(true);
         const data = await fetchDataFromApis();
         setMenuContent(
           `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
         );
-        //setCountyName(data.source1.location);
+        // setCountyName(data.source1.location);
         setIsChartVisible(false);
       }
     }
     if (isWeatherActive) {
       removeLayer(WeathericonLayer.id);
       setMapLayers(null);
-      debugger;
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
       setClickPosition({ x: latitude, y: longitude });
@@ -152,7 +148,7 @@ function Map3D() {
     viewportRef.current = viewport;
   }, [viewport]);
 
-  //Deck element reference to pass and use in animation or other sub components.
+  // Deck element reference to pass and use in animation or other sub components.
   const deckRef = useRef(null);
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
@@ -167,15 +163,14 @@ function Map3D() {
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
     setLayersStatic(layersStatic);
-    debugger;
     const layersCopy = layersStatic.slice();
-    //layersCopy.push(layersAnimation);
+    // layersCopy.push(layersAnimation);
     setMapLayersState(layersCopy);
   }
 
   function setAnimationLayers(animationLayers) {
     const allLayers = [];
-    //setLayersAnimation(animationLayers);
+    // setLayersAnimation(animationLayers);
     allLayers.push(animationLayers);
     const layersCopy = layersStatic.slice();
     allLayers.push(layersCopy);
@@ -184,12 +179,10 @@ function Map3D() {
 
   function checkLayerExists(layerName) {
     const foundIndex = layersStatic.findIndex((x) => x && x.id === layerName);
-    debugger;
     return foundIndex;
   }
 
   function removeLayer(layerName) {
-    debugger;
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
       layersStatic.splice(foundIndex, 1);
@@ -297,7 +290,7 @@ function Map3D() {
     }
   }
 
-  const CheckboxLayerEvent = ({ handleCheckboxChange, checkboxState }) => {
+  function CheckboxLayerEvent({ handleCheckboxChange, checkboxState }) {
     return (
       <div
         style={{
@@ -345,9 +338,9 @@ function Map3D() {
         </label>
       </div>
     );
-  };
+  }
 
-  const CheckboxLayerHighway = ({ handleCheckboxChange, checkboxState }) => {
+  function CheckboxLayerHighway({ handleCheckboxChange, checkboxState }) {
     return (
       <div
         style={{
@@ -425,7 +418,7 @@ function Map3D() {
         </label>
       </div>
     );
-  };
+  }
   // Checkbox durumlarını güncellemek için bir fonksiyon
   const handleCheckboxChange = async (event) => {
     const { name, checked } = event.target;
@@ -448,16 +441,15 @@ function Map3D() {
     //     getLineColor: [255, 0, 0],
     //   });
 
-    //   debugger;
     //   loadLayerwithLayer(trainStationsLayer);
     // }
 
-    if (checked && name == "primary") {
-      let data_primary = await loadFilteredGeoJsonData(
+    if (checked && name === "primary") {
+      const data_primary = await loadFilteredGeoJsonData(
         `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "primary"
       );
-      let primary_link = await loadFilteredGeoJsonData(
+      const primary_link = await loadFilteredGeoJsonData(
         `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "primary_link"
       );
@@ -470,8 +462,8 @@ function Map3D() {
       loadColourfulLayerwithData("primary", combinedData, color);
     }
 
-    if (checked && name == "secondary") {
-      let data_secondary = await loadFilteredGeoJsonData(
+    if (checked && name === "secondary") {
+      const data_secondary = await loadFilteredGeoJsonData(
         `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "secondary"
       );
@@ -480,8 +472,8 @@ function Map3D() {
       loadColourfulLayerwithData("secondary", data_secondary, color);
     }
 
-    if (checked && name == "residential") {
-      let data_residential = await loadFilteredGeoJsonData(
+    if (checked && name === "residential") {
+      const data_residential = await loadFilteredGeoJsonData(
         `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "residential"
       );
@@ -490,8 +482,8 @@ function Map3D() {
       loadColourfulLayerwithData("residential", data_residential, color);
     }
 
-    if (checked && name == "service") {
-      let data_service = await loadFilteredGeoJsonData(
+    if (checked && name === "service") {
+      const data_service = await loadFilteredGeoJsonData(
         `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "service"
       );
@@ -500,13 +492,13 @@ function Map3D() {
       loadColourfulLayerwithData("service", data_service, color);
     }
 
-    if (checked && name == "motorway") {
-      let data_motorway_link = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL  }/data/highway_waterloo.geojson`,
+    if (checked && name === "motorway") {
+      const data_motorway_link = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "motorway_link"
       );
-      let data_motorway = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL  }/data/highway_waterloo.geojson`,
+      const data_motorway = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "motorway"
       );
       // Yol çizgilerine özgü renk belirleme
@@ -518,9 +510,9 @@ function Map3D() {
       loadColourfulLayerwithData("motorway", combinedData, color);
     }
 
-    if (checked && name == "cycleway") {
-      let data_cycleway = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL  }/data/highway_waterloo.geojson`,
+    if (checked && name === "cycleway") {
+      const data_cycleway = await loadFilteredGeoJsonData(
+        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
         "cycleway"
       );
       // Yol çizgilerine özgü renk belirleme
@@ -528,27 +520,27 @@ function Map3D() {
       loadColourfulLayerwithData("cycleway", data_cycleway, color);
     }
 
-    if (!checked && name == "primary") {
+    if (!checked && name === "primary") {
       removeLayer("primary");
     }
-    if (!checked && name == "secondary") {
+    if (!checked && name === "secondary") {
       removeLayer("secondary");
     }
 
-    if (!checked && name == "residential") {
+    if (!checked && name === "residential") {
       removeLayer("residential");
     }
 
-    if (!checked && name == "service") {
+    if (!checked && name === "service") {
       removeLayer("service");
     }
 
-    if (!checked && name == "motorway") {
+    if (!checked && name === "motorway") {
       removeLayer("motorway_link");
       removeLayer("motorway");
     }
 
-    if (!checked && name == "cycleway") {
+    if (!checked && name === "cycleway") {
       removeLayer("cycleway");
     }
   };
@@ -569,44 +561,42 @@ function Map3D() {
 
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
-      if (key == "Electricgrid") {
+      if (key === "Electricgrid") {
         const Layer = await ElectricgridLayer();
         setMapLayers(Layer);
         return;
       }
 
-      if (key == "Electricpower") {
+      if (key === "Electricpower") {
         const Data = await getElectricData();
-        debugger;
         const powerLayer = createElectricPowerLayer(Data, setTooltip);
         setMapLayers(powerLayer);
         return;
       }
 
-      if (key == "Bridges") {
+      if (key === "Bridges") {
         const layerBridges = await BridgesgridLayer();
         setMapLayers(layerBridges);
         return;
       }
 
-      if (key == "RailBridge") {
+      if (key === "RailBridge") {
         const layerBridges = await RailwayBridgesLayer();
         setMapLayers(layerBridges);
         return;
       }
 
-      if (key == "TransEvents") {
+      if (key === "TransEvents") {
         await loadTransportationEvents();
         return;
       }
 
-      if (key == "Buildings") {
+      if (key === "Buildings") {
         const layerBuilding = await BuildingLayer();
         setMapLayers(layerBuilding);
         return;
       }
-      if (key == "Drought") {
-        debugger;
+      if (key === "Drought") {
         try {
           const drData = await FetchDroughtData();
           if (drData) {
@@ -628,7 +618,7 @@ function Map3D() {
         }
       }
 
-      if (key == "Flood") {
+      if (key === "Flood") {
         debugger;
         setIsFloodLayerSelected(true);
         setCurrentLayerFlood("_100yr"); 
@@ -638,55 +628,57 @@ function Map3D() {
 
         return;
       }
-      if (key == "AQuality") {
+      if (key === "AQuality") {
         // Hava kalitesi verilerini al ve grafiği render et
         createMenu();
         FetchAirQuality().then((data) => renderAirQualityChart(data));
         return;
       }
-      if (key == "WForecast") {
-        debugger;
+      if (key === "WForecast") {
         removeLayer("WForecast");
         const layer = await createWeatherIconLayer(42.569663, -92.479646, 3);
         setWeatherIconLayer(layer);
         setMapLayers(layer);
         return;
       }
-      if (key == "DemographicHousingData") {
+      if (key === "DemographicHousingData") {
         const layer = await drawBlackHawkCounty();
         setIsMenuOpen(true);
         const data = await fetchDataFromApis();
         setBlackHawkLayer(layer);
 
-        //setCountyName(data.source1.location);
+        // setCountyName(data.source1.location);
         setMenuContent(
           `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
         );
         setMapLayers(layer);
-        //const data= await fetchDataFromApis();
+        // const data= await fetchDataFromApis();
         return;
       }
-      if (key == "TrafficFlow") {
+      if (key === "TrafficFlow") {
         await startTrafficSimulator(setAnimationLayers, viewportRef);
         return;
       }
-      if (key == "PublicTransitRoutes") {
+      if (key === "PublicTransitRoutes") {
         handlePublicTransitRoutesClick(true);
         return;
       }
-      if (key == "Well") {
+      if (key === "Flood") {
+        return;
+      }
+      if (key === "Well") {
         const wellData = await getWellData();
         setWellData(wellData);
         const wellLayer = createWellLayer(wellData, setTooltip);
         setMapLayers(wellLayer);
       }
-      if (key == "RailwayNetwork") {
+      if (key === "RailwayNetwork") {
         const RailwayData = await fetchRailwayData();
         const railLayer = CreateRailwayLayer(RailwayData);
         setMapLayers(railLayer);
         setrailwayData(railLayer);
       }
-      if (key == "RoadNetworks" && isHighwayCheckboxMenuOpen == false) {
+      if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
         handleHighwayClick(true);
         checkboxState.primary = false;
         checkboxState.secondary = false;
@@ -696,57 +688,50 @@ function Map3D() {
         checkboxState.cycleway = false;
         return;
       }
-      if (key == "School") {
+      if (key === "School") {
         const Data = await getSchoolData();
-        debugger;
         const schoolLayer = createSchoolLayer(Data, setTooltip);
         setMapLayers(schoolLayer);
         return;
       }
-      if (key == "PoliceStations") {
+      if (key === "PoliceStations") {
         const Data = await getPolicestationData();
-        debugger;
         const policeLayer = createPoliceStationsLayer(Data, setTooltip);
         setMapLayers(policeLayer);
         return;
       }
-      if (key == "FireStations") {
+      if (key === "FireStations") {
         const Data = await getFirestationData();
-        debugger;
         const fireLayer = createFireStationsLayer(Data, setTooltip);
         setMapLayers(fireLayer);
         return;
       }
-      if (key == "CareFacilities") {
+      if (key === "CareFacilities") {
         const Data = await getCareFacilitiesData();
-        debugger;
         const careLayer = createCareFacilitiesLayer(Data, setTooltip);
         setMapLayers(careLayer);
         return;
       }
-      if (key == "Communication") {
+      if (key === "Communication") {
         const Data = await getCommunicationData();
-        debugger;
         const communicationLayer = createCommunicationLayer(Data, setTooltip);
         setMapLayers(communicationLayer);
         return;
       }
-      if (key == "wastewater") {
+      if (key === "wastewater") {
         const Data = await getWasteWaterData();
-        debugger;
         const wastewaterLayer = createWasteWaterLayer(Data, setTooltip);
         setMapLayers(wastewaterLayer);
         return;
       }
       await loadLayer(key, dataPath);
     } else {
-      if (isRouteCheckboxMenuOpen == true) {
+      if (isRouteCheckboxMenuOpen === true) {
         handlePublicTransitRoutesClick(false);
         return;
       }
 
       if (key === "Drought") {
-        debugger;
         removeLayer("Drought");
         const legendElement = document.querySelector(".legend-container");
         if (legendElement) {
@@ -756,17 +741,17 @@ function Map3D() {
         return;
       }
 
-      if (key == "Electricgrid") {
+      if (key === "Electricgrid") {
         removeLayer("Electricgrid");
         return;
       }
 
-      if (key == "RailwayNetwork") {
+      if (key === "RailwayNetwork") {
         removeLayer("RailwayNetwork");
         return;
       }
 
-      if (key == "Electricpower") {
+      if (key === "Electricpower") {
         removeLayer("Electricpower");
         return;
       }
@@ -776,21 +761,19 @@ function Map3D() {
       }
 
       if (key === "RailwayNetwork") {
-        debugger;
         removeLayer(railwayData.id);
         setMapLayers(null);
         return;
-        //setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
+        // setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
       }
 
-      if (key == "WForecast") {
-        debugger;
+      if (key === "WForecast") {
         removeLayer(WeathericonLayer.id);
         setMapLayers(null);
         return;
       }
 
-      if (key == "DemographicHousingData") {
+      if (key === "DemographicHousingData") {
         removeLayer(BlackHawkLayer.id);
         setMapLayers(null);
         setIsMenuOpen(false);
@@ -803,7 +786,7 @@ function Map3D() {
           setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
         }
 
-      if (isHighwayCheckboxMenuOpen == true) {
+      if (isHighwayCheckboxMenuOpen === true) {
         handleHighwayClick(false);
         removeLayer("primary");
         removeLayer("secondary");
@@ -830,6 +813,22 @@ function Map3D() {
       .split(" ")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(" ");
+  }
+
+  function getTooltipContent({ object }) {
+    if (object) {
+      console.log(object);
+      // Check for tooltip_data directly on the object first
+      if (object.tooltip_data) {
+        return `${object.tooltip_data}`;
+      }
+      // If not found, check within object.properties
+      if (object.properties && object.properties.tooltip_data) {
+        return `${object.properties.tooltip_data}`;
+      }
+    }
+    // Return a default or empty string if no tooltip data is found
+    return null;
   }
 
   const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
@@ -891,7 +890,7 @@ function Map3D() {
             <div
               id="map-container"
               style={{ width: "100%", height: "90vh", position: "relative" }}
-            ></div>
+            />
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
               <DeckGL
                 ref={deckRef}
@@ -900,65 +899,7 @@ function Map3D() {
                 onClick={handleMapClick}
                 controller
                 layers={[mapLayers]}
-                getTooltip={({ object }) => {
-                  if (object) {
-                    if (
-                      object.properties &&
-                      object.properties.occ_cls !== null &&
-                      object.properties.prim_occ !== null
-                    ) {
-                      return (
-                        object.properties && object.properties.occ_cls && object.properties.prim_occ
-                      );
-                    } else if (object.name != undefined) {
-                      debugger;
-                      return `${object.name}`;
-                    } else if (object && object.temperature != undefined) {
-                      return (
-                        `Temperature: ${object.temperature}°C` + `\nHumidity: ${object.humidity}%`
-                      );
-                    } else if (object.county && object.depth != undefined) {
-                      return `County: ${object.county}, Depth: ${object.depth}`;
-                    } else if (object.comment != undefined) {
-                      return `Name: ${capitalizeWords(object.Name)}\n Number of Student: ${
-                        object.Number_Student
-                      } \n Comment: ${capitalizeWords(object.comment)}`;
-                    } else if (
-                      object.policestations_name &&
-                      object.policestations_phonenumber != undefined
-                    ) {
-                      return `Name: ${capitalizeWords(
-                        object.policestations_name
-                      )}\n City: ${capitalizeWords(object.policestations_city)} \n Phone Number: ${
-                        object.policestations_phonenumber
-                      }`;
-                    } else if (object.firestations_name && object.firestations_city != undefined) {
-                      return `Name: ${capitalizeWords(
-                        object.firestations_name
-                      )}\n City: ${capitalizeWords(
-                        object.firestations_city
-                      )} \n Address: ${capitalizeWords(object.firestations_address)}`;
-                    } else if (object.carefacilities_name != undefined) {
-                      return `Name: ${capitalizeWords(
-                        object.carefacilities_name
-                      )}\n City: ${capitalizeWords(object.carefacilities_city)} \n Phone Number: ${
-                        object.carefacilities_phonenumber
-                      } \n Address: ${capitalizeWords(
-                        object.carefacilities_address
-                      )} \n Number of beds: ${object.carefacilities_numbeds}`;
-                    } else if (object.comm_owner != undefined) {
-                      return `City: ${capitalizeWords(object.comm_city)}\n Owner: ${capitalizeWords(
-                        object.comm_owner
-                      )}`;
-                    } else if (object.wastewater_name != undefined) {
-                      return `Name: ${capitalizeWords(
-                        object.wastewater_name
-                      )}\n City: ${capitalizeWords(
-                        object.wastewater_city
-                      )} \n Address: ${capitalizeWords(object.wastewater_address)}`;
-                    }
-                  }
-                }}
+                getTooltip={getTooltipContent}
               >
                 <Map
                   mapId={GOOGLE_MAP_ID}
@@ -979,12 +920,12 @@ function Map3D() {
                     opacity: 0.5,
                     padding: 10,
                   }}
-                ></canvas>
+                />
                 <div>
                   {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                   <Popup clickPosition={clickPosition} object={clickedObject} />
                 </div>
-                <div id="App"></div>
+                <div id="App" />
               </DeckGL>
             </APIProvider>
           </StrictMode>
