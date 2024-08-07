@@ -49,7 +49,7 @@ const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 function Map3D() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
-  const [mapLayersFlood, setMapLayersFlood] = useState([]);
+  //const [mapLayersFlood, setMapLayersFlood] = useState([]);
   const [chartData, setChartData] = useState(null);
   const [menuContent, setMenuContent] = useState("Loading");
   const [countyName, setCountyName] = useState("Black Hawk County");
@@ -158,7 +158,7 @@ function Map3D() {
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
-  const [currentLayerFlood, setCurrentLayerFlood] = useState("_100yr");
+  const [currentLayerFlood, setCurrentLayerFlood] = useState("100");
 
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
@@ -554,11 +554,6 @@ function Map3D() {
     removeLayer("primary");
   };
 
-  async function updateLayer(currentLayerFlood) {
-    let floodLayer = await getFloodLayer(currentLayerFlood);
-    setMapLayersFlood(floodLayer);
-  }
-
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
       if (key === "Electricgrid") {
@@ -617,15 +612,11 @@ function Map3D() {
           console.error("Error loading drought data:", error);
         }
       }
-
       if (key === "Flood") {
-        debugger;
         setIsFloodLayerSelected(true);
-        setCurrentLayerFlood("_100yr"); 
-       // await updateLayer(currentLayerFlood);
-        const layer= getFloodLayer(key, `/data/flood${currentLayerFlood}.geojson`);
-        setMapLayersFlood(prevLayers => [...prevLayers, layer]);
-
+        const layer = await getFloodLayer("flood", currentLayerFlood);
+        removeLayer("flood");
+        setMapLayers(layer);
         return;
       }
       if (key === "AQuality") {
@@ -661,9 +652,6 @@ function Map3D() {
       }
       if (key === "PublicTransitRoutes") {
         handlePublicTransitRoutesClick(true);
-        return;
-      }
-      if (key === "Flood") {
         return;
       }
       if (key === "Well") {
@@ -758,6 +746,7 @@ function Map3D() {
 
       if (key === "Well") {
         removeLayer("WellLayer");
+        return;
       }
 
       if (key === "RailwayNetwork") {
@@ -780,10 +769,12 @@ function Map3D() {
         setIsChartVisible(false);
         return;
       }
-      if(key=="Flood")
+      if(key === "Flood")
         {
-          setIsFloodLayerSelected(false);
-          setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
+          //setIsFloodLayerSelected(false);
+          //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
+          removeLayer("flood");
+          return;
         }
 
       if (isHighwayCheckboxMenuOpen === true) {
@@ -837,13 +828,12 @@ function Map3D() {
   });
 
   const handleLayerSelectChangeFlood = async (event) => {
-    debugger;
     const selectedLayer = event.target.value;
     setCurrentLayerFlood(selectedLayer);
-    await updateLayer(selectedLayer);
-    const layer = await getFloodLayer(key, `/data/flood/${selectedLayer}.geojson`);
-    setMapLayersFlood(prevLayers => [...prevLayers, layer]);
-
+    const layer = await getFloodLayer("flood", currentLayerFlood);
+    //setMapLayersFlood(prevLayers => [...prevLayers, layer]);
+    removeLayer("flood");
+    setMapLayers(layer);
   };
 
   return (
@@ -852,8 +842,8 @@ function Map3D() {
     <div id="layerSelector" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1000 }}>
         <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
         <select id="layerSelect" onChange={handleLayerSelectChangeFlood}>
-        <option value="-50yr">FloodRisk50yr</option>
-        <option value="_100yr">FloodRisk100yr</option>
+        <option value="50">Flood Risk 50yr</option>
+        <option value="100">Flood Risk 100yr</option>
         </select>
       </div>
     )}

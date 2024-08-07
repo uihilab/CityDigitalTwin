@@ -1,10 +1,10 @@
 // SCFlood/index.js
 import { GeoJsonLayer } from "@deck.gl/layers";
 
-export async function getFloodLayer(id, dataPath) {
-    debugger;
+export async function getFloodLayer(id, floodYear) {
     try {
-        const response = await fetch(`${process.env.PUBLIC_URL }/data/policestation.geojson`);
+        var path = `${process.env.PUBLIC_URL}/data/flood_${floodYear}yr.geojson`;
+        const response = await fetch(path);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
