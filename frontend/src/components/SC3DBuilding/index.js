@@ -639,7 +639,12 @@ function Map3D() {
       if (key === "AQuality") {
         // Hava kalitesi verilerini al ve grafiği render et
         createMenu();
-        FetchAirQuality().then((data) => renderAirQualityChart(data));
+        var data= await FetchAirQuality(42.4942408813, -92.34170190987821);
+        renderAirQualityChart(data);
+        const iconlayer = addIconToMap(42.4942408813, -92.34170190987821);
+        setMapLayers(iconlayer);
+        setAQIconLayer(iconlayer);
+
         return;
       }
       if (key === "WForecast") {
