@@ -412,7 +412,6 @@ function Map3D() {
       if (key === "Flood") {
         setIsFloodLayerSelected(true);
         const layer = await getFloodLayer("flood", currentLayerFlood);
-        removeLayer("flood");
         setMapLayers(layer);
         return;
       }
@@ -572,7 +571,7 @@ function Map3D() {
         return;
       }
       if (key === "Flood") {
-        //setIsFloodLayerSelected(false);
+        setIsFloodLayerSelected(false);
         //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
         removeLayer("flood");
         return;
@@ -629,11 +628,12 @@ function Map3D() {
   });
 
   const handleLayerSelectChangeFlood = async (event) => {
+      removeLayer("flood");
     const selectedLayer = event.target.value;
     setCurrentLayerFlood(selectedLayer);
     const layer = await getFloodLayer("flood", selectedLayer);
     //setMapLayersFlood(prevLayers => [...prevLayers, layer]);
-    removeLayer("flood");
+
     setMapLayers(layer);
   };
 
@@ -642,9 +642,14 @@ function Map3D() {
       {isFloodLayerSelected && (
         <div id="layerSelector" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1000 }}>
           <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
-          <select id="layerSelect" onChange={handleLayerSelectChangeFlood}>
-            <option value="50">Flood Risk 50yr</option>
-            <option value="100">Flood Risk 100yr</option>
+          <select id="layerSelect" defaultValue="5" onChange={handleLayerSelectChangeFlood}>
+          <option value="2">Flood Risk 2yr</option>
+          <option value="5">Flood Risk 5yr</option>
+          <option value="25">Flood Risk 25yr</option>
+          <option value="50">Flood Risk 50yr</option>
+          <option value="100">Flood Risk 100yr</option>
+          <option value="200">Flood Risk 200yr</option>
+          <option value="500">Flood Risk 500yr</option>
           </select>
         </div>
       )}
