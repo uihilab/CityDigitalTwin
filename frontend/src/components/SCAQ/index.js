@@ -1,4 +1,5 @@
 import Chart from 'chart.js/auto';
+import { IconLayer } from "@deck.gl/layers";
 
 let menu = null;
 let buttonsDiv = null; // Butonlar için global değişken
@@ -164,4 +165,21 @@ export function showDailyDetails(details, date) {
     detailsDiv.innerHTML += detailsContent;
     detailsDiv.appendChild(backButton);
     menu.appendChild(detailsDiv);
+}
+
+export function addIconToMap(latitude, longitude) {
+    const icon = new IconLayer({
+        id: 'AQuality',
+        data: [{ position: [longitude,latitude ]}],
+        pickable: true,
+        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
+        iconMapping:  `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
+        getIcon: (d) => "paragon-5-orange",
+        sizeScale: 15,
+        getPosition: d => d.position,
+        getSize: d => 5,
+        getColor: d => [Math.sqrt(d.exits), 140, 0],
+    });
+
+   return icon;
 }

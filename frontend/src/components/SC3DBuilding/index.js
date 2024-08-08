@@ -18,7 +18,7 @@ import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
-import { renderAirQualityChart, FetchAirQuality, createMenu } from "../SCAQ/index";
+import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
 import Popup from "./Popup";
 import {
@@ -42,6 +42,7 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
+import { icon } from "leaflet";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -71,12 +72,27 @@ function Map3D() {
       const longitude = event.coordinate[0];
       const latitude = event.coordinate[1];
       setClickPosition({ x: latitude, y: longitude });
+
+      if(AQiconLayer !==null)
+        {
+          removeLayer(AQiconLayer.id);
+          setMapLayers(null);
+        }
+
       try {
         const canvas = document.getElementById("airQualityCanvas");
         canvas.remove();
 
         const airQualityData = await FetchAirQuality(latitude, longitude);
         renderAirQualityChart(airQualityData);
+
+        
+
+        const iconlayer = addIconToMap(latitude, longitude);
+        setMapLayers(iconlayer);
+        setAQIconLayer(iconlayer);
+
+
       } catch (error) {
         console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
       }
@@ -155,10 +171,11 @@ function Map3D() {
   const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
   const [mapLayers, setMapLayersState] = useState(maplayersTestData);
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
+  const [AQiconLayer, setAQIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
-  const [currentLayerFlood, setCurrentLayerFlood] = useState("100");
+  const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
 
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
@@ -769,13 +786,12 @@ function Map3D() {
         setIsChartVisible(false);
         return;
       }
-      if(key === "Flood")
-        {
-          //setIsFloodLayerSelected(false);
-          //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
-          removeLayer("flood");
-          return;
-        }
+      if (key === "Flood") {
+        //setIsFloodLayerSelected(false);
+        //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
+        removeLayer("flood");
+        return;
+      }
 
       if (isHighwayCheckboxMenuOpen === true) {
         handleHighwayClick(false);
@@ -830,7 +846,7 @@ function Map3D() {
   const handleLayerSelectChangeFlood = async (event) => {
     const selectedLayer = event.target.value;
     setCurrentLayerFlood(selectedLayer);
-    const layer = await getFloodLayer("flood", currentLayerFlood);
+    const layer = await getFloodLayer("flood", selectedLayer);
     //setMapLayersFlood(prevLayers => [...prevLayers, layer]);
     removeLayer("flood");
     setMapLayers(layer);
@@ -838,15 +854,15 @@ function Map3D() {
 
   return (
     <>
-    {isFloodLayerSelected && (
-    <div id="layerSelector" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1000 }}>
-        <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
-        <select id="layerSelect" onChange={handleLayerSelectChangeFlood}>
-        <option value="50">Flood Risk 50yr</option>
-        <option value="100">Flood Risk 100yr</option>
-        </select>
-      </div>
-    )}
+      {isFloodLayerSelected && (
+        <div id="layerSelector" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1000 }}>
+          <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
+          <select id="layerSelect" onChange={handleLayerSelectChangeFlood}>
+            <option value="50">Flood Risk 50yr</option>
+            <option value="100">Flood Risk 100yr</option>
+          </select>
+        </div>
+      )}
       <Sidenav
         color={sidenavColor}
         brand={transparentSidenav && !darkMode}
@@ -870,7 +886,7 @@ function Map3D() {
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (
             <CheckboxLayerHighway
-            handleCheckboxChange={(event) => setCheckboxState(event.target.checked)}
+              handleCheckboxChange={(event) => setCheckboxState(event.target.checked)}
               checkboxState={checkboxState}
             />
           )}
