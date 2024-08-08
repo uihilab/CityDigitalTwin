@@ -21,13 +21,6 @@ export async function getWasteWaterData() {
     const response = await fetch(`${process.env.PUBLIC_URL}/data/wastewater.geojson`);
     const data = await response.json();
 
-    // return data.features.map((feature) => ({
-    //   wastewater_name: feature.properties.name,
-    //   coordinates: feature.geometry.coordinates,
-    //   wastewater_city: feature.properties.city,
-    //   wastewater_address: feature.properties.address,
-    // }));
-
     const result = data.features.map((feature) => {
       const item = {
         wastewater_name: feature.properties.name,
@@ -47,7 +40,6 @@ export async function getWasteWaterData() {
 }
 
 export const createWasteWaterLayer = (wastewaterData, setTooltip) => {
-  debugger;
   const wastewaterLayer = new IconLayer({
     id: "wastewater",
     data: wastewaterData,
@@ -59,7 +51,6 @@ export const createWasteWaterLayer = (wastewaterData, setTooltip) => {
     getPosition: (d) => d.coordinates,
     getSize: (d) => 3, // İkon boyutunu ayarlayın
     onHover: ({ object, x, y }) => {
-      debugger;
       if (object) {
         const tooltipData = formatTooltipData(object);
         setTooltip({
