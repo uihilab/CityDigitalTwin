@@ -16,7 +16,7 @@ import {
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
-import { loadFilteredGeoJsonData, LoadAndFilterLayer } from "../SCHighway/index";
+import  HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
@@ -227,17 +227,6 @@ function Map3D() {
     return layer;
   }
 
-  async function CreateColourfulGeoJsonLayer(id, data, color) {
-    const layer = new GeoJsonLayer({
-      id,
-      data,
-      getLineColor: color, // Çizgi rengini belirle
-      lineWidthMinPixels: 2, // Opsiyonel: çizgi kalınlığını belirle
-      lineWidthMaxPixels: 5, // Opsiyonel: çizgi kalınlığını belirle
-    });
-    return layer;
-  }
-
   function loadTruck(data) {
     return new ScenegraphLayer({
       id: "truck",
@@ -259,11 +248,6 @@ function Map3D() {
 
   async function loadLayerwithData(key, jsonData) {
     const layer = await CreateGeoJsonLayer(key, jsonData);
-    setMapLayers(layer);
-  }
-
-  async function loadColourfulLayerwithData(key, jsonData, color) {
-    const layer = await CreateColourfulGeoJsonLayer(key, jsonData, color);
     setMapLayers(layer);
   }
 
@@ -357,213 +341,9 @@ function Map3D() {
     );
   }
 
-  function CheckboxLayerHighway({ handleCheckboxChange, checkboxState }) {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          top: "0",
-          left: "0",
-          padding: "10px",
-          boxSizing: "border-box",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          zIndex: 999,
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          borderRadius: "5px",
-        }}
-      >
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="primary"
-            checked={checkboxState.primary}
-            onChange={handleCheckboxChange}
-          />
-          Primary
-        </label>
-        <br />
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="secondary"
-            checked={checkboxState.secondary}
-            onChange={handleCheckboxChange}
-          />
-          Secondary
-        </label>
-        <br />
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="residential"
-            checked={checkboxState.residential}
-            onChange={handleCheckboxChange}
-          />
-          Residential
-        </label>
-        <br />
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="service"
-            checked={checkboxState.service}
-            onChange={handleCheckboxChange}
-          />
-          Service
-        </label>
-        <br />
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="motorway"
-            checked={checkboxState.motorway}
-            onChange={handleCheckboxChange}
-          />
-          Motorway
-        </label>
-        <br />
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="cycleway"
-            checked={checkboxState.cycleway}
-            onChange={handleCheckboxChange}
-          />
-          Cycleway
-        </label>
-      </div>
-    );
-  }
-  // Checkbox durumlarını güncellemek için bir fonksiyon
-  const handleCheckboxChange = async (event) => {
-    const { name, checked } = event.target;
-
-    setCheckboxState((prevState) => ({
-      ...prevState,
-      [name]: checked,
-    }));
-
-    // if (checked && name == 'Train') {
-
-    //   const data = await getTrainStationsData();
-    //   // Tren istasyonlarının veri yapısını oluştur
-    //   const stationsStruct = createStationsStruct(data);
-
-    //   const trainStationsLayer = new ScatterplotLayer({
-    //     data: stationsStruct,
-    //     getPosition: d => d.path,
-    //     getRadius: 1,
-    //     getLineColor: [255, 0, 0],
-    //   });
-
-    //   loadLayerwithLayer(trainStationsLayer);
-    // }
-
-    if (checked && name === "primary") {
-      const data_primary = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "primary"
-      );
-      const primary_link = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "primary_link"
-      );
-
-      // Verileri birleştir
-      const combinedData = data_primary.concat(primary_link);
-
-      // Yol çizgilerine özgü renk belirleme
-      const color = [255, 0, 0]; // Örneğin kırmızı renk
-      loadColourfulLayerwithData("primary", combinedData, color);
-    }
-
-    if (checked && name === "secondary") {
-      const data_secondary = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "secondary"
-      );
-      // Yol çizgilerine özgü renk belirleme
-      const color = [0, 0, 255]; // mavi renk
-      loadColourfulLayerwithData("secondary", data_secondary, color);
-    }
-
-    if (checked && name === "residential") {
-      const data_residential = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "residential"
-      );
-      // Yol çizgilerine özgü renk belirleme
-      const color = [95, 95, 95]; // koyu gri
-      loadColourfulLayerwithData("residential", data_residential, color);
-    }
-
-    if (checked && name === "service") {
-      const data_service = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "service"
-      );
-      // Yol çizgilerine özgü renk belirleme
-      const color = [190, 190, 190]; // Gri renk
-      loadColourfulLayerwithData("service", data_service, color);
-    }
-
-    if (checked && name === "motorway") {
-      const data_motorway_link = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "motorway_link"
-      );
-      const data_motorway = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "motorway"
-      );
-      // Yol çizgilerine özgü renk belirleme
-
-      // Verileri birleştir
-      const combinedData = data_motorway_link.concat(data_motorway);
-
-      const color = [80, 80, 80]; // Gri renk
-      loadColourfulLayerwithData("motorway", combinedData, color);
-    }
-
-    if (checked && name === "cycleway") {
-      const data_cycleway = await loadFilteredGeoJsonData(
-        `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
-        "cycleway"
-      );
-      // Yol çizgilerine özgü renk belirleme
-      const color = [255, 0, 0]; // Gri renk
-      loadColourfulLayerwithData("cycleway", data_cycleway, color);
-    }
-
-    if (!checked && name === "primary") {
-      removeLayer("primary");
-    }
-    if (!checked && name === "secondary") {
-      removeLayer("secondary");
-    }
-
-    if (!checked && name === "residential") {
-      removeLayer("residential");
-    }
-
-    if (!checked && name === "service") {
-      removeLayer("service");
-    }
-
-    if (!checked && name === "motorway") {
-      removeLayer("motorway_link");
-      removeLayer("motorway");
-    }
-
-    if (!checked && name === "cycleway") {
-      removeLayer("cycleway");
-    }
-  };
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
-  const handlePublicTransitRoutesClick = (open) => {
-    setIsRouteCheckboxMenuOpen(open);
+  const handlePublicTransitRoutesClick = (isRouteLayer) => {
+    setIsRouteCheckboxMenuOpen(isRouteLayer);
   };
 
   const handleHighwayClick = (open) => {
@@ -877,7 +657,6 @@ function Map3D() {
         setActiveItems={setActiveItems}
       />
       <div>
-
         <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isRouteCheckboxMenuOpen && (
@@ -890,10 +669,7 @@ function Map3D() {
         <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (
-            <CheckboxLayerHighway
-              handleCheckboxChange={(event) => setCheckboxState(event.target.checked)}
-              checkboxState={checkboxState}
-            />
+            <HighwayCheckboxComponent setMapLayers={setMapLayers} removeLayer={removeLayer} />
           )}
         </div>
         <div id="map" style={{ width: "100%", height: "90vh" }}>
