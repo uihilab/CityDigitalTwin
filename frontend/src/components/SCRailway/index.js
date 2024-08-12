@@ -5,13 +5,12 @@ import { GeoJsonLayer } from '@deck.gl/layers';
 import { Map } from 'react-map-gl';
 
 export async function fetchRailwayData() {
-    const response = await fetch('/data/Rail_Line_Active.geojson');
+    const response = await fetch(`${process.env.PUBLIC_URL}/data/Rail_Line_Active.geojson`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
     // Gelen verileri JSON formatında çözümleyin
     const data = await response.json();
-    debugger;
     return data;
 }
 
