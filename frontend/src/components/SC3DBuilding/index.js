@@ -16,7 +16,7 @@ import {
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
-import  HighwayCheckboxComponent from "../SCHighway/index";
+import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
 import { createWeatherIconLayer } from "../SCWeather/Weather";
@@ -42,7 +42,6 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
-import { icon } from "leaflet";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -61,7 +60,6 @@ function Map3D() {
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
 
-
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
     const isAQualityActive = activeItems[layers.findIndex((item) => item.key === "AQuality")];
@@ -73,11 +71,10 @@ function Map3D() {
       const latitude = event.coordinate[1];
       setClickPosition({ x: latitude, y: longitude });
 
-      if(AQiconLayer !==null)
-        {
-          removeLayer(AQiconLayer.id);
-          setMapLayers(null);
-        }
+      if (AQiconLayer !== null) {
+        removeLayer(AQiconLayer.id);
+        setMapLayers(null);
+      }
 
       try {
         const canvas = document.getElementById("airQualityCanvas");
@@ -86,13 +83,9 @@ function Map3D() {
         const airQualityData = await FetchAirQuality(latitude, longitude);
         renderAirQualityChart(airQualityData);
 
-        
-
         const iconlayer = addIconToMap(latitude, longitude);
         setMapLayers(iconlayer);
         setAQIconLayer(iconlayer);
-
-
       } catch (error) {
         console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
       }
@@ -168,7 +161,7 @@ function Map3D() {
   const deckRef = useRef(null);
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
-  const [activeItems, setActiveItems] = useState(new Array(layers.length).fill(false));
+  const [activeItems, setActiveItems] = useState([]);
   const [mapLayers, setMapLayersState] = useState(maplayersTestData);
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [AQiconLayer, setAQIconLayer] = useState(null);
@@ -418,7 +411,7 @@ function Map3D() {
       if (key === "AQuality") {
         // Hava kalitesi verilerini al ve grafiği render et
         createMenu();
-        var data= await FetchAirQuality(42.4942408813, -92.34170190987821);
+        var data = await FetchAirQuality(42.4942408813, -92.34170190987821);
         renderAirQualityChart(data);
         const iconlayer = addIconToMap(42.4942408813, -92.34170190987821);
         setMapLayers(iconlayer);
@@ -622,13 +615,11 @@ function Map3D() {
     return null;
   }
 
-  const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
-  mydesignLayers.forEach((element) => {
-    element.clickFunc = layerLinkHandler;
-  });
+  //const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
+  layers[0].clickFunc = layerLinkHandler;
 
   const handleLayerSelectChangeFlood = async (event) => {
-      removeLayer("flood");
+    removeLayer("flood");
     const selectedLayer = event.target.value;
     setCurrentLayerFlood(selectedLayer);
     const layer = await getFloodLayer("flood", selectedLayer);
@@ -640,22 +631,25 @@ function Map3D() {
   return (
     <>
       {isFloodLayerSelected && (
-        <div id="layerSelector" style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 1000 }}>
+        <div
+          id="layerSelector"
+          style={{ position: "absolute", top: "10px", left: "10px", zIndex: 1000 }}
+        >
           <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
           <select id="layerSelect" defaultValue="5" onChange={handleLayerSelectChangeFlood}>
-          <option value="2">Flood Risk 2yr</option>
-          <option value="5">Flood Risk 5yr</option>
-          <option value="25">Flood Risk 25yr</option>
-          <option value="50">Flood Risk 50yr</option>
-          <option value="100">Flood Risk 100yr</option>
-          <option value="200">Flood Risk 200yr</option>
-          <option value="500">Flood Risk 500yr</option>
+            <option value="2">Flood Risk 2yr</option>
+            <option value="5">Flood Risk 5yr</option>
+            <option value="25">Flood Risk 25yr</option>
+            <option value="50">Flood Risk 50yr</option>
+            <option value="100">Flood Risk 100yr</option>
+            <option value="200">Flood Risk 200yr</option>
+            <option value="500">Flood Risk 500yr</option>
           </select>
         </div>
       )}
       <Sidenav
         color={sidenavColor}
-        brand={transparentSidenav && !darkMode}
+        //brand="AKLDNDKLN"
         brandName="Waterloo"
         routes={layers}
         activeItems={activeItems}

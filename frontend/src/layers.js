@@ -36,221 +36,242 @@ Coded by www.creative-tim.com
 */
 
 // Material Dashboard 2 React layouts
-import Dashboard from "layouts/dashboard";
-import Tables from "layouts/tables";
-import Billing from "layouts/billing";
-import RTL from "layouts/rtl";
-import Notifications from "layouts/notifications";
-import Profile from "layouts/profile";
-import SignIn from "layouts/authentication/sign-in";
-import SignUp from "layouts/authentication/sign-up";
-import SmartCity from "layouts/smartcity";
-import SCEvents from "layouts/events";
-import SCBuilding from "layouts/map";
-import SC3DBuilding from "layouts/3Dmap";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
 
-let layers = [
+const layers = [
   {
-    type: "title",
-    title: "Infrastructure",
-    key: "InfrastructureData",
+    type: "collapse",
+    name: "Infrastructure",
+    key: "C_Infrastructure",
     icon: <Icon fontSize="small">Infrastructure Data</Icon>,
-    route: "frontend/src/components/SCEvents/index.js",
-  },
-  {
-    type: "mydesign",
-    name: "Electric grid",
-    key: "Electricgrid",
-    status: true,
-    icon: <Icon fontSize="small">Electric grid</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/PowerPlants.json`,
-  },
-  {
-    type: "mydesign",
-    name: "Electric power",
-    key: "Electricpower",
-    status: true,
-    icon: <Icon fontSize="small">Electric power</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/electiricpowerfacilities.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "Bridges",
-    key: "Bridges",
-    status: false,
-    icon: <Icon fontSize="small">Bridges</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/iowa_bridges.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "Railway Bridge",
-    key: "RailBridge",
-    status: false,
-    icon: <Icon fontSize="small">Railway Bridges</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/railwaybridge.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "Buildings",
-    key: "Buildings",
-    icon: <Icon fontSize="small">Buildings</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/waterloo_buildings.geojson`,
+    collapse: [
+      {
+        type: "maplayer",
+        name: "Buildings",
+        key: "Buildings",
+        icon: <Icon fontSize="small">Buildings</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/waterloo_buildings.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "Bridges",
+        key: "Bridges",
+        status: false,
+        icon: <Icon fontSize="small">Bridges</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/iowa_bridges.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "Railway Bridge",
+        key: "RailBridge",
+        status: false,
+        icon: <Icon fontSize="small">Railway Bridges</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/railwaybridge.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "Electric Power Plants",
+        key: "Electricpower",
+        status: true,
+        icon: <Icon fontSize="small">Electric power</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/electiricpowerfacilities.geojson`,
+      },
+      // {
+      //   type: "maplayer",
+      //   name: "Electric grid",
+      //   key: "Electricgrid",
+      //   status: true,
+      //   icon: <Icon fontSize="small">Electric grid</Icon>,
+      //   dataPath: `${process.env.PUBLIC_URL}/data/PowerPlants.json`,
+      // },
+      {
+        type: "maplayer",
+        name: "Waste Water Treatment Plants",
+        key: "wastewater",
+        icon: <Icon fontSize="small">WasteWater</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/wastewater.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "Natural Gas Plants",
+        key: "natralgas",
+        icon: <Icon fontSize="small">Natural Gas Plants</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/wastewater.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "Groundwater Wells",
+        key: "wells",
+        icon: <Icon fontSize="small">Well</Icon>,
+      },
+    ],
   },
   {
     type: "divider",
     key: "divide1",
+    name: "divide1",
   },
   {
-    type: "title",
-    title: "Environmental and Climate",
-    key: "ECD",
-    icon: <Icon fontSize="small">Environmental and Climate</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Air quality",
-    key: "AQuality",
-    icon: <Icon fontSize="small">Air quality</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Drought",
-    key: "Drought",
-    icon: <Icon fontSize="small">Drought</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Well",
-    key: "Well",
-    icon: <Icon fontSize="small">Well</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Flood",
-    key: "Flood",
-    icon: <Icon fontSize="small">Flood</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Waste Water",
-    key: "wastewater",
-    icon: <Icon fontSize="small">WasteWater</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/wastewater.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "Weather Forecast",
-    key: "WForecast",
-    icon: <Icon fontSize="small">Weather Forecast</Icon>,
-    dataPath: "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m",
+    type: "collapse",
+    name: "Weather & Environment",
+    key: "C_WE",
+    icon: <Icon fontSize="small">Weather Environment</Icon>,
+    collapse: [
+      {
+        type: "maplayer",
+        name: "Weather Forecast",
+        key: "WForecast",
+        icon: <Icon fontSize="small">Weather Forecast</Icon>,
+        dataPath:
+          "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m",
+      },
+      {
+        type: "maplayer",
+        name: "Air Quality Data",
+        key: "AQuality",
+        icon: <Icon fontSize="small">Air quality</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Drought Maps",
+        key: "Drought",
+        icon: <Icon fontSize="small">Drought</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Flood",
+        key: "Flood",
+        icon: <Icon fontSize="small">Flood</Icon>,
+      },
+    ],
   },
   {
     type: "divider",
     key: "divide2",
+    name: "divide2",
   },
   {
-    type: "title",
-    title: "Transportation and Mobilty",
-    key: "TranspMobility",
-    icon: <Icon fontSize="small">Transportation and Mobilty</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Road Networks",
-    key: "RoadNetworks",
-    icon: <Icon fontSize="small">Road Networks</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/highway_waterloo.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "Railway Networks",
-    key: "RailwayNetwork",
-    icon: <Icon fontSize="small">Railway Networks</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Transit Routes",
-    key: "PublicTransitRoutes",
-    icon: <Icon fontSize="small">Transit</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Traffic Flow",
-    key: "TrafficFlow",
-    icon: <Icon fontSize="small">Traffic</Icon>,
-  },
-  {
-    type: "mydesign",
-    name: "Transportation Events",
-    key: "TransEvents",
-    icon: <Icon fontSize="small">Events</Icon>,
-    dataPath: "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
+    type: "collapse",
+    name: "Transportation",
+    key: "C_Transportation",
+    icon: <Icon fontSize="small">Transportation</Icon>,
+    collapse: [
+      {
+        type: "maplayer",
+        name: "Road Networks",
+        key: "RoadNetworks",
+        icon: <Icon fontSize="small">Road Networks</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "Public Transit Network",
+        key: "PublicTransitRoutes",
+        icon: <Icon fontSize="small">Transit</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Railway Network",
+        key: "RailwayNetwork",
+        icon: <Icon fontSize="small">Railway Networks</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Bicycle Network",
+        key: "BicycleNetwork",
+        icon: <Icon fontSize="small">Bicycle Network</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Transportation Events",
+        key: "TransEvents",
+        icon: <Icon fontSize="small">Events</Icon>,
+        dataPath:
+          "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
+      },
+    ],
   },
   {
     type: "divider",
     key: "divide3",
+    name: "divide4",
   },
   {
-    type: "title",
-    title: "Demographic and Housing Data",
-    key: "DHData",
-    icon: <Icon fontSize="small">Demographic and Housing Data</Icon>,
-    
-  },
-  {
-    type: "mydesign",
-    name: "Demographic Data",
-    key: "DemographicHousingData",
-    icon: <Icon fontSize="small">DemographicHousing</Icon>,
-    dataPath:"https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex",
+    type: "collapse",
+    name: "Public Services",
+    key: "C_PublicServices",
+    icon: <Icon fontSize="small">Public Services</Icon>,
+    collapse: [
+      {
+        type: "maplayer",
+        name: "Demographic Data",
+        key: "DemographicHousingData",
+        icon: <Icon fontSize="small">DemographicHousing</Icon>,
+        dataPath:
+          "https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex",
+      },
+      {
+        type: "maplayer",
+        name: "School",
+        key: "School",
+        icon: <Icon fontSize="small">School</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/Ameties_School.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "PoliceStations",
+        key: "PoliceStations",
+        icon: <Icon fontSize="small">Police Stations</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/policestation.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "FireStations",
+        key: "FireStations",
+        icon: <Icon fontSize="small">Fire Stations</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/firestation.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "CareFacilities",
+        key: "CareFacilities",
+        icon: <Icon fontSize="small">Care Facilities</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/carefacilities.geojson`,
+      },
+      {
+        type: "maplayer",
+        name: "CommunicationFacilities",
+        key: "Communication",
+        icon: <Icon fontSize="small">Communication Facilities</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/communicationfacilities.geojson`,
+      },
+    ],
   },
   {
     type: "divider",
     key: "divide4",
+    name: "divide4",
   },
   {
-    type: "title",
-    title: "Amenities",
-    key: "Ameties",
-    icon: <Icon fontSize="small">Amenities</Icon>,
+    type: "collapse",
+    name: "Data Analytics",
+    key: "C_DataAnalytics",
+    icon: <Icon fontSize="small">Data Analytics</Icon>,
+    collapse: [
+      {
+        type: "maplayer",
+        name: "Traffic Flow",
+        key: "TrafficFlow",
+        icon: <Icon fontSize="small">Traffic</Icon>,
+      },
+    ],
   },
   {
-    type: "mydesign",
-    name: "School",
-    key: "School",
-    icon: <Icon fontSize="small">School</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/Ameties_School.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "PoliceStations",
-    key: "PoliceStations",
-    icon: <Icon fontSize="small">Police Stations</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/policestation.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "FireStations",
-    key: "FireStations",
-    icon: <Icon fontSize="small">Fire Stations</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/firestation.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "CareFacilities",
-    key: "CareFacilities",
-    icon: <Icon fontSize="small">Care Facilities</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/carefacilities.geojson`,
-  },
-  {
-    type: "mydesign",
-    name: "CommunicationFacilities",
-    key: "Communication",
-    icon: <Icon fontSize="small">Communication Facilities</Icon>,
-    dataPath: `${process.env.PUBLIC_URL }/data/communicationfacilities.geojson`,
+    type: "divider",
+    key: "divide5",
+    name: "divide5",
   },
 ];
 
