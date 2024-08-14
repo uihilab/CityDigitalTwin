@@ -153,7 +153,7 @@ function Map3D() {
   const [viewport, setViewport] = useState({
     longitude: -92.345,
     latitude: 42.4937,
-    zoom: 19,
+    zoom: 13,
     heading: 1,
     pitch: 45,
   });
@@ -398,7 +398,7 @@ function Map3D() {
         await startTrafficSimulator(setAnimationLayers, viewportRef);
         return;
       }
-      if (key === "Well") {
+      if (key === "wells") {
         const wellData = await getWellData();
         setWellData(wellData);
         const wellLayer = createWellLayer(wellData, setTooltip);
@@ -409,15 +409,16 @@ function Map3D() {
       //   return;
       // }
       if (key === "Bus_Info") {
-        debugger;
-        const busLayer= await loadBusLayer();
+        const busLayer= await loadBusLayer();        
         setMapLayers(busLayer);
+        return;
       }
       if (key === "RailwayNetwork") {
         const RailwayData = await fetchRailwayData();
         const railLayer = CreateRailwayLayer(RailwayData);
         setMapLayers(railLayer);
         setrailwayData(railLayer);
+        return;
       }
       if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
         handleHighwayClick(true);
@@ -496,7 +497,7 @@ function Map3D() {
         return;
       }
 
-      if (key === "Well") {
+      if (key === "wells") {
         removeLayer("WellLayer");
         return;
       }
