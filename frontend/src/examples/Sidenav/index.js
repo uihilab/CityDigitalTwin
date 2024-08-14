@@ -167,7 +167,7 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
                 : setOpenNestedCollapse(key)
             }
           >
-            {renderNestedCollapse(collapse)}
+            {renderCollapse(collapse)}
           </SidenavItem>
         );
       } else if (type === "maplayer") {
