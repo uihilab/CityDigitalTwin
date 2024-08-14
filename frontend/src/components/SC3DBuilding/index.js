@@ -42,6 +42,7 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
+import {  loadBusLayer }from "../SCPublicTransitRoute/bus.js";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -59,6 +60,12 @@ function Map3D() {
   const [railwayData, setrailwayData] = useState([]);
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
+
+  const [checkboxStateTransit, setCheckboxStateTransit] = useState({
+    train: false,
+    bus: false,
+    tram: false,
+  });
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
@@ -169,6 +176,7 @@ function Map3D() {
   const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
   const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
+  //const [isselectedTransit, setSelectedTransit] = useState(false);
 
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
@@ -201,7 +209,7 @@ function Map3D() {
     }
   }
 
-  const [checkboxState, setCheckboxState] = useState(initialState);
+  const [checkboxStateHighway, setCheckboxStateHighway] = useState(initialState);
   const [isRouteCheckboxMenuOpen, setIsRouteCheckboxMenuOpen] = useState(false);
   const [isHighwayCheckboxMenuOpen, setIsHighwayCheckboxMenuOpen] = useState(false);
 
@@ -220,18 +228,18 @@ function Map3D() {
     return layer;
   }
 
-  function loadTruck(data) {
-    return new ScenegraphLayer({
-      id: "truck",
-      data, // "./data/test.json",
-      scenegraph: `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`,
-      sizeScale: 2,
-      getPosition: (d) => d.coordinates,
-      getTranslation: [0, 0, 1],
-      getOrientation: (d) => [0, 180, 90],
-      _lighting: "pbr",
-    });
-  }
+  // function loadTruck(data) {
+  //   return new ScenegraphLayer({
+  //     id: "truck",
+  //     data, // "./data/test.json",
+  //     scenegraph: `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`,
+  //     sizeScale: 2,
+  //     getPosition: (d) => d.coordinates,
+  //     getTranslation: [0, 0, 1],
+  //     getOrientation: (d) => [0, 180, 90],
+  //     _lighting: "pbr",
+  //   });
+  // }
 
   async function loadLayer(key, dataPath) {
     const jsonData = await loadJsonData(dataPath);
@@ -239,10 +247,10 @@ function Map3D() {
     setMapLayers(layer);
   }
 
-  async function loadLayerwithData(key, jsonData) {
-    const layer = await CreateGeoJsonLayer(key, jsonData);
-    setMapLayers(layer);
-  }
+  // async function loadLayerwithData(key, jsonData) {
+  //   const layer = await CreateGeoJsonLayer(key, jsonData);
+  //   setMapLayers(layer);
+  // }
 
   async function loadLayerwithLayer(layer) {
     setMapLayers(layer);
@@ -283,57 +291,6 @@ function Map3D() {
       console.error("Error fetching event:", error);
     }
   }
-
-  function CheckboxLayerEvent({ handleCheckboxChange, checkboxState }) {
-    return (
-      <div
-        style={{
-          position: "absolute",
-          top: "0",
-          left: "0",
-          padding: "10px",
-          boxSizing: "border-box",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
-          zIndex: 999,
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          borderRadius: "5px",
-        }}
-      >
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="Train"
-            checked={checkboxState.electricGrid}
-            onChange={handleCheckboxChange}
-          />
-          Train Stations and Amtract Train Routes
-        </label>
-        <br />
-        <label style={{ marginRight: "10px" }}>
-          <input
-            type="checkbox"
-            name="Bus"
-            checked={checkboxState.transEvents}
-            onChange={handleCheckboxChange}
-          />
-          Bus stops and routes
-        </label>
-        <br />
-        <label>
-          <input
-            type="checkbox"
-            name="Tram"
-            checked={checkboxState.publicTransitRoutes}
-            onChange={handleCheckboxChange}
-          />
-          Tram stops and routes
-        </label>
-      </div>
-    );
-  }
-
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
   const handlePublicTransitRoutesClick = (isRouteLayer) => {
     setIsRouteCheckboxMenuOpen(isRouteLayer);
@@ -341,7 +298,6 @@ function Map3D() {
 
   const handleHighwayClick = (open) => {
     setIsHighwayCheckboxMenuOpen(open);
-    removeLayer("primary");
   };
 
   async function layerLinkHandler(key, isActive, dataPath) {
@@ -416,7 +372,6 @@ function Map3D() {
         const iconlayer = addIconToMap(42.4942408813, -92.34170190987821);
         setMapLayers(iconlayer);
         setAQIconLayer(iconlayer);
-
         return;
       }
       if (key === "WForecast") {
@@ -431,7 +386,6 @@ function Map3D() {
         setIsMenuOpen(true);
         const data = await fetchDataFromApis();
         setBlackHawkLayer(layer);
-
         // setCountyName(data.source1.location);
         setMenuContent(
           `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
@@ -444,15 +398,20 @@ function Map3D() {
         await startTrafficSimulator(setAnimationLayers, viewportRef);
         return;
       }
-      if (key === "PublicTransitRoutes") {
-        handlePublicTransitRoutesClick(true);
-        return;
-      }
       if (key === "Well") {
         const wellData = await getWellData();
         setWellData(wellData);
         const wellLayer = createWellLayer(wellData, setTooltip);
         setMapLayers(wellLayer);
+      }
+      // if (key === "PublicTransitRoutes") {
+      //   handlePublicTransitRoutesClick(true);
+      //   return;
+      // }
+      if (key === "Bus_Info") {
+        debugger;
+        const busLayer= await loadBusLayer();
+        setMapLayers(busLayer);
       }
       if (key === "RailwayNetwork") {
         const RailwayData = await fetchRailwayData();
@@ -462,12 +421,12 @@ function Map3D() {
       }
       if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
         handleHighwayClick(true);
-        checkboxState.primary = false;
-        checkboxState.secondary = false;
-        checkboxState.residential = false;
-        checkboxState.service = false;
-        checkboxState.motorway = false;
-        checkboxState.cycleway = false;
+        checkboxStateHighway.primary = false;
+        checkboxStateHighway.secondary = false;
+        checkboxStateHighway.residential = false;
+        checkboxStateHighway.service = false;
+        checkboxStateHighway.motorway = false;
+        checkboxStateHighway.cycleway = false;
         return;
       }
       if (key === "School") {
@@ -519,7 +478,6 @@ function Map3D() {
         if (legendElement) {
           legendElement.remove();
         }
-        setMapLayers(null);
         return;
       }
 
@@ -543,12 +501,12 @@ function Map3D() {
         return;
       }
 
-      if (key === "RailwayNetwork") {
-        removeLayer(railwayData.id);
-        setMapLayers(null);
-        return;
-        // setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
-      }
+      // if (key === "RailwayNetwork") {
+      //   removeLayer(railwayData.id);
+      //   setMapLayers(null);
+      //   return;
+      //   // setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
+      // }
 
       if (key === "WForecast") {
         removeLayer(WeathericonLayer.id);
@@ -592,12 +550,12 @@ function Map3D() {
   }
 
   // Capitalize function
-  function capitalizeWords(str) {
-    return str
-      .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(" ");
-  }
+  // function capitalizeWords(str) {
+  //   return str
+  //     .split(" ")
+  //     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+  //     .join(" ");
+  // }
 
   function getTooltipContent({ object }) {
     if (object) {
@@ -628,6 +586,94 @@ function Map3D() {
     setMapLayers(layer);
   };
 
+  // function CheckboxLayerTransit({ checkboxStateTransit, setCheckboxStateTransit }) {
+  //   const handleCheckboxChange = async (event) => {
+  //     const { name, checked } = event.target;
+  //     setCheckboxStateTransit((prevState) => ({
+  //       ...prevState,
+  //       [name]: checked,
+  //     }));
+
+  //     if (checked) {
+  //       switch (name) {
+  //         case 'train':
+  //           await import('../SCPublicTransitRoute/train.js').then(({ loadTrainLayer }) => loadTrainLayer());
+  //           break;
+  //         case 'bus':
+  //           const layerbus = await loadBusLayer();
+  //           setMapLayers(layerbus);
+  //           break;
+  //         case 'tram':
+  //           await import('../SCPublicTransitRoute/tram.js').then(({ loadTramLayer }) => loadTramLayer());
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //     } else {
+  //       switch (name) {
+  //         case 'train':
+  //           await import('../SCPublicTransitRoute/train.js').then(({ removeTrainLayer }) => removeTrainLayer());
+  //           break;
+  //         case 'bus':
+  //           await import('../SCPublicTransitRoute/bus.js').then(({ removeBusLayer }) => removeBusLayer());
+  //           break;
+  //         case 'tram':
+  //           await import('../SCPublicTransitRoute/tram.js').then(({ removeTramLayer }) => removeTramLayer());
+  //           break;
+  //         default:
+  //           break;
+  //       }
+  //     }
+  //   };
+  //   return (
+  //     <div
+  //       style={{
+  //         position: 'absolute',
+  //         top: '0',
+  //         left: '0',
+  //         padding: '10px',
+  //         boxSizing: 'border-box',
+  //         backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  //         zIndex: 999,
+  //         display: 'flex',
+  //         flexDirection: 'row',
+  //         alignItems: 'center',
+  //         borderRadius: '5px',
+  //       }}
+  //     >
+  //       <label style={{ marginRight: '10px' }}>
+  //         <input
+  //           type="checkbox"
+  //           name="train"
+  //           checked={checkboxStateTransit.train}
+  //           onChange={handleCheckboxChange}
+  //         />
+  //         Train Stations and Amtract Train Routes
+  //       </label>
+  //       <br />
+  //       <label style={{ marginRight: '10px' }}>
+  //         <input
+  //           type="checkbox"
+  //           name="bus"
+  //           checked={checkboxStateTransit.bus}
+  //           onChange={handleCheckboxChange}
+  //         />
+  //         Bus stops and routes
+  //       </label>
+  //       <br />
+  //       <label>
+  //         <input
+  //           type="checkbox"
+  //           name="tram"
+  //           checked={checkboxStateTransit.tram}
+  //           onChange={handleCheckboxChange}
+  //         />
+  //         Tram stops and routes
+  //       </label>
+  //     </div>
+  //   );
+  // }
+
   return (
     <>
       {isFloodLayerSelected && (
@@ -656,15 +702,24 @@ function Map3D() {
         setActiveItems={setActiveItems}
       />
       <div>
-        <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
-          {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
+
+        {isRouteCheckboxMenuOpen && (
+          <CheckboxLayerTransit
+            checkboxStateTransit={checkboxStateTransit}
+            setCheckboxStateTransit={setCheckboxStateTransit}
+          />
+        )}
+        {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda  */}
+        {/* <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
+          {}
           {isRouteCheckboxMenuOpen && (
             <CheckboxLayerEvent
               handleCheckboxChange={(event) => setCheckboxState(event.target.checked)}
               checkboxState={checkboxState}
             />
           )}
-        </div>
+        </div> */}
+
         <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (

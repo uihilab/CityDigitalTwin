@@ -166,17 +166,30 @@ const layers = [
         dataPath: `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
       },
       {
-        type: "maplayer",
+        type: "collapse",
         name: "Public Transit Network",
         key: "PublicTransitRoutes",
         icon: <Icon fontSize="small">Transit</Icon>,
+        collapse: [
+      {
+        type: "maplayer",
+        name: "Train Stations and Railway Network",
+        key: "Train_Info",
+        icon: <Icon fontSize="small">Train</Icon>,
       },
       {
         type: "maplayer",
-        name: "Railway Network",
-        key: "RailwayNetwork",
-        icon: <Icon fontSize="small">Railway Networks</Icon>,
+        name: "Bus Stops and Routes",
+        key: "Bus_Info",
+        icon: <Icon fontSize="small">Bus</Icon>,
       },
+      {
+        type: "maplayer",
+        name: "Tram Stops and Routes",
+        key: "Tram_Info",
+        icon: <Icon fontSize="small">Tram</Icon>,
+      }]
+    },
       {
         type: "maplayer",
         name: "Bicycle Network",
