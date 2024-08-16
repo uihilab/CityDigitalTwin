@@ -42,7 +42,7 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
-import {  loadBusLayer }from "../SCPublicTransitRoute/bus.js";
+import {  loadBusLayer, loadBusStopLayer }from "../SCPublicTransitRoute/bus.js";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -409,7 +409,11 @@ function Map3D() {
       //   return;
       // }
       if (key === "Bus_Info") {
-        const busLayer= await loadBusLayer();        
+        debugger;
+        const busLayer= await loadBusLayer();  
+        const busStop= await loadBusStopLayer();  
+        debugger;
+        setMapLayers(busStop);    
         setMapLayers(busLayer);
         return;
       }
