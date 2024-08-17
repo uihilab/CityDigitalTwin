@@ -64,6 +64,14 @@ const layers = [
       },
       {
         type: "maplayer",
+        name: "Railway Crossing",
+        key: "RailwayCross",
+        status: false,
+        icon: <Icon fontSize="small">Railway Crossing</Icon>,
+        dataPath: `${process.env.PUBLIC_URL}/data/Rail_Crossing.geojson`,
+      },
+      {
+        type: "maplayer",
         name: "Railway Bridge",
         key: "RailBridge",
         status: false,
