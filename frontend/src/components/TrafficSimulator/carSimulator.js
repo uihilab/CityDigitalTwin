@@ -1,5 +1,5 @@
-import TrafficGenerator from './trafficGenerator';
-import TripBuilder from './trip-builder';
+import TrafficGenerator from "./trafficGenerator";
+import TripBuilder from "./trip-builder";
 
 class CarSimulator {
   constructor(geojsonData) {
@@ -9,20 +9,21 @@ class CarSimulator {
   }
 
   updateCarPositions(timestamp) {
-    var frames = [];
+    const frames = [];
     if (!this.lastTimestamp) {
       this.lastTimestamp = 0;
     }
     const delta = timestamp - this.lastTimestamp;
     this.lastTimestamp = timestamp;
 
-    this.roads.forEach(road => {
-      road.cars.forEach(car => {
+    this.roads.forEach((road) => {
+      road.cars.forEach((car) => {
         if (!car.tripBuilder) {
+          //console.log(road.geometry.coordinates);
           car.tripBuilder = new TripBuilder({
             waypoints: road.geometry.coordinates,
             speed: road.maxSpeed, // meters per second
-            loop: true
+            loop: true,
           });
         }
         const frame = car.tripBuilder.getFrame(delta);
@@ -32,8 +33,6 @@ class CarSimulator {
     });
     return frames;
   }
-
-  
 }
 
 export default CarSimulator;

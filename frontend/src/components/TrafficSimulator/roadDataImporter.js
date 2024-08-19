@@ -19,12 +19,20 @@ function filterRoadTypes(roads) {
   return roads.filter((road) => roadTypes.includes(road.properties.highway));
 }
 
+function filterShortRoads(roads, minLength = 0.2) {
+  return roads.filter((road) => {
+    const roadLength = turf.length(road.geometry);
+    return roadLength >= minLength;
+  });
+}
+
 export function importOSMRoadsFromGeoJSON(geoJSON) {
   const roads = [];
 
-  const filteredRoads = filterRoadTypes(geoJSON.features)
+  const filteredRoads = filterRoadTypes(geoJSON.features);
+  const longEnoughRoads = filterShortRoads(filteredRoads);
   //.filter((x) => x.properties.name === "West Park Avenue")
-  ;
+
   //console.log(filteredRoads);
   // geoJSON.features.filter(feature => {
   //   const highwayType = feature.properties.highway;
@@ -36,7 +44,7 @@ export function importOSMRoadsFromGeoJSON(geoJSON) {
   //   );
   // });
 
-  filteredRoads.forEach((feature, index) => {
+  longEnoughRoads.forEach((feature, index) => {
     const properties = feature.properties;
     const geometry = feature.geometry;
     const id = properties.full_id || index; // Use full_id if available, otherwise use the index
