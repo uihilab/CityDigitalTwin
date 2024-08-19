@@ -44,6 +44,7 @@ import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index"
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
 import { loadBusLayer, loadBusStopLayer }from "../SCPublicTransitRoute/bus.js";
 import { AddRailwayCrossingLayer }from "../SCRailwayCrossing/index.js";
+import { loadBicycleLayer,loadBicycleAmetiesLayer, loadBicycleNetworkInfoLayer }from "../SCBicycleNetwork/index.js";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -428,6 +429,18 @@ function Map3D() {
         setMapLayers(layerBridges);
         return;
       }
+
+      if (key === "BicycleNetwork") {
+        const BicycleLayer = await loadBicycleLayer();
+        setMapLayers(BicycleLayer);
+        //const BicycleNetworkInfo= await loadBicycleNetworkInfoLayer();
+        //setMapLayers(BicycleNetworkInfo);
+        const ametiesLayer= await loadBicycleAmetiesLayer();
+        setMapLayers(ametiesLayer);
+        
+        return;
+      }
+
       if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
         handleHighwayClick(true);
         checkboxStateHighway.primary = false;
@@ -502,6 +515,10 @@ function Map3D() {
 
       if (key === "Electricpower") {
         removeLayer("Electricpower");
+        return;
+      }
+      if (key === "BicycleNetwork") {
+        removeLayer("BicycleNetwork")
         return;
       }
 
