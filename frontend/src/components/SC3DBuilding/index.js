@@ -42,7 +42,9 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
-import {  loadBusLayer }from "../SCPublicTransitRoute/bus.js";
+import { loadBusLayer, loadBusStopLayer }from "../SCPublicTransitRoute/bus.js";
+import { AddRailwayCrossingLayer }from "../SCRailwayCrossing/index.js";
+import { loadBicycleLayer,loadBicycleAmetiesLayer, loadBicycleNetworkInfoLayer }from "../SCBicycleNetwork/index.js";
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
@@ -315,14 +317,15 @@ function Map3D() {
         return;
       }
 
-      if (key === "Bridges") {
-        const layerBridges = await BridgesgridLayer();
-        setMapLayers(layerBridges);
+      if (key === "RailwayCross") {
+        const RailwayCrossingLayer= await AddRailwayCrossingLayer();
+        setMapLayers(RailwayCrossingLayer);
+        debugger;
         return;
       }
 
-      if (key === "RailBridge") {
-        const layerBridges = await RailwayBridgesLayer();
+      if (key === "Bridges") {
+        const layerBridges = await BridgesgridLayer();
         setMapLayers(layerBridges);
         return;
       }
@@ -409,17 +412,35 @@ function Map3D() {
       //   return;
       // }
       if (key === "Bus_Info") {
-        const busLayer= await loadBusLayer();        
+        debugger;
+        const busLayer= await loadBusLayer();  
+        const busStop= await loadBusStopLayer();  
+        debugger;
+        setMapLayers(busStop);    
         setMapLayers(busLayer);
         return;
       }
-      if (key === "RailwayNetwork") {
+      if (key === "Train_Info") {
         const RailwayData = await fetchRailwayData();
         const railLayer = CreateRailwayLayer(RailwayData);
         setMapLayers(railLayer);
         setrailwayData(railLayer);
+        const layerBridges = await RailwayBridgesLayer();
+        setMapLayers(layerBridges);
         return;
       }
+
+      if (key === "BicycleNetwork") {
+        const BicycleLayer = await loadBicycleLayer();
+        setMapLayers(BicycleLayer);
+        //const BicycleNetworkInfo= await loadBicycleNetworkInfoLayer();
+        //setMapLayers(BicycleNetworkInfo);
+        const ametiesLayer= await loadBicycleAmetiesLayer();
+        setMapLayers(ametiesLayer);
+        
+        return;
+      }
+
       if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
         handleHighwayClick(true);
         checkboxStateHighway.primary = false;
@@ -494,6 +515,10 @@ function Map3D() {
 
       if (key === "Electricpower") {
         removeLayer("Electricpower");
+        return;
+      }
+      if (key === "BicycleNetwork") {
+        removeLayer("BicycleNetwork")
         return;
       }
 
