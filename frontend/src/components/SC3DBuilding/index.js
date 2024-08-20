@@ -203,6 +203,7 @@ function Map3D() {
   }
 
   function removeLayer(layerName) {
+    debugger;
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
       layersStatic.splice(foundIndex, 1);
@@ -433,11 +434,12 @@ function Map3D() {
       if (key === "BicycleNetwork") {
         const BicycleLayer = await loadBicycleLayer();
         setMapLayers(BicycleLayer);
-        //const BicycleNetworkInfo= await loadBicycleNetworkInfoLayer();
-        //setMapLayers(BicycleNetworkInfo);
-        const ametiesLayer= await loadBicycleAmetiesLayer();
-        setMapLayers(ametiesLayer);
-        
+        return;
+      }
+
+      if (key === "BicycleAmenities") {
+        const BicycleAmenities = await loadBicycleAmetiesLayer();
+        setMapLayers(BicycleAmenities);
         return;
       }
 
@@ -519,6 +521,11 @@ function Map3D() {
       }
       if (key === "BicycleNetwork") {
         removeLayer("BicycleNetwork")
+        removeLayer("BicycleAmenities")
+        return;
+      }
+      if (key === "BicycleAmenities") {
+        removeLayer("BicycleAmenities")
         return;
       }
 
@@ -536,7 +543,6 @@ function Map3D() {
 
       if (key === "WForecast") {
         removeLayer(WeathericonLayer.id);
-        setMapLayers(null);
         return;
       }
 

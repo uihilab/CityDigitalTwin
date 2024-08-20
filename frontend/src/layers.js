@@ -64,6 +64,13 @@ const layers = [
       },
       {
         type: "maplayer",
+        name: "Bicycle Amenities",
+        key: "BicycleAmenities",
+        status: false,
+        icon: <Icon fontSize="small">Bicycle Amenities</Icon>,
+      },
+      {
+        type: "maplayer",
         name: "Railway Crossing",
         key: "RailwayCross",
         status: false,

@@ -123,7 +123,7 @@ export async function loadBicycleAmetiesLayer() {
       });
 
     const AmetiesLayer = new IconLayer({
-        id: "BicycleNetwork",
+        id: "BicycleAmenities",
         data: processedData,
         pickable: true,
         iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
