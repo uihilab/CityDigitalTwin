@@ -32,6 +32,7 @@ export async function AddRailwayCrossingLayer() {
         getTooltip: ({ object }) => object && object.tooltip_data,
         //getColor: d => [255, 0, 0],
     });
+    debugger;
     return layerRailway;
 }
 

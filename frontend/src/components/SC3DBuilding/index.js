@@ -459,6 +459,11 @@ function Map3D() {
         setMapLayers(schoolLayer);
         return;
       }
+      if (key === "RailBridge") {
+        const Data = await RailwayBridgesLayer();
+        setMapLayers(Data);
+        return;
+      }
       if (key === "PoliceStations") {
         const Data = await getPolicestationData();
         const policeLayer = createPoliceStationsLayer(Data, setTooltip);
