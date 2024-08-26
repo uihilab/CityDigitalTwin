@@ -41,9 +41,9 @@ export const createFireStationsLayer = (fireData, setTooltip) => new IconLayer({
   id: "FireStations",
   data: fireData,
   pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-  getIcon: (d) => "paragon-3-blue",
+  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
+  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
+  getIcon: (d) => "Fire Station",
   sizeScale: 10,
   getPosition: (d) => d.coordinates,
   getSize: (d) => 3, // Adjust the icon size

@@ -55,9 +55,9 @@ export const createElectricPowerLayer = (powerData, setTooltip) => {
     id: "Electricpower",
     data: powerData,
     pickable: true,
-    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-    getIcon: (d) => "paragon-3-blue",
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
+    getIcon: (d) => "s4",
     sizeScale: 10,
     getPosition: d => d.coordinates,
     getSize: d => 3, // İkon boyutunu ayarlayın

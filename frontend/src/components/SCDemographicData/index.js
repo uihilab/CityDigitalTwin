@@ -3,25 +3,31 @@ import { useNavigate } from 'react-router-dom';
 // API verilerini almak için asenkron bir fonksiyon tanımlayın
 export async function fetchDataFromApis() {
 
-    // Üç farklı API çağrısı
-    const response1 = await fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex');
-    const response2 = await fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Older%20Population');
-    const response3 = await fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Poverty');
-    const response4 = await fetch('https://api.census.gov/data/2020/dec/pl?get=group(P1)&ucgid=0500000US19013');
-    const response5 = await fetch('https://api.census.gov/data/2021/cbp?get=group(CB2100CBP)&NAICS2017=pseudo(N0200.00)&ucgid=0500000US19013');
-    const response6 = await fetch('https://api.census.gov/data/2022/acs/acs1/subject?get=group(S1901)&ucgid=0500000US19013');
+      // API isteklerini paralel olarak başlatın
+      const [response1, response2, response3, response4, response5, response6] = await Promise.all([
+        fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex'),
+        fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Older%20Population'),
+        fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Poverty'),
+        fetch('https://api.census.gov/data/2020/dec/pl?get=group(P1)&ucgid=0500000US19013'),
+        fetch('https://api.census.gov/data/2021/cbp?get=group(CB2100CBP)&NAICS2017=pseudo(N0200.00)&ucgid=0500000US19013'),
+        fetch('https://api.census.gov/data/2022/acs/acs1/subject?get=group(S1901)&ucgid=0500000US19013')
+    ]);
 
-    if (!response1.ok) {
-        throw new Error(`HTTP error! status: ${response1.status}`);
+     // Tüm isteklerin başarılı olup olmadığını kontrol edin
+     if (!response1.ok || !response2.ok || !response3.ok || !response4.ok || !response5.ok || !response6.ok) {
+        throw new Error('HTTP error! One or more requests failed.');
     }
 
-    // Gelen verileri JSON formatında çözümleyin
-    const data1 = await response1.json();
-    const data2 = await response2.json();
-    const data3 = await response3.json();
-    const data4 = await response4.json();
-    const data5 = await response5.json();
-    const data6 = await response6.json();
+
+      // Gelen verileri JSON formatında çözümleyin
+      const [data1, data2, data3, data4, data5, data6] = await Promise.all([
+        response1.json(),
+        response2.json(),
+        response3.json(),
+        response4.json(),
+        response5.json(),
+        response6.json()
+    ]);
 
     debugger;
 
@@ -167,7 +173,14 @@ export const handleButtonClick = async(buttonType, setChartData, setIsChartVisib
     }
     if (buttonType === 'back') {
         const data = await fetchDataFromApis(); // Veriyi tekrar almak için
-        setMenuContent(`Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`);
+        setMenuContent(<div>
+            <div>Populations and People: {data.source4.data0}</div>
+            <div>Medium Age: {data.source1.data0}</div>
+            <div>Over Age 64: {data.source2.data0}%</div>
+            <div>Number of Employment: {data.source5.data0}</div>
+            <div>Household median income: {data.source6.data0}</div>
+            <div>Poverty: {data.source3.data0}%</div>
+        </div>);
         setIsChartVisible(false);
         setShowBackButton(false); // Geri butonunu gizlemek için
         return; // İşlevi sonlandırmak için

@@ -276,9 +276,9 @@ function Map3D() {
         id: "TransEvents",
         data: trafficEventData,
         pickable: true,
-        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-        getIcon: (d) => "paragon-5-red",
+        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
+        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
+        getIcon: (d) => "wa3",
         sizeScale: 1,
         getPosition: (d) => d.coordinates,
         getSize: (d) => 50,
@@ -392,7 +392,14 @@ function Map3D() {
         setBlackHawkLayer(layer);
         // setCountyName(data.source1.location);
         setMenuContent(
-          `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
+          <div>
+            <div>Populations and People: {data.source4.data0}</div>
+            <div>Medium Age: {data.source1.data0}</div>
+            <div>Over Age 64: {data.source2.data0}%</div>
+            <div>Number of Employment: {data.source5.data0}</div>
+            <div>Household median income: {data.source6.data0}</div>
+            <div>Poverty: {data.source3.data0}%</div>
+        </div>
         );
         setMapLayers(layer);
         // const data= await fetchDataFromApis();
@@ -498,6 +505,17 @@ function Map3D() {
     } else {
       if (isRouteCheckboxMenuOpen === true) {
         handlePublicTransitRoutesClick(false);
+        return;
+      }
+
+      if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
+        checkboxStateHighway.primary = true;
+        checkboxStateHighway.secondary = true;
+        checkboxStateHighway.residential = true;
+        checkboxStateHighway.service = true;
+        checkboxStateHighway.motorway = true;
+        checkboxStateHighway.cycleway = true;
+        removeLayer(checkboxStateHighway.primary);
         return;
       }
 

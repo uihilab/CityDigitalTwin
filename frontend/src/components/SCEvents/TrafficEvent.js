@@ -77,9 +77,9 @@ export const createTrafficEventLayer = (trafficEventData, setTooltip) => new Ico
   id: "TrafficEventLayer",
   data: trafficEventData,
   pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-  getIcon: (d) => "paragon-5-blue",
+  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
+  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
+  getIcon: (d) => "wa3",
   sizeScale: 10,
   getPosition: (d) => d.coordinates,
   getSize: (d) => 3, // Adjust the icon size

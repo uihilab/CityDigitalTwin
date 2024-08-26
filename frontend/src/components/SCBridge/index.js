@@ -50,7 +50,7 @@ export async function BridgesgridLayer() {
     pickable: true,
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-    getIcon: (d) => "paragon-5-orange",
+    getIcon: (d) => "paragon-5-red",
     sizeScale: 15,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 5,

@@ -111,9 +111,8 @@ const layers = [
       {
         type: "maplayer",
         name: "Natural Gas Plants",
-        key: "natralgas",
+        key: "naturalgas",
         icon: <Icon fontSize="small">Natural Gas Plants</Icon>,
-        dataPath: `${process.env.PUBLIC_URL}/data/wastewater.geojson`,
       },
       {
         type: "maplayer",

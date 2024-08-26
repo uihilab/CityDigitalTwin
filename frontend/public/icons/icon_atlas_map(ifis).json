@@ -1,0 +1,234 @@
+{
+  "community": {
+    "x": 0,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "community_big": {
+    "x": 14,
+    "y": 0,
+    "width": 28,
+    "height": 36,
+    "anchorY": 36,
+    "mask": false
+  },
+  "ifc_bridge": {
+    "x": 42,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "ifc_bridge_big": {
+    "x": 56,
+    "y": 0,
+    "width": 28,
+    "height": 36,
+    "anchorY": 36,
+    "mask": false
+  },
+  "multi": {
+    "x": 84,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "orange": {
+    "x": 98,
+    "y": 0,
+    "width": 9,
+    "height": 9,
+    "anchorY": 9,
+    "mask": false
+  },
+  "pinred": {
+    "x": 107,
+    "y": 0,
+    "width": 32,
+    "height": 39,
+    "anchorY": 39,
+    "mask": false
+  },
+  "purple": {
+    "x": 139,
+    "y": 0,
+    "width": 9,
+    "height": 9,
+    "anchorY": 9,
+    "mask": false
+  },
+  "rain": {
+    "x": 148,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "rain_big": {
+    "x": 162,
+    "y": 0,
+    "width": 28,
+    "height": 36,
+    "anchorY": 36,
+    "mask": false
+  },
+  "red": {
+    "x": 190,
+    "y": 0,
+    "width": 9,
+    "height": 9,
+    "anchorY": 9,
+    "mask": false
+  },
+  "reservoir": {
+    "x": 199,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "reservoir_big": {
+    "x": 213,
+    "y": 0,
+    "width": 28,
+    "height": 36,
+    "anchorY": 36,
+    "mask": false
+  },
+  "s1": {
+    "x": 241,
+    "y": 0,
+    "width": 14,
+    "height": 14,
+    "anchorY": 14,
+    "mask": false
+  },
+  "s2": {
+    "x": 255,
+    "y": 0,
+    "width": 14,
+    "height": 14,
+    "anchorY": 14,
+    "mask": false
+  },
+  "s3": {
+    "x": 269,
+    "y": 0,
+    "width": 14,
+    "height": 14,
+    "anchorY": 14,
+    "mask": false
+  },
+  "s4": {
+    "x": 283,
+    "y": 0,
+    "width": 14,
+    "height": 14,
+    "anchorY": 14,
+    "mask": false
+  },
+  "s5": {
+    "x": 297,
+    "y": 0,
+    "width": 14,
+    "height": 14,
+    "anchorY": 14,
+    "mask": false
+  },
+  "soil": {
+    "x": 311,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "soil_big": {
+    "x": 325,
+    "y": 0,
+    "width": 28,
+    "height": 36,
+    "anchorY": 36,
+    "mask": false
+  },
+  "stream_gauge": {
+    "x": 353,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "wa0": {
+    "x": 367,
+    "y": 0,
+    "width": 18,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "wa1": {
+    "x": 385,
+    "y": 0,
+    "width": 18,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "wa2": {
+    "x": 403,
+    "y": 0,
+    "width": 18,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "wa3": {
+    "x": 421,
+    "y": 0,
+    "width": 18,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "wa4": {
+    "x": 439,
+    "y": 0,
+    "width": 18,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "well": {
+    "x": 457,
+    "y": 0,
+    "width": 14,
+    "height": 18,
+    "anchorY": 18,
+    "mask": false
+  },
+  "well_big": {
+    "x": 471,
+    "y": 0,
+    "width": 28,
+    "height": 36,
+    "anchorY": 36,
+    "mask": false
+  },
+  "yellow": {
+    "x": 499,
+    "y": 0,
+    "width": 9,
+    "height": 9,
+    "anchorY": 9,
+    "mask": false
+  }
+}
