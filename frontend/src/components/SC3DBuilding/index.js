@@ -398,7 +398,7 @@ function Map3D() {
         return;
       }
       if (key === "TrafficFlow") {
-        await startTrafficSimulator(setAnimationLayers, viewportRef);
+        await startTrafficSimulator(setAnimationLayers, setMapLayers, viewportRef);
         return;
       }
       if (key === "wells") {
