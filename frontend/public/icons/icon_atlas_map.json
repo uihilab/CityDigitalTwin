@@ -13,7 +13,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-1-pink": {
 	  "x": 256,
@@ -21,7 +21,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-2-blue": {
 	  "x": 384,
@@ -37,7 +37,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-2-pink": {
 	  "x": 640,
@@ -45,7 +45,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-3-blue": {
 	  "x": 768,
@@ -53,7 +53,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-3-green": {
 	  "x": 896,
@@ -61,7 +61,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-3-pink": {
 	  "x": 1024,
@@ -69,7 +69,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-4-pink": {
 	  "x": 1152,
@@ -77,7 +77,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-5-blue": {
 	  "x": 1280,
@@ -93,7 +93,7 @@
 	  "width": 128,
 	  "height": 128,
 	  "anchorY": 128,
-	  "mask": true
+	  "mask": false
 	},
 	"paragon-5-orange": {
 	  "x": 1536,

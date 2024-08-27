@@ -25,6 +25,7 @@ function CreateColourfulGeoJsonLayer(id, data, color) {
 }
 
 function HighwayCheckboxComponent({ setMapLayers, removeLayer }) {
+  debugger;
   const [checkboxState, setCheckboxState] = useState({
     primary: false,
     secondary: false,

@@ -64,6 +64,13 @@ const layers = [
       },
       {
         type: "maplayer",
+        name: "Bicycle Amenities",
+        key: "BicycleAmenities",
+        status: false,
+        icon: <Icon fontSize="small">Bicycle Amenities</Icon>,
+      },
+      {
+        type: "maplayer",
         name: "Railway Crossing",
         key: "RailwayCross",
         status: false,
@@ -104,9 +111,8 @@ const layers = [
       {
         type: "maplayer",
         name: "Natural Gas Plants",
-        key: "natralgas",
+        key: "naturalgas",
         icon: <Icon fontSize="small">Natural Gas Plants</Icon>,
-        dataPath: `${process.env.PUBLIC_URL}/data/wastewater.geojson`,
       },
       {
         type: "maplayer",

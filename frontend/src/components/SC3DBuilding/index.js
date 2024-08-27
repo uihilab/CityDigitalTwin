@@ -44,8 +44,8 @@ import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index"
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
 import { loadBusLayer, loadBusStopLayer }from "../SCPublicTransitRoute/bus.js";
 import { AddRailwayCrossingLayer }from "../SCRailwayCrossing/index.js";
-import { loadBicycleLayer,loadBicycleAmetiesLayer, loadBicycleNetworkInfoLayer }from "../SCBicycleNetwork/index.js";
-
+import { loadBicycleLayer }from "../SCBicycleNetwork/index.js";
+import { loadBicycleAmetiesLayer }from "../SCBicycleAmenities/index.js";
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
@@ -203,6 +203,7 @@ function Map3D() {
   }
 
   function removeLayer(layerName) {
+    debugger;
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
       layersStatic.splice(foundIndex, 1);
@@ -275,9 +276,9 @@ function Map3D() {
         id: "TransEvents",
         data: trafficEventData,
         pickable: true,
-        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-        getIcon: (d) => "paragon-5-red",
+        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
+        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
+        getIcon: (d) => "wa3",
         sizeScale: 1,
         getPosition: (d) => d.coordinates,
         getSize: (d) => 50,
@@ -391,7 +392,14 @@ function Map3D() {
         setBlackHawkLayer(layer);
         // setCountyName(data.source1.location);
         setMenuContent(
-          `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
+          <div>
+            <div>Populations and People: {data.source4.data0}</div>
+            <div>Medium Age: {data.source1.data0}</div>
+            <div>Over Age 64: {data.source2.data0}%</div>
+            <div>Number of Employment: {data.source5.data0}</div>
+            <div>Household median income: {data.source6.data0}</div>
+            <div>Poverty: {data.source3.data0}%</div>
+        </div>
         );
         setMapLayers(layer);
         // const data= await fetchDataFromApis();
@@ -433,11 +441,12 @@ function Map3D() {
       if (key === "BicycleNetwork") {
         const BicycleLayer = await loadBicycleLayer();
         setMapLayers(BicycleLayer);
-        //const BicycleNetworkInfo= await loadBicycleNetworkInfoLayer();
-        //setMapLayers(BicycleNetworkInfo);
-        const ametiesLayer= await loadBicycleAmetiesLayer();
-        setMapLayers(ametiesLayer);
-        
+        return;
+      }
+
+      if (key === "BicycleAmenities") {
+        const BicycleAmenities = await loadBicycleAmetiesLayer();
+        setMapLayers(BicycleAmenities);
         return;
       }
 
@@ -455,6 +464,11 @@ function Map3D() {
         const Data = await getSchoolData();
         const schoolLayer = createSchoolLayer(Data, setTooltip);
         setMapLayers(schoolLayer);
+        return;
+      }
+      if (key === "RailBridge") {
+        const Data = await RailwayBridgesLayer();
+        setMapLayers(Data);
         return;
       }
       if (key === "PoliceStations") {
@@ -494,6 +508,17 @@ function Map3D() {
         return;
       }
 
+      if (key === "RoadNetworks" && isHighwayCheckboxMenuOpen === false) {
+        checkboxStateHighway.primary = true;
+        checkboxStateHighway.secondary = true;
+        checkboxStateHighway.residential = true;
+        checkboxStateHighway.service = true;
+        checkboxStateHighway.motorway = true;
+        checkboxStateHighway.cycleway = true;
+        removeLayer(checkboxStateHighway.primary);
+        return;
+      }
+
       if (key === "Drought") {
         removeLayer("Drought");
         const legendElement = document.querySelector(".legend-container");
@@ -519,6 +544,11 @@ function Map3D() {
       }
       if (key === "BicycleNetwork") {
         removeLayer("BicycleNetwork")
+        removeLayer("BicycleAmenities")
+        return;
+      }
+      if (key === "BicycleAmenities") {
+        removeLayer("BicycleAmenities")
         return;
       }
 
@@ -536,7 +566,6 @@ function Map3D() {
 
       if (key === "WForecast") {
         removeLayer(WeathericonLayer.id);
-        setMapLayers(null);
         return;
       }
 
