@@ -44,9 +44,9 @@ export async function loadBicycleAmetiesLayer() {
         iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_map.png`,
         iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_publictransportation.json`,
         getIcon: (d) => "icons8-bicycle-48",
-        sizeScale: 15,
+        sizeScale: 5,
         getPosition: (d) => d.coordinates,
-        getSize: (d) => 5,
+        getSize: (d) => 6,
         getTooltip: ({ object }) => object && object.tooltip_data,
         //getColor: d => [255, 0, 0],
       });

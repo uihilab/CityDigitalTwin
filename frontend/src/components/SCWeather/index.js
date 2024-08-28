@@ -1,132 +1,99 @@
-import React, { useState, useEffect } from "react";
-import { createRoot } from "react-dom/client";
-import { Map } from "react-map-gl";
-import maplibregl from "maplibre-gl";
-import DeckGL from "@deck.gl/react";
-import { MapView } from "@deck.gl/core";
+
 import { IconLayer } from "@deck.gl/layers";
-import { getWeatherData, convertToMarkers } from "./WeatherData.js"; // WeatherData.js dosyasını kullanıyorum. Değiştirin
-import { FetchWeatherData} from "./Weather.js";
+import { icon } from "leaflet";
 
-import IconClusterLayer from "./icon-cluster-layer.js";
+function formatTooltipData(item) {
+  let tooltipData = "";
 
-const MAP_VIEW = new MapView({ repeat: true });
-const INITIAL_VIEW_STATE = {
-  longitude: -92.34208776485049,
-  latitude: 42.493790878436535,
-  zoom: 1.8,
-  maxZoom: 20,
-  pitch: 0,
-  bearing: 0,
+  if (item.temperature !== undefined) {
+    tooltipData += `Temperature: ${item.temperature}°C\n`;
+  }
+  if (item.windspeed !== undefined) {
+    tooltipData += `Wind Speed: ${item.windspeed}km/h\n`;
+  }
+  if (item.winddirection !== undefined) {
+    tooltipData += `Wind Direction: ${item.winddirection}°\n`;
+  }
+  if (item.time !== undefined) {
+    tooltipData += `Time: ${item.time}\n`;
+  }
+  if (item.elevation !== undefined) {
+    tooltipData += `Elevation: ${item.elevation}m\n`;
+  }
+  if (item.timezone !== undefined) {
+    tooltipData += `Time Zone: ${item.timezone}`;
+  }
+
+  return tooltipData.trim(); // Remove trailing newline
+}
+
+// Coordinates for Waterloo, IA
+const test = [
+  { position:[-92.3426, 42.4928]  } // Longitude, Latitude
+];
+
+const test2 = [{
+  "temperature": 34.92147812927493,
+  "windspeed": 18.11165902823697,
+  "winddirection": 60,
+  "time": "2024-08-28T19:50:05.125146",
+  "elevation": 533.5197202407716,
+  "timezone": "America/Chicago",
+  "coordinates": [-92.3426, 42.4928],
+  "tooltip_data": "Temp: 34.92147812927493, Wind: 18.11165902823697 km/h, Direction: 60°"
+}];
+
+// Define the icon atlas and mapping
+const ICON_MAPPING = {
+  marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask: true }
 };
-const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-nolabels-gl-style/style.json";
 
-function renderTooltip(info) {
-  const { object, x, y } = info;
+export async function getWeatherLayer(latitude = 41.667773, longitude = -91.549107 ) {
+  const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+  const data = await response.json();
 
-  if (info) {
-    return (
-      <div className="tooltip interactive" style={{ left: x, top: y }}>
-        {info.map(({ coordinates, relative_humidity_2m, temperature_2m, time: time }) => {
-          return (
-            <div key={coordinates}>
-              <h5>{coordinates}</h5>
-              <div>relative_humidity_2m: {relative_humidity_2m || "unknown"}</div>
-              <div>temperature_2m: {temperature_2m}</div>
-              <div>time: {time}g</div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  }
+  const processedData = (() => {
+    const item = {
+      temperature: data.current_weather.temperature,
+      windspeed: data.current_weather.windspeed,
+      winddirection: data.current_weather.winddirection,
+      time: data.current_weather.time,
+      elevation: data.elevation,
+      timezone: data.timezone,
+      coordinates: [data.longitude, data.latitude]//[-92.3426, 42.4928]//
+    };
 
-  if (!object) {
-    return null;
-  }
+    item.tooltip_data = formatTooltipData(item);
+    return [item]; // Wrap the item in an array
+  })();
+  
 
-  return object.cluster ? (
-    <div className="tooltip" style={{ left: x, top: y }}>
-      {object.point_count} records
-    </div>
-  ) : (
-    <div className="tooltip" style={{ left: x, top: y }}>
-      {object.coordinates} {object.time ? `(${object.time})` : ""}
-    </div>
-  );
-}
-
-/* eslint-disable react/no-deprecated */
-export default function App({
-  data = FetchWeatherData((latitude = 42.569663), (longitude = -92.479646)), // Bu alanı güncelleyebilirsiniz
-  iconAtlas = `${process.env.PUBLIC_URL }/data/location-icon-atlas.png`,
-  showCluster = true,
-  mapStyle = MAP_STYLE,
-}) {
-  const [hoverInfo, setHoverInfo] = useState({});
-  const [weatherData, setWeatherData] = useState({}); // WeatherData.js dosyasından gelen verileri saklamak için state
-
-  const hideTooltip = () => {
-    setHoverInfo({});
-  };
-
-  const expandTooltip = (info) => {
-    if (info.picked && showCluster) {
-      setHoverInfo(info);
-    } else {
-      setHoverInfo({});
-    }
-  };
-
-  useEffect(() => {
-    async function fetchData() {
-      const data = await getWeatherData(); // WeatherData.js dosyasından verileri al
-
-      setWeatherData([data]);
-    }
-    fetchData();
-  }, []);
-
-  const layerProps = {
-    data: weatherData, // WeatherData.js dosyasındaki verileri işleyin
+  debugger;
+  const layerWeather = new IconLayer({
+    id: 'WForecast',
+    data: processedData,
     pickable: true,
-    getPosition: (d) => d.coordinates,
-    iconAtlas,
-    iconMapping: {
-      marker: { x: 0, y: 0, width: 128, height: 128 }
-    },
-    onHover: !hoverInfo.objects && setHoverInfo,
-  };
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
+    getIcon: d => 'paragon-1-blue',
+    sizeScale: 15,
+    getPosition: d =>  d.coordinates ,
+    getSize: d => 18,
+    getTooltip: ({ object }) => object && object.tooltip_data,
+    //getColor: d => [255, 0, 0],
+  });
 
-  const layer = showCluster
-    ? new IconClusterLayer({ ...layerProps, id: "icon-cluster", sizeScale: 40 })
-    : new IconLayer({
-        ...layerProps,
-        id: "icon",
-        getIcon: (d) => "marker",
-        sizeUnits: "meters",
-        sizeScale: 2000,
-        sizeMinPixels: 6,
-      });
-
-  return (
-    <DeckGL
-      layers={[layer]}
-      views={MAP_VIEW}
-      initialViewState={INITIAL_VIEW_STATE}
-      controller={{ dragRotate: false }}
-      onViewStateChange={hideTooltip}
-      onClick={expandTooltip}
-      height="100vh"
-      width="100vw"
-    >
-      <Map reuseMaps mapLib={maplibregl} mapStyle={mapStyle} preventStyleDiffing={true} />
-
-      {renderTooltip(hoverInfo)}
-    </DeckGL>
-  );
-}
-
-export function renderToDOM(container) {
-  createRoot(container).render(<App />);
+  const iconLayer = new IconLayer({
+    id: 'icon-layer',
+    data,
+    pickable: true,
+    iconAtlas: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+    iconMapping: ICON_MAPPING,
+    getIcon: d => 'marker',
+    sizeScale: 15,
+    getPosition: d => d.position,
+    getSize: d => 50,
+    getColor: d => [255, 0, 0]
+  });
+  return layerWeather;
 }

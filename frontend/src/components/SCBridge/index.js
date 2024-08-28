@@ -26,6 +26,7 @@ function formatTooltipData(item) {
 }
 
 export async function BridgesgridLayer() {
+
   const response = await fetch(`${process.env.PUBLIC_URL}/data/iowa_bridges.geojson`);
   const data = await response.json();
 
@@ -41,6 +42,7 @@ export async function BridgesgridLayer() {
     };
 
     item.tooltip_data = formatTooltipData(item);
+    debugger;
     return item;
   });
 
@@ -51,7 +53,7 @@ export async function BridgesgridLayer() {
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
     getIcon: (d) => "paragon-5-red",
-    sizeScale: 15,
+    sizeScale: 5,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 5,
     getTooltip: ({ object }) => object && object.tooltip_data,

@@ -1,21 +1,23 @@
-import { CreatelayerWeather } from "../SCWeather/layerWeather";
-export async function FetchWeatherData(latitude = 42.569663, longitude = -92.479646) {
-  const lat = latitude;
-  const lon = longitude;
-  const options = { method: "GET", headers: { accept: "application/json" } };
+import { CreatelayerWeather } from ".";
+// export async function FetchWeatherData(latitude = 42.569663, longitude = -92.479646) {
+//   const lat = latitude;
+//   const lon = longitude;
+//   const options = { method: "GET", headers: { accept: "application/json" } };
 
-  try {
-    const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`,
-      options
-    );
-    const data = await response.json();
-    var result = WconvertToMarkers(data);
-    return result;
-  } catch (error) {
-    console.error("Error fetching train schedule:", error);
-  }
-}
+//   try {
+//     const response = await fetch(
+//       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m`,
+//       options
+//     );
+//     const data = await response.json();
+//     var result = WconvertToMarkers(data);
+//     return result;
+//   } catch (error) {
+//     console.error("Error fetching train schedule:", error);
+//   }
+// }
+
+
 export function WconvertToMarkers(jsonData) {
   const coordinates = [jsonData.longitude, jsonData.latitude];
   const interval = jsonData.current.interval || "";
@@ -64,69 +66,60 @@ export function WconvertToMarkers(jsonData) {
 //     return { visibleCoordinates, randomCoordinates };
 // }
 
-export async function getCoordinates(
-  centerLatitude,
-  centerLongitude,
-  numberOfCoordinates,
-  maxDistanceInMeters
-) {
-  const earthRadius = 6371000; // Dünya'nın yarıçapı metre cinsinden
-  const randomCoordinates = [];
+// export async function getCoordinates(
+//   centerLatitude,
+//   centerLongitude,
+//   numberOfCoordinates,
+//   maxDistanceInMeters
+// ) {
+//   const earthRadius = 6371000; // Dünya'nın yarıçapı metre cinsinden
+//   const randomCoordinates = [];
 
-  for (let i = 0; i < numberOfCoordinates; i++) {
-    // Rastgele bir mesafe ve yön belirle
-    const distance = Math.random() * maxDistanceInMeters;
-    const angle = Math.random() * 2 * Math.PI;
+//   for (let i = 0; i < numberOfCoordinates; i++) {
+//     // Rastgele bir mesafe ve yön belirle
+//     const distance = Math.random() * maxDistanceInMeters;
+//     const angle = Math.random() * 2 * Math.PI;
 
-    // Lat/long hesaplamalarını yap
-    const deltaLatitude = (distance / earthRadius) * (180 / Math.PI);
-    const deltaLongitude =
-      (distance / (earthRadius * Math.cos((centerLatitude * Math.PI) / 180))) * (180 / Math.PI);
+//     // Lat/long hesaplamalarını yap
+//     const deltaLatitude = (distance / earthRadius) * (180 / Math.PI);
+//     const deltaLongitude =
+//       (distance / (earthRadius * Math.cos((centerLatitude * Math.PI) / 180))) * (180 / Math.PI);
 
-    const randomLatitude = centerLatitude + deltaLatitude * Math.cos(angle);
-    const randomLongitude = centerLongitude + deltaLongitude * Math.sin(angle);
+//     const randomLatitude = centerLatitude + deltaLatitude * Math.cos(angle);
+//     const randomLongitude = centerLongitude + deltaLongitude * Math.sin(angle);
 
-    randomCoordinates.push([randomLatitude, randomLongitude]);
-  }
+//     randomCoordinates.push([randomLatitude, randomLongitude]);
+//   }
 
-  return randomCoordinates;
-}
+//   return randomCoordinates;
+// }
 
-function removeLayer(layerName) {
-  const foundIndex = checkLayerExists(layerName);
-  if (foundIndex > -1) {
-    layersStatic.splice(foundIndex, 1);
-    const newLayers = layersStatic.slice();
-    setMapLayers(newLayers);
-  }
-}
+// export async function createWeatherIconLayer(centerLatitude, centerLongitude, numberOfCoordinates) {
+//   try {
+//     // removeLayer(WeathericonLayer);
+//     // Tıklanan nokta için hava durumu verilerini al
+//     const weatherData = await FetchWeatherData(centerLatitude, centerLongitude);
 
-export async function createWeatherIconLayer(centerLatitude, centerLongitude, numberOfCoordinates) {
-  try {
-    // removeLayer(WeathericonLayer);
-    // Tıklanan nokta için hava durumu verilerini al
-    const weatherData = await FetchWeatherData(centerLatitude, centerLongitude);
+//     // Yakın yerlerin koordinatlarını hesapla
+//     const nearbyCoordinates = await getCoordinates(
+//       centerLatitude,
+//       centerLongitude,
+//       numberOfCoordinates,
+//       10000
+//     );
 
-    // Yakın yerlerin koordinatlarını hesapla
-    const nearbyCoordinates = await getCoordinates(
-      centerLatitude,
-      centerLongitude,
-      numberOfCoordinates,
-      10000
-    );
-
-    // IconLayer için kullanılacak veri
-    const iconData = [];
-    // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
-    for (const coord of nearbyCoordinates) {
-      // Yakın noktadaki hava durumu verilerini al
-      const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
-      // IconLayer için icon verisi oluştur
-      iconData.push(nearbyWeatherData);
-    }
-    iconData.push(weatherData);
-    return CreatelayerWeather(iconData);
-  } catch (error) {
-    console.error("Error fetching event:", error);
-  }
-}
+//     // IconLayer için kullanılacak veri
+//     const iconData = [];
+//     // Yakın noktalardaki hava durumu verilerini kullanarak icon verilerini oluştur
+//     for (const coord of nearbyCoordinates) {
+//       // Yakın noktadaki hava durumu verilerini al
+//       const nearbyWeatherData = await FetchWeatherData(coord[0], coord[1]);
+//       // IconLayer için icon verisi oluştur
+//       iconData.push(nearbyWeatherData);
+//     }
+//     iconData.push(weatherData);
+//     return CreatelayerWeather(iconData);
+//   } catch (error) {
+//     console.error("Error fetching event:", error);
+//   }
+// }

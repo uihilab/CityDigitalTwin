@@ -19,7 +19,7 @@ import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
-import { createWeatherIconLayer } from "../SCWeather/Weather";
+import { getWeatherLayer } from "../SCWeather/index";
 import Popup from "./Popup";
 import {
   createStruct,
@@ -73,7 +73,7 @@ function Map3D() {
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
     const isAQualityActive = activeItems[layers.findIndex((item) => item.key === "AQuality")];
-    const isWeatherActive = activeItems[layers.findIndex((item) => item.key === "WForecast")];
+    //const isWeatherActive = activeItems[layers.findIndex((item) => item.key === "WForecast")];
     const isDemographicActive =
       activeItems[layers.findIndex((item) => item.key === "DemographicHousingData")];
     if (isAQualityActive) {
@@ -128,21 +128,21 @@ function Map3D() {
         setIsChartVisible(false);
       }
     }
-    if (isWeatherActive) {
-      removeLayer(WeathericonLayer.id);
-      setMapLayers(null);
-      const longitude = event.coordinate[0];
-      const latitude = event.coordinate[1];
-      setClickPosition({ x: latitude, y: longitude });
-      try {
-        // Hava durumu verilerini kullanarak iconları haritaya ekle
-        const layer = await createWeatherIconLayer(latitude, longitude, 3);
-        setWeatherIconLayer(layer);
-        setMapLayers(layer);
-      } catch (error) {
-        console.error("Error in handleMapClick:", error);
-      }
-    }
+    // if (isWeatherActive) {
+    //   removeLayer(WeathericonLayer.id);
+    //   setMapLayers(null);
+    //   const longitude = event.coordinate[0];
+    //   const latitude = event.coordinate[1];
+    //   setClickPosition({ x: latitude, y: longitude });
+    //   try {
+    //     // Hava durumu verilerini kullanarak iconları haritaya ekle
+    //     const layer = await createWeatherIconLayer(latitude, longitude, 3);
+    //     setWeatherIconLayer(layer);
+    //     setMapLayers(layer);
+    //   } catch (error) {
+    //     console.error("Error in handleMapClick:", error);
+    //   }
+    // }
   };
 
   const initialState = {
@@ -173,7 +173,7 @@ function Map3D() {
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState([]);
   const [mapLayers, setMapLayersState] = useState(maplayersTestData);
-  const [WeathericonLayer, setWeatherIconLayer] = useState(null);
+  //const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [AQiconLayer, setAQIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
@@ -391,9 +391,8 @@ function Map3D() {
         return;
       }
       if (key === "WForecast") {
-        removeLayer("WForecast");
-        const layer = await createWeatherIconLayer(42.569663, -92.479646, 3);
-        setWeatherIconLayer(layer);
+        //removeLayer("WForecast");
+        const layer = await getWeatherLayer(41.667773, -91.549107);
         setMapLayers(layer);
         return;
       }

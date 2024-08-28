@@ -9,24 +9,24 @@ function formatTooltipData(item) {
   if (item.year_built !== undefined && item.year_built > 0) {
     tooltipData += `Year Built: ${item.year_built}\n`;
   }
-  if (item.foundation !== undefined) {
-    tooltipData += `Foundation: ${item.foundation}\n`;
-  }
-  if (item.scour_index !== undefined) {
-    tooltipData += `Scour Index: ${item.scour_index}\n`;
-  }
-  if (item.traffic !== undefined) {
-    tooltipData += `Traffic: ${item.traffic}\n`;
-  }
-  if (item.condition !== undefined) {
-    tooltipData += `Condition: ${item.condition}\n`;
-  }
+  // if (item.foundation !== undefined) {
+  //   tooltipData += `Foundation: ${item.foundation}\n`;
+  // }
+  // if (item.scour_index !== undefined) {
+  //   tooltipData += `Scour Index: ${item.scour_index}\n`;
+  // }
+  // if (item.traffic !== undefined) {
+  //   tooltipData += `Traffic: ${item.traffic}\n`;
+  // }
+  // if (item.condition !== undefined) {
+  //   tooltipData += `Condition: ${item.condition}\n`;
+  // }
   if (item.cost !== undefined) {
     tooltipData += `Cost: ${item.cost}\n`;
   }
-  if (item.comment !== undefined) {
-    tooltipData += `Comment: ${item.comment}`;
-  }
+  // if (item.comment !== undefined) {
+  //   tooltipData += `Comment: ${item.comment}`;
+  // }
 
   return tooltipData.trim(); // Remove trailing newline
 }
@@ -40,12 +40,12 @@ export async function RailwayBridgesLayer() {
       name: feature.properties.name,
       coordinates: feature.geometry.coordinates,
       year_built: feature.properties.yearbuilt,
-      foundation: feature.properties.foundation,
-      scour_index: feature.properties.scourindex,
-      traffic: feature.properties.traffic,
-      condition: feature.properties.condition,
+      //foundation: feature.properties.foundation,
+      //scour_index: feature.properties.scourindex,
+      //traffic: feature.properties.traffic,
+      //condition: feature.properties.condition,
       cost: feature.properties.cost,
-      comment: feature.properties.comment,
+      //comment: feature.properties.comment,
     };
 
     item.tooltip_data = formatTooltipData(item);
@@ -59,9 +59,9 @@ export async function RailwayBridgesLayer() {
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_map.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_publictransportation.json`,
     getIcon: d => 'icons8-train-100',
-    sizeScale: 15,
+    sizeScale: 5,
     getPosition: d => d.coordinates,
-    getSize: d => 5,
+    getSize: d => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
     //getColor: d => [255, 0, 0],
   });
