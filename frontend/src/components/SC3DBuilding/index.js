@@ -31,7 +31,7 @@ import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/i
 import { ElectricgridLayer } from "../SCElectric/index";
 import { BridgesgridLayer } from "../SCBridge/index";
 import { BuildingLayer } from "../SCBuilding/layerBuilding";
-import { getFloodLayer } from "../SCFlood/index";
+import { getFloodLayer, FloodMenu, createFloodDamageIconLayer } from "../SCFlood/index";
 import { getWellData, createWellLayer } from "../SCWell/well";
 import { fetchRailwayData, CreateRailwayLayer } from "../SCRailway/index";
 import { RailwayBridgesLayer } from "../SCRailwayBridge/index";
@@ -42,10 +42,10 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
-import { loadBusLayer, loadBusStopLayer }from "../SCPublicTransitRoute/bus.js";
-import { AddRailwayCrossingLayer }from "../SCRailwayCrossing/index.js";
-import { loadBicycleLayer }from "../SCBicycleNetwork/index.js";
-import { loadBicycleAmetiesLayer }from "../SCBicycleAmenities/index.js";
+import { loadBusLayer, loadBusStopLayer } from "../SCPublicTransitRoute/bus.js";
+import { AddRailwayCrossingLayer } from "../SCRailwayCrossing/index.js";
+import { loadBicycleLayer } from "../SCBicycleNetwork/index.js";
+import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
@@ -62,6 +62,7 @@ function Map3D() {
   const [railwayData, setrailwayData] = useState([]);
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
+  const [iconlayerFlood, seticonlayerFlood] = useState(null);
 
   const [checkboxStateTransit, setCheckboxStateTransit] = useState({
     train: false,
@@ -178,6 +179,10 @@ function Map3D() {
   const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
   const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
+  const [isMenuFloodOpen, setIsMenuFloodOpen] = useState(false); // Menü durumu
+  const toggleMenu = () => {
+    setIsMenuFloodOpen(!isMenuOpen);
+  };
   //const [isselectedTransit, setSelectedTransit] = useState(false);
 
   function setMapLayers(newLayers) {
@@ -203,12 +208,14 @@ function Map3D() {
   }
 
   function removeLayer(layerName) {
-    debugger;
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
+      //const layersCopy = JSON.parse(JSON.stringify(layersStatic)); // Create a deep copy
+      //const filtered = layersStatic.filter((layer) => layer.id !== layerName);
       layersStatic.splice(foundIndex, 1);
-      const newLayers = layersStatic.slice();
-      setMapLayers(newLayers);
+      // const newLayers = filtered.slice();
+      // layersStatic = new 
+      //setLayersStatic(newLayers);
     }
   }
 
@@ -319,7 +326,7 @@ function Map3D() {
       }
 
       if (key === "RailwayCross") {
-        const RailwayCrossingLayer= await AddRailwayCrossingLayer();
+        const RailwayCrossingLayer = await AddRailwayCrossingLayer();
         setMapLayers(RailwayCrossingLayer);
         debugger;
         return;
@@ -366,6 +373,11 @@ function Map3D() {
         setIsFloodLayerSelected(true);
         const layer = await getFloodLayer("flood", currentLayerFlood);
         setMapLayers(layer);
+
+        debugger;
+
+        const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040);
+        setMapLayers(FloodDamageIconLayer);
         return;
       }
       if (key === "AQuality") {
@@ -399,7 +411,7 @@ function Map3D() {
             <div>Number of Employment: {data.source5.data0}</div>
             <div>Household median income: {data.source6.data0}</div>
             <div>Poverty: {data.source3.data0}%</div>
-        </div>
+          </div>
         );
         setMapLayers(layer);
         // const data= await fetchDataFromApis();
@@ -421,10 +433,10 @@ function Map3D() {
       // }
       if (key === "Bus_Info") {
         debugger;
-        const busLayer= await loadBusLayer();  
-        const busStop= await loadBusStopLayer();  
+        const busLayer = await loadBusLayer();
+        const busStop = await loadBusStopLayer();
         debugger;
-        setMapLayers(busStop);    
+        setMapLayers(busStop);
         setMapLayers(busLayer);
         return;
       }
@@ -580,6 +592,7 @@ function Map3D() {
         setIsFloodLayerSelected(false);
         //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
         removeLayer("flood");
+        removeLayer("icon-layer-flood")
         return;
       }
 
@@ -633,12 +646,37 @@ function Map3D() {
 
   const handleLayerSelectChangeFlood = async (event) => {
     removeLayer("flood");
-    const selectedLayer = event.target.value;
-    setCurrentLayerFlood(selectedLayer);
-    const layer = await getFloodLayer("flood", selectedLayer);
-    //setMapLayersFlood(prevLayers => [...prevLayers, layer]);
 
+    //if(iconlayerFlood!==null)
+    {
+      removeLayer("icon-layer-flood");
+    }
+    const selectedLayer = event.target.value;
+    var mapid = null;
+    if (selectedLayer === '500') {
+      mapid = '1036053'; // Örnek mapid
+    }
+    else if (selectedLayer === "100") {
+      mapid = '1036044';
+    }
+    else if (selectedLayer === "50") {
+      mapid = '1036040';
+    }
+    else if (selectedLayer === "25") {
+      mapid = '1036035';
+    }
+    else
+      mapid = null;
+
+    const layer = await getFloodLayer("flood", selectedLayer);
     setMapLayers(layer);
+
+    if (mapid !== null) {
+      const iconLayer = await createFloodDamageIconLayer(mapid); // IconLayer'ı oluştur
+      debugger;
+      setMapLayers(iconLayer);
+      //seticonlayerFlood(iconLayer);
+    }
   };
 
   // function CheckboxLayerTransit({ checkboxStateTransit, setCheckboxStateTransit }) {
@@ -728,29 +766,16 @@ function Map3D() {
   //     </div>
   //   );
   // }
-
   return (
     <>
-      {isFloodLayerSelected && (
-        <div
-          id="layerSelector"
-          style={{ position: "absolute", top: "10px", left: "10px", zIndex: 1000 }}
-        >
-          <label htmlFor="layerSelect">Select Flood Risk Layer:</label>
-          <select id="layerSelect" defaultValue="5" onChange={handleLayerSelectChangeFlood}>
-            <option value="2">Flood Risk 2yr</option>
-            <option value="5">Flood Risk 5yr</option>
-            <option value="25">Flood Risk 25yr</option>
-            <option value="50">Flood Risk 50yr</option>
-            <option value="100">Flood Risk 100yr</option>
-            <option value="200">Flood Risk 200yr</option>
-            <option value="500">Flood Risk 500yr</option>
-          </select>
-        </div>
-      )}
+      <FloodMenu
+        isFloodLayerSelected={isFloodLayerSelected}
+        toggleMenu={toggleMenu}
+        handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
+      />
+
       <Sidenav
         color={sidenavColor}
-        //brand="AKLDNDKLN"
         brandName="Waterloo"
         routes={layers}
         activeItems={activeItems}
@@ -954,6 +979,6 @@ function Map3D() {
       </div>
     </>
   );
-}
+};
 
 export default Map3D;
