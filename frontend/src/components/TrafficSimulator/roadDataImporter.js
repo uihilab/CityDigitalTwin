@@ -1,5 +1,5 @@
-import RoadModel from "./RoadModel";
 import length from "@turf/length";
+import RoadModel from "./RoadModel";
 
 const turf = {
   length,
@@ -30,7 +30,7 @@ export function importOSMRoadsFromGeoJSON(geoJSON) {
   const roads = [];
 
   const filteredRoads = filterRoadTypes(geoJSON.features);
-  const longEnoughRoads = filterShortRoads(filteredRoads);
+  //const longEnoughRoads = filterShortRoads(filteredRoads);
   //.filter((x) => x.properties.name === "West Park Avenue")
 
   //console.log(filteredRoads);
@@ -44,7 +44,7 @@ export function importOSMRoadsFromGeoJSON(geoJSON) {
   //   );
   // });
 
-  longEnoughRoads.forEach((feature, index) => {
+  filteredRoads.forEach((feature, index) => {
     const properties = feature.properties;
     const geometry = feature.geometry;
     const id = properties.full_id || index; // Use full_id if available, otherwise use the index

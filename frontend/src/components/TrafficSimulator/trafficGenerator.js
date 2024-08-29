@@ -11,7 +11,7 @@ const numCarsPerMiles = {
   secondary: 4.9,
   tertiary: 2.6,
   unclassified: 3.3,
-  residential: 2.2
+  residential: 2.2,
 };
 
 class TrafficGenerator {

@@ -1,10 +1,17 @@
 import TrafficGenerator from "./trafficGenerator";
+import RandomRouteTrafficGenerator from "./trafficRandomRouteTraffic";
 import TripBuilder from "./trip-builder";
 
 class CarSimulator {
-  constructor(geojsonData) {
-    this.trafficGenerator = new TrafficGenerator(geojsonData);
-    this.roads = this.trafficGenerator.generateRandomCars();
+  constructor(roadDataRaw, roadData) {
+    //this.trafficGenerator = new TrafficGenerator(roadData);
+    //this.roads = this.trafficGenerator.generateRandomCars();
+
+    this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
+    this.routes = this.routeGenerator.generateRandomRoutes(200, 0.02);
+    console.log(JSON.stringify(this.routes));
+    debugger;
+    this.cars = this.generateCars(this.routes);
     this.lastTimestamp = null;
   }
 
@@ -16,10 +23,9 @@ class CarSimulator {
     const delta = timestamp - this.lastTimestamp;
     this.lastTimestamp = timestamp;
 
-    this.roads.forEach((road) => {
-      road.cars.forEach((car) => {
+    if (this.cars) {
+      this.cars.forEach((car) => {
         if (!car.tripBuilder) {
-          //console.log(road.geometry.coordinates);
           car.tripBuilder = new TripBuilder({
             waypoints: road.geometry.coordinates,
             speed: road.maxSpeed, // meters per second
@@ -30,8 +36,46 @@ class CarSimulator {
         car.position = frame.point;
         car.heading = frame.heading;
       });
-    });
+    }
+
+    if (this.roads) {
+      this.roads.forEach((road) => {
+        road.cars.forEach((car) => {
+          if (!car.tripBuilder) {
+            //console.log(road.geometry.coordinates);
+            car.tripBuilder = new TripBuilder({
+              waypoints: road.geometry.coordinates,
+              speed: road.maxSpeed, // meters per second
+              loop: true,
+            });
+          }
+          const frame = car.tripBuilder.getFrame(delta);
+          car.position = frame.point;
+          car.heading = frame.heading;
+        });
+      });
+    }
+
     return frames;
+  }
+
+  generateCars(routes) {
+    const cars = [];
+    debugger;
+    routes.forEach((route, index) => {
+      const car = {
+        id: `car_route_${index}`,
+        position: route,
+        direction: Math.random() < 0.5 ? "forward" : "backward", // Random initial direction
+      };
+      car.tripBuilder = new TripBuilder({
+        waypoints: route,
+        speed: 15, //TODO: road.maxSpeed, // meters per second
+        loop: true,
+      });
+      cars.push(car);
+    });
+    return cars;
   }
 }
 

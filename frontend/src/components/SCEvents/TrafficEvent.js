@@ -2,7 +2,7 @@ import { IconLayer } from "@deck.gl/layers";
 
 // Function to format the tooltip data for traffic events
 function formatTooltipData(item) {
-  let tooltipData = '';
+  let tooltipData = "";
 
   if (item.name !== undefined) {
     tooltipData += `Name: ${item.name}\n`;
@@ -34,26 +34,28 @@ function formatTooltipData(item) {
 
 export async function getTrafficEventData() {
   try {
-    const response = await fetch('https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson');
+    const response = await fetch(
+      "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson"
+    );
     const data = await response.json();
     const result = convertToMarkers(data);
     return result;
   } catch (error) {
-    console.error('Error fetching traffic event data:', error);
+    console.error("Error fetching traffic event data:", error);
   }
 }
 
 export function convertToMarkers(jsonData) {
   const features = jsonData.features;
-  const convertedData = features.map(feature => {
+  const convertedData = features.map((feature) => {
     const coordinates = feature.geometry.coordinates;
-    const name = feature.properties.headline || '';
-    const classType = feature.properties.STYLE || '';
-    const mass = feature.properties.Priority || '';
-    const year = new Date(feature.properties.UpdateDate).getFullYear() || '';
-    const route = feature.properties.Route || '';
-    const endTime = feature.properties.EndTime || '';
-    const description = feature.properties.Desc0 || '';
+    const name = feature.properties.headline || "";
+    const classType = feature.properties.STYLE || "";
+    const mass = feature.properties.Priority || "";
+    const year = new Date(feature.properties.UpdateDate).getFullYear() || "";
+    const route = feature.properties.Route || "";
+    const endTime = feature.properties.EndTime || "";
+    const description = feature.properties.Desc0 || "";
 
     const item = {
       coordinates,
@@ -64,7 +66,7 @@ export function convertToMarkers(jsonData) {
       updateDate: feature.properties.UpdateDate,
       route,
       endTime,
-      description
+      description,
     };
 
     item.tooltip_data = formatTooltipData(item);
