@@ -50,16 +50,6 @@ function drawRoutes(routes, setMapLayer) {
     // visible: true,
     // wrapLongitude: false,
   });
-  // const routeLayer = new LineLayer({
-  //   id: "route-layer",
-  //   data: routes,
-  //   pickable: true,
-  //   getSourcePosition: (d) => d[0], // Starting point of the route
-  //   getTargetPosition: (d) => d[d.length - 1], // Ending point of the route
-  //   getColor: [255, 0, 0], // Route color (red in this example)
-  //   getWidth: 2, // Route line width
-  //   widthUnits: "pixels",
-  // });
   setMapLayer(routeLayer);
 }
 
