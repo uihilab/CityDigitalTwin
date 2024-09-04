@@ -42,7 +42,6 @@ export async function BridgesgridLayer() {
     };
 
     item.tooltip_data = formatTooltipData(item);
-    debugger;
     return item;
   });
 

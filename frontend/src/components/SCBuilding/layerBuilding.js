@@ -1,12 +1,10 @@
 import { GeoJsonLayer } from "@deck.gl/layers";
-import {COORDINATE_SYSTEM} from '@deck.gl/core';
+import { COORDINATE_SYSTEM } from "@deck.gl/core";
 
 function formatTooltipData(item) {
-  if(item)
-  {
-    console.log(item);
+  if (item) {
     let tooltipData = "";
-  
+
     if (item.occ_cls !== undefined) {
       tooltipData += `Occupancy Class: ${item.occ_cls}\n`;
     }
@@ -28,11 +26,10 @@ function formatTooltipData(item) {
     if (item.sqmeters !== undefined) {
       tooltipData += `Area (sq meters): ${item.sqmeters}`;
     }
-  
     return tooltipData.trim(); // Remove trailing newline
   }
- return null;
-}
+  return null;
+} 
 
 export async function BuildingLayer() {
   const response = await fetch(`${process.env.PUBLIC_URL}/data/waterloo_buildings_wgs84.geojson`);
@@ -41,11 +38,11 @@ export async function BuildingLayer() {
   const processedData = data.features.map((feature) => {
     const item = {
       name: feature.properties.name,
-      address: `${feature.properties['addr:housenumber']} ${feature.properties['addr:street']}`,
-      city: feature.properties['addr:city'],
-      state: feature.properties['addr:state'],
-      postcode: feature.properties['addr:postcode'],
-      building_use: feature.properties['building:use'],
+      address: `${feature.properties["addr:housenumber"]} ${feature.properties["addr:street"]}`,
+      city: feature.properties["addr:city"],
+      state: feature.properties["addr:state"],
+      postcode: feature.properties["addr:postcode"],
+      building_use: feature.properties["building:use"],
       website: feature.properties.website,
       phone: feature.properties.phone,
     };
@@ -60,7 +57,7 @@ export async function BuildingLayer() {
     pickable: true,
     stroked: false,
     filled: true,
-    extruded: true,
+    extruded: false,
     lineWidthScale: 20,
     lineWidthMinPixels: 2,
     getFillColor: [140, 170, 180, 200],
@@ -68,8 +65,9 @@ export async function BuildingLayer() {
     getLineWidth: 1,
     getElevation: 30,
     coordinateSystem: COORDINATE_SYSTEM.LNGLAT,
-    coordinateOrigin: [42.4942408813, -92.34170190987821], // Haritanın referans noktası
+    //coordinateOrigin: [   -92.345,  42.4937,], // Haritanın referans noktası
     wireframe: true,
+    getPosition: d => [d.geometry.coordinates[0], d.geometry.coordinates[1], 0],
   });
 
   return layerBuilding;

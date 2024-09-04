@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef, StrictMode } from "react";
+import React, { useState, useEffect, useRef, StrictMode, useMemo } from "react";
 import { DeckGL } from "@deck.gl/react";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
+import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
+import { GoogleMapsOverlay as DeckOverlay } from "@deck.gl/google-maps";
 import { GeoJsonLayer, ScatterplotLayer, IconLayer } from "@deck.gl/layers";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
 import Sidenav from "examples/Sidenav";
@@ -49,9 +50,22 @@ import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
+function DeckGLOverlay(props) {
+  const map = useMap();
+  const overlay = useMemo(() => new DeckOverlay(props));
+
+  useEffect(() => {
+    overlay.setMap(map);
+    return () => overlay.setMap(null);
+  }, [map]);
+
+  overlay.setProps(props);
+  return null;
+}
+
 function Map3D() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isChartVisible, setIsChartVisible] = useState(false);
+  const [isChartVisible, setIsChartVisible] = useState(false); 
   //const [mapLayersFlood, setMapLayersFlood] = useState([]);
   const [chartData, setChartData] = useState(null);
   const [menuContent, setMenuContent] = useState("Loading");
@@ -69,7 +83,7 @@ function Map3D() {
     bus: false,
     tram: false,
   });
-
+ 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
     const isAQualityActive = activeItems[layers.findIndex((item) => item.key === "AQuality")];
@@ -156,10 +170,14 @@ function Map3D() {
   const [viewport, setViewport] = useState({
     longitude: -92.345,
     latitude: 42.4937,
-    zoom: 13,
+    zoom: 12,
     heading: 1,
     pitch: 45,
+    bearing: 0,
   });
+
+
+  const [mapZoom, setMapZoom] = useState(12);
 
   const viewportRef = useRef(viewport);
 
@@ -169,6 +187,12 @@ function Map3D() {
 
   // Deck element reference to pass and use in animation or other sub components.
   const deckRef = useRef(null);
+  const mapRef = useRef(null);
+  const handleViewStateChange = ({ viewState }) => {
+    setViewport(viewState);
+  };
+
+
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState([]);
@@ -214,7 +238,7 @@ function Map3D() {
       //const filtered = layersStatic.filter((layer) => layer.id !== layerName);
       layersStatic.splice(foundIndex, 1);
       // const newLayers = filtered.slice();
-      // layersStatic = new 
+      // layersStatic = new
       //setLayersStatic(newLayers);
     }
   }
@@ -328,7 +352,6 @@ function Map3D() {
       if (key === "RailwayCross") {
         const RailwayCrossingLayer = await AddRailwayCrossingLayer();
         setMapLayers(RailwayCrossingLayer);
-        debugger;
         return;
       }
 
@@ -373,9 +396,6 @@ function Map3D() {
         setIsFloodLayerSelected(true);
         const layer = await getFloodLayer("flood", currentLayerFlood);
         setMapLayers(layer);
-
-        debugger;
-
         const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040);
         setMapLayers(FloodDamageIconLayer);
         return;
@@ -431,10 +451,8 @@ function Map3D() {
       //   return;
       // }
       if (key === "Bus_Info") {
-        debugger;
         const busLayer = await loadBusLayer();
         const busStop = await loadBusStopLayer();
-        debugger;
         setMapLayers(busStop);
         setMapLayers(busLayer);
         return;
@@ -554,12 +572,12 @@ function Map3D() {
         return;
       }
       if (key === "BicycleNetwork") {
-        removeLayer("BicycleNetwork")
-        removeLayer("BicycleAmenities")
+        removeLayer("BicycleNetwork");
+        removeLayer("BicycleAmenities");
         return;
       }
       if (key === "BicycleAmenities") {
-        removeLayer("BicycleAmenities")
+        removeLayer("BicycleAmenities");
         return;
       }
 
@@ -591,7 +609,7 @@ function Map3D() {
         setIsFloodLayerSelected(false);
         //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
         removeLayer("flood");
-        removeLayer("icon-layer-flood")
+        removeLayer("icon-layer-flood");
         return;
       }
 
@@ -652,27 +670,21 @@ function Map3D() {
     }
     const selectedLayer = event.target.value;
     var mapid = null;
-    if (selectedLayer === '500') {
-      mapid = '1036053'; // Örnek mapid
-    }
-    else if (selectedLayer === "100") {
-      mapid = '1036044';
-    }
-    else if (selectedLayer === "50") {
-      mapid = '1036040';
-    }
-    else if (selectedLayer === "25") {
-      mapid = '1036035';
-    }
-    else
-      mapid = null;
+    if (selectedLayer === "500") {
+      mapid = "1036053"; // Örnek mapid
+    } else if (selectedLayer === "100") {
+      mapid = "1036044";
+    } else if (selectedLayer === "50") {
+      mapid = "1036040";
+    } else if (selectedLayer === "25") {
+      mapid = "1036035";
+    } else mapid = null;
 
     const layer = await getFloodLayer("flood", selectedLayer);
     setMapLayers(layer);
 
     if (mapid !== null) {
       const iconLayer = await createFloodDamageIconLayer(mapid); // IconLayer'ı oluştur
-      debugger;
       setMapLayers(iconLayer);
       //seticonlayerFlood(iconLayer);
     }
@@ -781,7 +793,6 @@ function Map3D() {
         setActiveItems={setActiveItems}
       />
       <div>
-
         {isRouteCheckboxMenuOpen && (
           <CheckboxLayerTransit
             checkboxStateTransit={checkboxStateTransit}
@@ -812,41 +823,33 @@ function Map3D() {
               style={{ width: "100%", height: "90vh", position: "relative" }}
             />
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-              <DeckGL
-                ref={deckRef}
-                initialViewState={viewport}
-                onViewStateChange={({ viewState }) => setViewport(viewState)}
-                onClick={handleMapClick}
-                controller
-                layers={[mapLayers]}
-                getTooltip={getTooltipContent}
+              <Map
+                mapId={GOOGLE_MAP_ID}
+                defaultCenter={{ lat: 42.4937, lng: -92.345 }}
+                defaultZoom={mapZoom}
               >
-                <Map
-                  mapId={GOOGLE_MAP_ID}
-                  defaultCenter={{ lat: 42.4937, lng: -92.345 }}
-                  defaultZoom={12}
-                />
-                {/* Canvas */}
-                <canvas
-                  id="airQualityCanvas"
-                  style={{
-                    position: "absolute",
-                    bottom: 10,
-                    left: 10,
-                    zIndex: 1,
-                    width: 100,
-                    height: 100,
-                    pointerEvents: "yes",
-                    opacity: 0.5,
-                    padding: 10,
-                  }}
-                />
-                <div>
-                  {/* {hoverInfo && renderTooltip(hoverInfo)} */}
-                  <Popup clickPosition={clickPosition} object={clickedObject} />
-                </div>
-                <div id="App" />
-              </DeckGL>
+                <DeckGLOverlay layers={[mapLayers]} />
+              </Map>
+              {/* Canvas */}
+              <canvas
+                id="airQualityCanvas"
+                style={{
+                  position: "absolute",
+                  bottom: 10,
+                  left: 10,
+                  zIndex: 1,
+                  width: 100,
+                  height: 100,
+                  pointerEvents: "yes",
+                  opacity: 0.5,
+                  padding: 10,
+                }}
+              />
+              <div>
+                {/* {hoverInfo && renderTooltip(hoverInfo)} */}
+                <Popup clickPosition={clickPosition} object={clickedObject} />
+              </div>
+              <div id="App" />
             </APIProvider>
           </StrictMode>
           {isMenuOpen && (
@@ -978,6 +981,6 @@ function Map3D() {
       </div>
     </>
   );
-};
+}
 
 export default Map3D;
