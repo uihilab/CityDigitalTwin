@@ -3,7 +3,6 @@ import { GeoJsonLayer } from 'deck.gl';
 import { IconLayer } from "@deck.gl/layers";
 
 export async function loadBusLayer() {
-    debugger;
    const busRoute = await fetch(`${process.env.PUBLIC_URL}/data/Bus_Route_4326.geojson`);
    if (!busRoute.ok) {
        throw new Error(`HTTP error! status: ${busRoute.status}`);
@@ -41,14 +40,12 @@ export async function loadBusStopLayer() {
         throw new Error(`HTTP error! status: ${busRoute.status}`);
     }
     const stop = await busStop.json();
-    debugger;
     const processedData = stop.features.map((feature) => {
         const item = {
           stop_name: feature.properties.stop_name,
           coordinates: feature.geometry.coordinates,
           wheelchair: feature.properties.wheelchair,
         };
-        console.log(item);
         item.tooltip_data = formatTooltipData(item);
         return item;
       });

@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-const Popup = ({ clickPosition, object }) => {
+function Popup({ clickPosition, object }) {
   if (!object) {
     return null;
   }
@@ -20,6 +20,6 @@ const Popup = ({ clickPosition, object }) => {
       )}
     </div>
   );
-};
+}
 
 export default Popup;

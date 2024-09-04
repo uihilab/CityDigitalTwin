@@ -4,7 +4,6 @@ import {COORDINATE_SYSTEM} from '@deck.gl/core';
 function formatTooltipData(item) {
   if(item)
   {
-    console.log(item);
     let tooltipData = "";
   
     if (item.occ_cls !== undefined) {
