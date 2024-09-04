@@ -68,7 +68,6 @@ export async function getWeatherLayer(latitude = 41.667773, longitude = -91.5491
   })();
   
 
-  debugger;
   const layerWeather = new IconLayer({
     id: 'WForecast',
     data: processedData,

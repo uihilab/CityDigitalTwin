@@ -17,7 +17,6 @@ function formatTooltipData(item) {
 
 export async function getWasteWaterData() {
   try {
-    debugger;
     const response = await fetch(`${process.env.PUBLIC_URL}/data/wastewater.geojson`);
     const data = await response.json();
 

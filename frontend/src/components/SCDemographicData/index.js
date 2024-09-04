@@ -29,8 +29,6 @@ export async function fetchDataFromApis() {
         response6.json()
     ]);
 
-    debugger;
-
     // Verileri kendi oluşturduğunuz yapıdaki bir değişkene atayın
     const combinedData = {
         source1: {
@@ -58,7 +56,7 @@ export async function fetchDataFromApis() {
             data0: data6[1][46],
         },
     };
-    debugger;
+    
     return combinedData;
 }
 

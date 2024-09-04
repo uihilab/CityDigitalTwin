@@ -85,8 +85,7 @@ function mphToMps(mph) {
 export function importRoadsFromGeoJSON_v2(geojson) {
   const roads = [];
   const features = geojson.features;
-  debugger;
-
+  
   features.forEach((feature) => {
     const properties = feature.properties;
     const geometry = feature.geometry;

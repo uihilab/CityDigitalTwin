@@ -2,7 +2,6 @@ export async function getTrainData() {
   try {
     const response = await fetch('https://mgwalker.github.io/amtrak-api/routes.json');
     const data = await response.json();
-    debugger;
     // Tren programını işleme örneği
     data.forEach(route => {
       route.trains.forEach(train => {
@@ -30,7 +29,6 @@ export async function getTrainStationsData() {
   try {
     const response = await fetch("https://mgwalker.github.io/amtrak-api/stations.json");
     const data = await response.json();
-    debugger;
     return data;
     // Tren programını işleme örneği
   } catch (error) {
