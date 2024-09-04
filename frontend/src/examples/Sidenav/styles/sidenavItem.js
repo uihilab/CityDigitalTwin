@@ -23,7 +23,7 @@ function item(theme, ownerState) {
     const { rgba } = functions;
   
     return {
-      pl: 3,
+      pl: 0,
       mt: 0.375,
       mb: 0.3,
       width: "100%",
@@ -92,23 +92,23 @@ function item(theme, ownerState) {
         }),
       },
   
-      "&::before": {
-        content: `"${name[0]}"`,
-        color:
-          ((transparentSidenav && !darkMode) || whiteSidenav) && (active === "isParent" || !active)
-            ? dark.main
-            : white.main,
-        fontWeight: fontWeightRegular,
-        display: "flex",
-        alignItems: "center",
-        position: "absolute",
-        top: "50%",
-        transform: "translateY(-50%)",
-        left: pxToRem(-15),
-        opacity: 1,
-        borderRadius: "50%",
-        fontSize: size.sm,
-      },
+      // "&::before": {
+      //   content: `"${name[0]}"`,
+      //   color:
+      //     ((transparentSidenav && !darkMode) || whiteSidenav) && (active === "isParent" || !active)
+      //       ? dark.main
+      //       : white.main,
+      //   fontWeight: fontWeightRegular,
+      //   display: "flex",
+      //   alignItems: "center",
+      //   position: "absolute",
+      //   top: "50%",
+      //   transform: "translateY(-50%)",
+      //   left: pxToRem(-15),
+      //   opacity: 1,
+      //   borderRadius: "50%",
+      //   fontSize: size.sm,
+      // },
     };
   }
   
