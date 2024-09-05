@@ -13,11 +13,10 @@ function generateSharpColorBasedOnRoundLength(coordinatesLength) {
   } else if (coordinatesLength < 100) {
     return [0, 0, 255, 255]; // Blue for long rounds
   } else if (coordinatesLength < 130) {
-    return [173, 216, 230, 255]; // Açık mavi 
+    return [173, 216, 230, 255]; // Açık mavi
   } else if (coordinatesLength < 160) {
     return [255, 0, 0, 255]; // Bright red
-  }
-  else {
+  } else {
     return [255, 0, 0, 255]; // Bright red for very long rounds
   }
 }
@@ -28,7 +27,10 @@ function generateColorBasedOnRoundLength(coordinatesLength) {
   const maxLength = 50; // Maximum length, adjust based on your dataset
 
   // Calculate the percentage based on the length of the coordinates
-  const percentage = Math.min(Math.max((coordinatesLength - minLength) / (maxLength - minLength), 0), 1);
+  const percentage = Math.min(
+    Math.max((coordinatesLength - minLength) / (maxLength - minLength), 0),
+    1
+  );
 
   // Interpolate between green (for short rounds) and red (for long rounds)
   const startColor = [0, 128, 0]; // Green
@@ -45,17 +47,17 @@ function generateColorBasedOnRoundLength(coordinatesLength) {
 function preprocessBusRouteData(busGeoJson) {
   const newFeatures = [];
 
-  busGeoJson.features.forEach(feature => {
+  busGeoJson.features.forEach((feature) => {
     if (feature.geometry.type === "MultiLineString") {
       // If it's a MultiLineString, split it into separate LineStrings
-      feature.geometry.coordinates.forEach(coordinateSet => {
+      feature.geometry.coordinates.forEach((coordinateSet) => {
         const newFeature = {
           type: "Feature",
           geometry: {
             type: "LineString",
-            coordinates: coordinateSet
+            coordinates: coordinateSet,
           },
-          properties: feature.properties // Keep the same properties
+          properties: feature.properties, // Keep the same properties
         };
         newFeatures.push(newFeature);
       });
@@ -67,7 +69,7 @@ function preprocessBusRouteData(busGeoJson) {
 
   return {
     type: "FeatureCollection",
-    features: newFeatures
+    features: newFeatures,
   };
 }
 
@@ -83,7 +85,7 @@ export async function loadBusLayer() {
   const processedBusGeoJson = preprocessBusRouteData(busGeoJson);
 
   const layers = new GeoJsonLayer({
-    id: 'BusRoute',
+    id: "BusRoute",
     data: processedBusGeoJson,
     pickable: true,
 
@@ -96,20 +98,9 @@ export async function loadBusLayer() {
     getElevation: 30,
   });
   return layers;
-
 }
 
 function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.stop_name !== undefined) {
-    tooltipData += `Stop Name: ${item.stop_name}\n`;
-  }
-  if (item.wheelchair !== undefined) {
-    tooltipData += `wheelchair: ${item.wheelchair}\n`;
-  }
-  return tooltipData.trim(); // Remove trailing newline
-}
   let tooltipData = "";
 
   if (item.stop_name !== undefined) {
@@ -154,5 +145,4 @@ export async function loadBusStopLayer() {
   return StopLayer;
 }
 
-export async function removeBusLayer() {
-}
+export async function removeBusLayer() {}
