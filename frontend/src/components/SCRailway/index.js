@@ -20,9 +20,9 @@ export function CreateRailwayLayer(geojsonData)
         id: 'RailwayNetwork',
         data: geojsonData,
         pickable: true,
-        getLineColor: [255, 0, 0, 255],
+        getLineColor: [0, 0, 139, 255],
         getRadius: 90,
-        getLineWidth: 2,
+        getLineWidth: 10,
         getElevation: 30,
       });
       return layers;

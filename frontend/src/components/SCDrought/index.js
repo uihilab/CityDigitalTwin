@@ -38,9 +38,24 @@ export function createLegendHTML() {
   legendContainer.style.border = '1px solid black';
   legendContainer.style.zIndex = '1000';
 
+  // Create and style the LEGEND title with the same style as WATERLOO
+  const legendTitle = document.createElement('h3');
+  legendTitle.textContent = 'LEGEND'; // The title text
+  legendTitle.style.backgroundColor = '#4A90E2'; // Same background color
+  legendTitle.style.color = 'white'; // White text color
+  legendTitle.style.padding = '5px'; // Padding inside the title
+  legendTitle.style.borderRadius = '4px'; // Rounded corners
+  legendTitle.style.fontSize = '16px'; // Font size as specified
+  legendTitle.style.textAlign = 'center'; // Center the title
+  legendTitle.style.marginBottom = '8px'; // Add space between title and items
+
+  // Add the title to the legend container
+  legendContainer.appendChild(legendTitle);
+
   legendData.forEach(entry => {
     const legendEntry = document.createElement('div');
     legendEntry.className = 'legend-entry';
+    legendEntry.style.marginBottom = '2px';
 
     const colorCircle = document.createElement('div');
     colorCircle.className = 'color-circle';
@@ -48,11 +63,15 @@ export function createLegendHTML() {
     colorCircle.style.height = '12px';
     colorCircle.style.backgroundColor = entry.fillColor;
     colorCircle.style.display = 'inline-block';
-    colorCircle.style.marginRight = '8px';
+    colorCircle.style.marginRight = '4px';
 
     const legendLabel = document.createElement('span');
     legendLabel.className = 'legend-label';
     legendLabel.textContent = entry.label;
+
+    // Apply font size and line height to match the previous adjustments
+    legendLabel.style.fontSize = '14px'; // Smaller font size
+    legendLabel.style.lineHeight = '0.8'; // Improved line spacing
 
     legendEntry.appendChild(colorCircle);
     legendEntry.appendChild(legendLabel);
@@ -76,7 +95,7 @@ export async function DroughtLayer(JsonData) {
     getLineColor: d => hexToRGBA(d.properties.lineColor, 255), // 255 for full opacity
 
     pickable: true,
-    autoHighlight: true,
+    autoHighlight: false,
     onClick: info => {
       if (info.object) {
         alert(`Clicked on ${info.object.properties.name}`);

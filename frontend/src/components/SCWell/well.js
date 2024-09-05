@@ -18,9 +18,6 @@ function formatTooltipData(item) {
   if (item.owner_name !== undefined) {
     tooltipData += `Owner: ${item.owner_name}\n`;
   }
-  if (item.other_info !== undefined) {
-    tooltipData += `Other Info: ${item.other_info}`;
-  }
 
   return tooltipData.trim(); // Remove trailing newline
 }
@@ -36,8 +33,7 @@ export async function getWellData() {
         depth: feature.properties.DEPTH,
         well_type: feature.properties.WELL_TYPE,
         location: feature.properties.LOCATION,
-        owner_name: feature.properties.OWNER_NAME,
-        other_info: feature.properties.OTHER_INFO,
+        owner_name: feature.properties.OWNER_NAME
       };
 
       item.tooltip_data = formatTooltipData(item);
@@ -55,8 +51,14 @@ export const createWellLayer = (wellData, setTooltip) =>
     pickable: true,
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
-    getIcon: (d) => "well",
-    sizeScale: 10,
+    getIcon: (d) => {
+      // Check if the well type contains the word "private"
+      if (d.well_type && d.well_type.toLowerCase().includes("private")) {
+        return "well_red"; // Use the red icon for private wells
+      }
+      return "well"; // Default icon for other wells
+    },
+    sizeScale: 7,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 3, // Adjust the icon size
     onHover: ({ object, x, y }) => {

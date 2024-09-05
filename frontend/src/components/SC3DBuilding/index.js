@@ -392,7 +392,7 @@ function Map3D() {
       }
       if (key === "WForecast") {
         //removeLayer("WForecast");
-        const layer = await getWeatherLayer(41.667773, -91.549107);
+        const layer = await getWeatherLayer(42.484999, -92.353319);
         setMapLayers(layer);
         return;
       }
@@ -775,7 +775,7 @@ function Map3D() {
 
       <Sidenav
         color={sidenavColor}
-        brandName="Waterloo"
+        brandName="BLACK HAWK COUNTY"
         routes={layers}
         activeItems={activeItems}
         setActiveItems={setActiveItems}
@@ -865,16 +865,43 @@ function Map3D() {
                 overflowY: "auto",
               }}
             >
-              <p style={{ fontSize: "18px", marginBottom: "10px", textAlign: "center" }}>
+              {/* Close button ("X") at the top-right corner */}
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                style={{
+                  position: "absolute",
+                  top: "5px",
+                  right: "10px",
+                  background: "none",
+                  border: "none",
+                  fontSize: "16px",
+                  cursor: "pointer",
+                  color: "#333", // Dark gray color for the "X"
+                }}
+              >
+                &times;
+              </button>
+              <h3
+                style={{
+                  backgroundColor: "#4A90E2", // Same blue background
+                  color: "white", // White text
+                  padding: "5px", // Padding
+                  borderRadius: "4px", // Rounded corners (same style as LEGEND)
+                  fontSize: "16px", // Same font size
+                  textAlign: "center", // Centered text
+                  marginBottom: "10px", // Space below title
+                }}
+              >
                 {countyName} Summary
-              </p>
-              <p style={{ fontSize: "14px", marginBottom: "20px", textAlign: "justify" }}>
+              </h3>
+              {/* Menu content with updated styles */}
+              <p style={{ fontSize: "14px", marginBottom: "20px", textAlign: "justify", lineHeight: "1.5", padding: "0 10px" }}>
                 {menuContent}
               </p>
               <div style={{ textAlign: "center", marginBottom: "20px" }}>
                 <button
                   style={{
-                    fontSize: "10px",
+                    fontSize: "12px", // Slightly larger font for button text
                     padding: "5px 10px",
                     borderRadius: "5px",
                     backgroundColor: "lightblue",
@@ -896,7 +923,7 @@ function Map3D() {
                 </button>
                 <button
                   style={{
-                    fontSize: "10px",
+                    fontSize: "12px", // Slightly larger font for button text
                     padding: "5px 10px",
                     borderRadius: "5px",
                     backgroundColor: "lightblue",
@@ -918,7 +945,7 @@ function Map3D() {
                 {showBackButton && (
                   <button
                     style={{
-                      fontSize: "10px",
+                      fontSize: "12px", // Slightly larger font for button text
                       padding: "5px 10px",
                       borderRadius: "5px",
                       backgroundColor: "lightcoral",
@@ -940,6 +967,8 @@ function Map3D() {
                   </button>
                 )}
               </div>
+
+              {/* Chart Section */}
               {isChartVisible && (
                 <Bar
                   data={chartData}
@@ -957,10 +986,12 @@ function Map3D() {
                   }}
                 />
               )}
+
+              {/* Close button at bottom */}
               <div style={{ textAlign: "center", marginTop: "20px" }}>
                 <button
                   style={{
-                    fontSize: "10px",
+                    fontSize: "12px", // Slightly larger font for button text
                     padding: "5px 10px",
                     borderRadius: "5px",
                     backgroundColor: "lightblue",
