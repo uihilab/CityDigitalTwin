@@ -169,12 +169,13 @@ export async function getFloodLayer(id, floodYear) {
       filled: true,
       lineWidthMinPixels: 2, // Optional: specify line width
       lineWidthMaxPixels: 5, // Optional: specify line width
-      getFillColor: [255, 0, 0, 100], // Optional: specify fill color with some transparency
-      getLineColor: [255, 0, 0], // Optional: specify line color
+      getFillColor: [0, 100, 255, 100], // Su rengi: açık mavi
+      getLineColor: [0, 0, 0], // Kenar rengi: siyah
       getRadius: 100,
       getLineWidth: 1,
       getElevation: 30,
     });
+    
     return layer;
   } catch (error) {
     console.error("Error fetching or processing GeoJSON data:", error);

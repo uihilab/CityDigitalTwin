@@ -1,5 +1,4 @@
-
-import { GeoJsonLayer } from 'deck.gl';
+import { GeoJsonLayer } from "deck.gl";
 import { IconLayer } from "@deck.gl/layers";
 
 // Function to generate a sharper color based on the length of the coordinates array for each round
@@ -73,7 +72,6 @@ function preprocessBusRouteData(busGeoJson) {
 }
 
 export async function loadBusLayer() {
-  debugger;
   const busRoute = await fetch(`${process.env.PUBLIC_URL}/data/Bus_Route_4326.geojson`);
   if (!busRoute.ok) {
     throw new Error(`HTTP error! status: ${busRoute.status}`);
@@ -85,7 +83,7 @@ export async function loadBusLayer() {
   const processedBusGeoJson = preprocessBusRouteData(busGeoJson);
 
   const layers = new GeoJsonLayer({
-    id: 'Bus_Info',
+    id: 'BusRoute',
     data: processedBusGeoJson,
     pickable: true,
 
@@ -102,6 +100,16 @@ export async function loadBusLayer() {
 }
 
 function formatTooltipData(item) {
+  let tooltipData = "";
+
+  if (item.stop_name !== undefined) {
+    tooltipData += `Stop Name: ${item.stop_name}\n`;
+  }
+  if (item.wheelchair !== undefined) {
+    tooltipData += `wheelchair: ${item.wheelchair}\n`;
+  }
+  return tooltipData.trim(); // Remove trailing newline
+}
   let tooltipData = "";
 
   if (item.stop_name !== undefined) {
@@ -131,7 +139,7 @@ export async function loadBusStopLayer() {
   });
 
   const StopLayer = new IconLayer({
-    id: "Bus_Info",
+    id: "BusStop",
     data: processedData,
     pickable: true,
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_map.png`,
@@ -146,8 +154,5 @@ export async function loadBusStopLayer() {
   return StopLayer;
 }
 
-
 export async function removeBusLayer() {
-  console.log("içinden çıktı");
 }
-
