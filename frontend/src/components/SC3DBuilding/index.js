@@ -249,7 +249,6 @@ function Map3D() {
   }
 
   function removeLayer(layerName) {
-    debugger;
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
       //const layersCopy = JSON.parse(JSON.stringify(layersStatic)); // Create a deep copy
@@ -422,10 +421,10 @@ function Map3D() {
         return;
       }
       if (key === "DemographicHousingData") {
-        const layer = await drawBlackHawkCounty();
+        //const layer = await drawBlackHawkCounty();
         setIsMenuOpen(true);
         const data = await fetchDataFromApis();
-        setBlackHawkLayer(layer);
+        //setBlackHawkLayer(layer);
         // setCountyName(data.source1.location);
         setMenuContent(
           <div>
@@ -437,7 +436,7 @@ function Map3D() {
             <div>Poverty: {data.source3.data0}%</div>
           </div>
         );
-        setMapLayers(layer);
+        //setMapLayers(layer);
         // const data= await fetchDataFromApis();
         return;
       }
@@ -609,8 +608,6 @@ function Map3D() {
       }
 
       if (key === "DemographicHousingData") {
-        removeLayer(BlackHawkLayer.id);
-        setMapLayers(null);
         setIsMenuOpen(false);
         setIsChartVisible(false);
         return;
