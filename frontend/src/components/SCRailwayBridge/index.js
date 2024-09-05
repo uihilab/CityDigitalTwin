@@ -1,7 +1,7 @@
 import { IconLayer } from "@deck.gl/layers";
 
 function formatTooltipData(item) {
-  let tooltipData = '';
+  let tooltipData = "";
 
   if (item.name !== undefined) {
     tooltipData += `Bridge Name: ${item.name}\n`;
@@ -53,15 +53,15 @@ export async function RailwayBridgesLayer() {
   });
 
   const layerRailwayBridges = new IconLayer({
-    id: 'RailBridge',
+    id: "RailBridge",
     data: processedData,
     pickable: true,
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_map.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_publictransportation.json`,
-    getIcon: d => 'icons8-train-100',
+    getIcon: (d) => "icons8-train-100",
     sizeScale: 5,
-    getPosition: d => d.coordinates,
-    getSize: d => 8,
+    getPosition: (d) => d.coordinates,
+    getSize: (d) => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
     //getColor: d => [255, 0, 0],
   });
