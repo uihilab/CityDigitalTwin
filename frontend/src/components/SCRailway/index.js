@@ -10,15 +10,16 @@ export async function fetchRailwayData() {
   return data;
 }
 
-export function CreateRailwayLayer(geojsonData) {
-  const layers = new GeoJsonLayer({
-    id: "RailwayNetwork",
-    data: geojsonData,
-    pickable: true,
-    getLineColor: [255, 0, 0, 255],
-    getRadius: 90,
-    getLineWidth: 6,
-    getElevation: 30,
-  });
-  return layers;
+export function CreateRailwayLayer(geojsonData)
+{
+    const layers =  new GeoJsonLayer({
+        id: 'RailwayNetwork',
+        data: geojsonData,
+        pickable: true,
+        getLineColor: [0, 0, 139, 255],
+        getRadius: 90,
+        getLineWidth: 10,
+        getElevation: 30,
+      });
+      return layers;
 }

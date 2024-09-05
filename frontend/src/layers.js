@@ -51,7 +51,6 @@ const layers = [
         type: "maplayer",
         name: "Buildings",
         key: "Buildings",
-        icon: <Icon fontSize="small">Buildings</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/waterloo_buildings.geojson`,
       },
       {
@@ -59,15 +58,13 @@ const layers = [
         name: "Bridges",
         key: "Bridges",
         status: false,
-        icon: <Icon fontSize="small">Bridges</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/iowa_bridges.geojson`,
       },
       {
         type: "maplayer",
         name: "Bicycle Amenities",
         key: "BicycleAmenities",
-        status: false,
-        icon: <Icon fontSize="small">Bicycle Amenities</Icon>,
+        status: false
       },
       {
         type: "maplayer",
@@ -107,12 +104,6 @@ const layers = [
         key: "wastewater",
         icon: <Icon fontSize="small">WasteWater</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/wastewater.geojson`,
-      },
-      {
-        type: "maplayer",
-        name: "Natural Gas Plants",
-        key: "naturalgas",
-        icon: <Icon fontSize="small">Natural Gas Plants</Icon>,
       },
       {
         type: "maplayer",
@@ -174,20 +165,19 @@ const layers = [
     collapse: [
       {
         type: "maplayer",
-        name: "Road Networks",
+        name: "Road",
         key: "RoadNetworks",
-        icon: <Icon fontSize="small">Road Networks</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`,
       },
       {
         type: "collapse",
-        name: "Public Transit Network",
+        name: "Public Transit",
         key: "PublicTransitRoutes",
         icon: <Icon fontSize="small">Transit</Icon>,
         collapse: [
       {
         type: "maplayer",
-        name: "Train Stations and Railway Network",
+        name: "Train Stations and Railway",
         key: "Train_Info",
         icon: <Icon fontSize="small">Train</Icon>,
       },
@@ -196,19 +186,14 @@ const layers = [
         name: "Bus Stops and Routes",
         key: "Bus_Info",
         icon: <Icon fontSize="small">Bus</Icon>,
-      },
-      {
-        type: "maplayer",
-        name: "Tram Stops and Routes",
-        key: "Tram_Info",
-        icon: <Icon fontSize="small">Tram</Icon>,
-      }]
+      }
+     ]
     },
       {
         type: "maplayer",
-        name: "Bicycle Network",
+        name: "Bicycle",
         key: "BicycleNetwork",
-        icon: <Icon fontSize="small">Bicycle Network</Icon>,
+        icon: <Icon fontSize="small">Bicycle</Icon>,
         //dataPath:
         //"https://services.arcgis.com/8lRhdTsQyJpO52F1/ArcGIS/rest/services/City_View/FeatureServer/0/query?f=geojson&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&maxRecordCountFactor=2&outSR=102100&resultOffset=0&resultRecordCount=4000&cacheHint=true&quantizationParameters=%7B%22mode%22%3A%22view%22%2C%22originPosition%22%3A%22upperLeft%22%2C%22tolerance%22%3A1.058335450004216%2C%22extent%22%3A%7B%22xmin%22%3A-10754630.6656625%2C%22ymin%22%3A4921060.191306702%2C%22xmax%22%3A-10036824.38723184%2C%22ymax%22%3A5388520.414925002%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%2C%22latestWkid%22%3A3857%7D%7D%7D",
       },
@@ -237,7 +222,6 @@ const layers = [
         type: "maplayer",
         name: "Demographic Data",
         key: "DemographicHousingData",
-        icon: <Icon fontSize="small">DemographicHousing</Icon>,
         dataPath:
           "https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex",
       },
@@ -250,28 +234,28 @@ const layers = [
       },
       {
         type: "maplayer",
-        name: "PoliceStations",
+        name: "Police Stations",
         key: "PoliceStations",
         icon: <Icon fontSize="small">Police Stations</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/policestation.geojson`,
       },
       {
         type: "maplayer",
-        name: "FireStations",
+        name: "Fire Stations",
         key: "FireStations",
         icon: <Icon fontSize="small">Fire Stations</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/firestation.geojson`,
       },
       {
         type: "maplayer",
-        name: "CareFacilities",
+        name: "Care Facilities",
         key: "CareFacilities",
         icon: <Icon fontSize="small">Care Facilities</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/carefacilities.geojson`,
       },
       {
         type: "maplayer",
-        name: "CommunicationFacilities",
+        name: "Communication Facilities",
         key: "Communication",
         icon: <Icon fontSize="small">Communication Facilities</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/communicationfacilities.geojson`,

@@ -48,12 +48,13 @@ const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask: true }
 };
 
-export async function getWeatherLayer(latitude = 41.667773, longitude = -91.549107 ) {
+export async function getWeatherLayer(latitude = 42.484999, longitude = -92.353319 ) {
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
   const data = await response.json();
 
   const processedData = (() => {
-    const item = {
+    debugger;
+    const item = { 
       temperature: data.current_weather.temperature,
       windspeed: data.current_weather.windspeed,
       winddirection: data.current_weather.winddirection,
@@ -75,9 +76,9 @@ export async function getWeatherLayer(latitude = 41.667773, longitude = -91.5491
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
     getIcon: d => 'paragon-1-blue',
-    sizeScale: 15,
+    sizeScale: 5,
     getPosition: d =>  d.coordinates ,
-    getSize: d => 18,
+    getSize: d => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
     //getColor: d => [255, 0, 0],
   });

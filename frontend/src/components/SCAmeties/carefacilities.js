@@ -51,7 +51,7 @@ export const createCareFacilitiesLayer = (careData, setTooltip) => new IconLayer
   pickable: true,
   iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
   iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
-  getIcon: (d) => "Health Care",
+  getIcon: (d) => "care-facilities",
   sizeScale: 10,
   getPosition: (d) => d.coordinates,
   getSize: (d) => 3, // Adjust the icon size
