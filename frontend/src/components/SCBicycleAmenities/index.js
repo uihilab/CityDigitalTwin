@@ -23,7 +23,6 @@ export async function loadBicycleAmetiesLayer() {
         throw new Error(`HTTP error! status: ${ameties.status}`);
     }
     const ametiesdata = await ameties.json();
-    debugger;
     const processedData = ametiesdata.features.map((feature) => {
         const item = {
         

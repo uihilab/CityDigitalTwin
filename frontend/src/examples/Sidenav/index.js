@@ -85,7 +85,6 @@ function Sidenav({ color, brand, brandName, routes, activeItems, setActiveItems,
   };
 
   function linkClickHandler(key, dataPath) {
-    console.log("clicked");
     event.preventDefault();
     layerLinkHandler(key, !isActive(key), dataPath);
     handleClick(key);

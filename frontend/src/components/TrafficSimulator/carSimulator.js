@@ -8,7 +8,7 @@ class CarSimulator {
     //this.roads = this.trafficGenerator.generateRandomCars();
 
     this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
-    this.routes = this.routeGenerator.generateRandomRoutes(200, 0.02);
+    this.routes = this.routeGenerator.generateRandomRoutes(400, 0.001);
     console.log(JSON.stringify(this.routes));
     debugger;
     this.cars = this.generateCars(this.routes);

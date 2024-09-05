@@ -1,9 +1,9 @@
 import { GeoJsonLayer } from "@deck.gl/layers";
+import {COORDINATE_SYSTEM} from '@deck.gl/core';
 
 function formatTooltipData(item) {
   if(item)
   {
-    console.log(item);
     let tooltipData = "";
   
     if (item.occ_cls !== undefined) {
@@ -66,6 +66,9 @@ export async function BuildingLayer() {
     getLineColor: [0, 0, 0],
     getLineWidth: 1,
     getElevation: 30,
+    coordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+    coordinateOrigin: [42.4942408813, -92.34170190987821], // Haritanın referans noktası
+    wireframe: true,
   });
 
   return layerBuilding;
