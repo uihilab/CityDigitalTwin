@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, StrictMode } from "react";
-import { DeckGL } from "@deck.gl/react";
-import { APIProvider, Map } from "@vis.gl/react-google-maps";
-import { GeoJsonLayer, ScatterplotLayer, IconLayer } from "@deck.gl/layers";
-import { ScenegraphLayer } from "@deck.gl/mesh-layers";
+import React, { useState, useEffect, useRef, StrictMode, useMemo } from "react";
+import {GoogleMapsOverlay} from '@deck.gl/google-maps';
+import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
+import { GeoJsonLayer, IconLayer } from "@deck.gl/layers";
 import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
@@ -11,22 +10,15 @@ import {
   drawBlackHawkCounty,
   isPointInsidePolygon,
   handleButtonClick,
-  useChartData,
 } from "components/SCDemographicData";
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
-import { getTrafficEventData, convertToMarkers } from "../SCEvents/TrafficEvent";
+import { getTrafficEventData } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
 import { getWeatherLayer } from "../SCWeather/index";
 import Popup from "./Popup";
-import {
-  createStruct,
-  createStationsStruct,
-  getTrainData,
-  getTrainStationsData,
-} from "../SCTrain/AmtrakData";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index";
 import { BridgesgridLayer } from "../SCBridge/index";
@@ -49,6 +41,28 @@ import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
+function DeckGLOverlay(props: DeckProps) {
+  const map = useMap();
+  
+  // Yeni overlay'i useMemo ile sadece props değiştiğinde yaratıyoruz.
+  const overlay = useMemo(() => new GoogleMapsOverlay(props), [props]);
+
+  // Map yüklendiğinde ve props değiştiğinde overlay güncelleniyor.
+  useEffect(() => {
+    if (map) {
+      overlay.setMap(map);
+      return () => overlay.setMap(null);
+    }
+  }, [map, overlay]);
+
+  // Overlay'in propslarını güncelliyoruz.
+  useEffect(() => {
+    overlay.setProps(props);
+  }, [overlay, props.layers]);
+
+  return null;
+}
+//
 function Map3D() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
@@ -69,6 +83,35 @@ function Map3D() {
     bus: false,
     tram: false,
   });
+
+  const blackHawkBorderDataPath = `${process.env.PUBLIC_URL}/data/black_hawk_county.geojson`;
+
+  useEffect(() => {
+    // Load Black Hawk County GeoJSON when the map loads
+    async function loadBlackHawkCounty() {
+      const response = await fetch(blackHawkBorderDataPath);
+      const data = await response.json();
+
+      const blackHawkLayer = new GeoJsonLayer({
+        id: 'black-hawk-county',
+        data,
+        stroked: true,  // Ensure borders are drawn
+        filled: false,  // Disable fill color
+        lineWidthMinPixels: 2,
+        lineWidthMaxPixels: 5,
+        getLineColor: [0, 0, 0], // Black border
+      });
+      
+      // Check if 'black-hawk-county' layer exists in layersStatic
+      const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county');
+      if (!layerExists) {
+        setMapLayers(blackHawkLayer);
+      }
+    }
+
+    loadBlackHawkCounty();
+  }, []);
+
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
@@ -151,8 +194,6 @@ function Map3D() {
     publicTransitRoutes: false,
   };
 
-  const maplayersTestData = [];
-
   const [viewport, setViewport] = useState({
     longitude: -92.345,
     latitude: 42.4937,
@@ -172,7 +213,7 @@ function Map3D() {
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState([]);
-  const [mapLayers, setMapLayersState] = useState(maplayersTestData);
+  const [mapLayers, setMapLayersState] = useState([]);
   //const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [AQiconLayer, setAQIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
@@ -208,14 +249,19 @@ function Map3D() {
   }
 
   function removeLayer(layerName) {
+    debugger;
     const foundIndex = checkLayerExists(layerName);
     if (foundIndex > -1) {
       //const layersCopy = JSON.parse(JSON.stringify(layersStatic)); // Create a deep copy
       //const filtered = layersStatic.filter((layer) => layer.id !== layerName);
       layersStatic.splice(foundIndex, 1);
       // const newLayers = filtered.slice();
-      // layersStatic = new 
+      // layersStatic = new
       //setLayersStatic(newLayers);
+      setLayersStatic(layersStatic);
+      const layersCopy = layersStatic.slice();
+      // layersCopy.push(layersAnimation);
+      setMapLayersState(layersCopy);
     }
   }
 
@@ -238,29 +284,12 @@ function Map3D() {
     return layer;
   }
 
-  // function loadTruck(data) {
-  //   return new ScenegraphLayer({
-  //     id: "truck",
-  //     data, // "./data/test.json",
-  //     scenegraph: `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`,
-  //     sizeScale: 2,
-  //     getPosition: (d) => d.coordinates,
-  //     getTranslation: [0, 0, 1],
-  //     getOrientation: (d) => [0, 180, 90],
-  //     _lighting: "pbr",
-  //   });
-  // }
 
   async function loadLayer(key, dataPath) {
     const jsonData = await loadJsonData(dataPath);
     const layer = await CreateGeoJsonLayer(key, jsonData);
     setMapLayers(layer);
   }
-
-  // async function loadLayerwithData(key, jsonData) {
-  //   const layer = await CreateGeoJsonLayer(key, jsonData);
-  //   setMapLayers(layer);
-  // }
 
   async function loadLayerwithLayer(layer) {
     setMapLayers(layer);
@@ -328,7 +357,6 @@ function Map3D() {
       if (key === "RailwayCross") {
         const RailwayCrossingLayer = await AddRailwayCrossingLayer();
         setMapLayers(RailwayCrossingLayer);
-        debugger;
         return;
       }
 
@@ -373,9 +401,6 @@ function Map3D() {
         setIsFloodLayerSelected(true);
         const layer = await getFloodLayer("flood", currentLayerFlood);
         setMapLayers(layer);
-
-        debugger;
-
         const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040);
         setMapLayers(FloodDamageIconLayer);
         return;
@@ -431,10 +456,8 @@ function Map3D() {
       //   return;
       // }
       if (key === "Bus_Info") {
-        debugger;
         const busLayer = await loadBusLayer();
         const busStop = await loadBusStopLayer();
-        debugger;
         setMapLayers(busStop);
         setMapLayers(busLayer);
         return;
@@ -539,6 +562,18 @@ function Map3D() {
         return;
       }
 
+      if (key === "Train_Info") {
+        removeLayer("RailwayNetwork");
+        removeLayer("RailBridge");
+        return;
+      }
+
+      if (key === "Bus_Info") {
+        removeLayer("BusRoute");
+        removeLayer("BusStop");
+        return;
+      }
+
       if (key === "Electricgrid") {
         removeLayer("Electricgrid");
         return;
@@ -554,12 +589,12 @@ function Map3D() {
         return;
       }
       if (key === "BicycleNetwork") {
-        removeLayer("BicycleNetwork")
-        removeLayer("BicycleAmenities")
+        removeLayer("BicycleNetwork");
+        removeLayer("BicycleAmenities");
         return;
       }
       if (key === "BicycleAmenities") {
-        removeLayer("BicycleAmenities")
+        removeLayer("BicycleAmenities");
         return;
       }
 
@@ -567,13 +602,6 @@ function Map3D() {
         removeLayer("WellLayer");
         return;
       }
-
-      // if (key === "RailwayNetwork") {
-      //   removeLayer(railwayData.id);
-      //   setMapLayers(null);
-      //   return;
-      //   // setMapLayers((prevLayers) => prevLayers.filter((layer) => layer.key !== "drought-layer"));
-      // }
 
       if (key === "WForecast") {
         removeLayer(WeathericonLayer.id);
@@ -591,7 +619,7 @@ function Map3D() {
         setIsFloodLayerSelected(false);
         //setMapLayersFlood(prevLayers => prevLayers.filter(layer => layer.id !== key));
         removeLayer("flood");
-        removeLayer("icon-layer-flood")
+        removeLayer("icon-layer-flood");
         return;
       }
 
@@ -626,7 +654,6 @@ function Map3D() {
 
   function getTooltipContent({ object }) {
     if (object) {
-      console.log(object);
       // Check for tooltip_data directly on the object first
       if (object.tooltip_data) {
         return `${object.tooltip_data}`;
@@ -652,119 +679,26 @@ function Map3D() {
     }
     const selectedLayer = event.target.value;
     var mapid = null;
-    if (selectedLayer === '500') {
-      mapid = '1036053'; // Örnek mapid
-    }
-    else if (selectedLayer === "100") {
-      mapid = '1036044';
-    }
-    else if (selectedLayer === "50") {
-      mapid = '1036040';
-    }
-    else if (selectedLayer === "25") {
-      mapid = '1036035';
-    }
-    else
-      mapid = null;
+    if (selectedLayer === "500") {
+      mapid = "1036053"; // Örnek mapid
+    } else if (selectedLayer === "100") {
+      mapid = "1036044";
+    } else if (selectedLayer === "50") {
+      mapid = "1036040";
+    } else if (selectedLayer === "25") {
+      mapid = "1036035";
+    } else mapid = null;
 
     const layer = await getFloodLayer("flood", selectedLayer);
     setMapLayers(layer);
 
     if (mapid !== null) {
       const iconLayer = await createFloodDamageIconLayer(mapid); // IconLayer'ı oluştur
-      debugger;
       setMapLayers(iconLayer);
       //seticonlayerFlood(iconLayer);
     }
   };
 
-  // function CheckboxLayerTransit({ checkboxStateTransit, setCheckboxStateTransit }) {
-  //   const handleCheckboxChange = async (event) => {
-  //     const { name, checked } = event.target;
-  //     setCheckboxStateTransit((prevState) => ({
-  //       ...prevState,
-  //       [name]: checked,
-  //     }));
-
-  //     if (checked) {
-  //       switch (name) {
-  //         case 'train':
-  //           await import('../SCPublicTransitRoute/train.js').then(({ loadTrainLayer }) => loadTrainLayer());
-  //           break;
-  //         case 'bus':
-  //           const layerbus = await loadBusLayer();
-  //           setMapLayers(layerbus);
-  //           break;
-  //         case 'tram':
-  //           await import('../SCPublicTransitRoute/tram.js').then(({ loadTramLayer }) => loadTramLayer());
-  //           break;
-  //         default:
-  //           break;
-  //       }
-  //     } else {
-  //       switch (name) {
-  //         case 'train':
-  //           await import('../SCPublicTransitRoute/train.js').then(({ removeTrainLayer }) => removeTrainLayer());
-  //           break;
-  //         case 'bus':
-  //           await import('../SCPublicTransitRoute/bus.js').then(({ removeBusLayer }) => removeBusLayer());
-  //           break;
-  //         case 'tram':
-  //           await import('../SCPublicTransitRoute/tram.js').then(({ removeTramLayer }) => removeTramLayer());
-  //           break;
-  //         default:
-  //           break;
-  //       }
-  //     }
-  //   };
-  //   return (
-  //     <div
-  //       style={{
-  //         position: 'absolute',
-  //         top: '0',
-  //         left: '0',
-  //         padding: '10px',
-  //         boxSizing: 'border-box',
-  //         backgroundColor: 'rgba(255, 255, 255, 0.8)',
-  //         zIndex: 999,
-  //         display: 'flex',
-  //         flexDirection: 'row',
-  //         alignItems: 'center',
-  //         borderRadius: '5px',
-  //       }}
-  //     >
-  //       <label style={{ marginRight: '10px' }}>
-  //         <input
-  //           type="checkbox"
-  //           name="train"
-  //           checked={checkboxStateTransit.train}
-  //           onChange={handleCheckboxChange}
-  //         />
-  //         Train Stations and Amtract Train Routes
-  //       </label>
-  //       <br />
-  //       <label style={{ marginRight: '10px' }}>
-  //         <input
-  //           type="checkbox"
-  //           name="bus"
-  //           checked={checkboxStateTransit.bus}
-  //           onChange={handleCheckboxChange}
-  //         />
-  //         Bus stops and routes
-  //       </label>
-  //       <br />
-  //       <label>
-  //         <input
-  //           type="checkbox"
-  //           name="tram"
-  //           checked={checkboxStateTransit.tram}
-  //           onChange={handleCheckboxChange}
-  //         />
-  //         Tram stops and routes
-  //       </label>
-  //     </div>
-  //   );
-  // }
   return (
     <>
       <FloodMenu
@@ -775,13 +709,12 @@ function Map3D() {
 
       <Sidenav
         color={sidenavColor}
-        brandName="Waterloo"
+        brandName="Black Hawk County"
         routes={layers}
         activeItems={activeItems}
         setActiveItems={setActiveItems}
       />
       <div>
-
         {isRouteCheckboxMenuOpen && (
           <CheckboxLayerTransit
             checkboxStateTransit={checkboxStateTransit}
@@ -799,55 +732,62 @@ function Map3D() {
           )}
         </div> */}
 
-        <div id="checkbox-area" style={{ width: "100%", height: "10vh" }}>
+        <div id="checkbox-area" style={{ width: "100%", height: "10vh", visible:"none" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (
             <HighwayCheckboxComponent setMapLayers={setMapLayers} removeLayer={removeLayer} />
           )}
         </div>
-        <div id="map" style={{ width: "100%", height: "90vh" }}>
+        <div id="map" style={{ width: "100%", height: "100vh" }}>
           <StrictMode>
             <div
               id="map-container"
-              style={{ width: "100%", height: "90vh", position: "relative" }}
-            />
+              style={{
+                width: "100vw", // Viewport'un tamamını kaplayacak şekilde genişlik
+                height: "100vh", // Viewport'un tamamını kaplayacak şekilde yükseklik
+                position: "fixed", // Sabit konumlandırma, tüm ekranı kaplar
+                top: 0, // Üstten sıfır konumlandırma
+                left: 0, // Soldan sıfır konumlandırma
+                zIndex: 0, // Haritayı diğer öğelerin altında tutmak için
+              }}
+            >
             <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-              <DeckGL
-                ref={deckRef}
-                initialViewState={viewport}
-                onViewStateChange={({ viewState }) => setViewport(viewState)}
-                onClick={handleMapClick}
-                controller
-                layers={[mapLayers]}
-                getTooltip={getTooltipContent}
+              <Map
+                mapId={GOOGLE_MAP_ID}
+                defaultCenter={{ lat: 42.4937, lng: -92.345 }}
+                defaultZoom={12}
+                style={{ width: '100%', height: '100%' }}
+                tilt={45}
               >
-                <Map
-                  mapId={GOOGLE_MAP_ID}
-                  defaultCenter={{ lat: 42.4937, lng: -92.345 }}
-                  defaultZoom={12}
-                />
-                {/* Canvas */}
-                <canvas
-                  id="airQualityCanvas"
-                  style={{
-                    position: "absolute",
-                    bottom: 10,
-                    left: 10,
-                    zIndex: 1,
-                    width: 100,
-                    height: 100,
-                    pointerEvents: "yes",
-                    opacity: 0.5,
-                    padding: 10,
-                  }}
-                />
-                <div>
-                  {/* {hoverInfo && renderTooltip(hoverInfo)} */}
-                  <Popup clickPosition={clickPosition} object={clickedObject} />
-                </div>
-                <div id="App" />
-              </DeckGL>
+                <DeckGLOverlay
+                  layers={[mapLayers]}
+                  getTooltip={getTooltipContent}
+                  interleaved={true}
+                 />
+                 
+              </Map>
+              {/* Canvas */}
+              <canvas
+                id="airQualityCanvas"
+                style={{
+                  position: "absolute",
+                  bottom: 10,
+                  left: 10,
+                  zIndex: 1,
+                  width: 100,
+                  height: 100,
+                  pointerEvents: "yes",
+                  opacity: 0.5,
+                  padding: 10,
+                }}
+              />
+              <div>
+                {/* {hoverInfo && renderTooltip(hoverInfo)} */}
+                <Popup clickPosition={clickPosition} object={clickedObject} />
+              </div>
+              <div id="App" />
             </APIProvider>
+            </div>
           </StrictMode>
           {isMenuOpen && (
             <div
@@ -978,6 +918,6 @@ function Map3D() {
       </div>
     </>
   );
-};
+}
 
 export default Map3D;
