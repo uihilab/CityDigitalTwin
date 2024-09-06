@@ -1,10 +1,192 @@
 import { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { Bar } from "react-chartjs-2";
+
+export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDemographic, setIsChartVisible, setMenuContent }) => {
+    //const [isMenuOpen, setIsMenuOpen] = useState(false); // Menü kontrolü için state
+    // const [menuContent, setMenuContent] = useState("");
+    //const [isChartVisible, setIsChartVisible] = useState(false);
+    const [showBackButton, setShowBackButton] = useState(false);
+
+    const [chartData, setChartData] = useState({
+        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+        datasets: [
+            {
+                label: 'Language',
+                backgroundColor: 'rgba(75,192,192,1)',
+                borderColor: 'rgba(0,0,0,1)',
+                borderWidth: 2,
+                data: [65, 59, 80, 81, 56, 55, 40],
+            }
+        ]
+    });
+    return (
+
+        <div
+            style={{
+                position: "absolute",
+                right: "10px",  // Sağdan boşluk
+                top: "3px",    // Üstten boşluk
+                width: "300px",
+                height: "auto",
+                padding: "10px",
+                backgroundColor: "white",
+                boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+                borderRadius: "8px",  // Köşeler yuvarlak
+                zIndex: 1000,
+            }}
+        >
+            <button
+                onClick={() => setIsMenuOpenDemographic(false)}
+                style={{
+                    position: 'absolute',
+                    top: '4px',
+                    borderTopLeftRadius: "10px",
+                    borderTopRightRadius: "10px",
+                    right: '10px',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '15px',
+                    cursor: 'pointer'
+                }}
+            >
+                &times;
+            </button>
+            <h3
+                style={{
+                    borderRadius: '4px', 
+                    fontSize: '16px',
+                    backgroundColor: "#4A90E2",  // Mavi başlık rengi
+                    color: "white",
+                    padding: "5px",  // Başlığa padding eklendi
+                    borderTopLeftRadius: "10px",
+                    borderTopRightRadius: "10px",
+                    fontSize: "18px",  // Büyük yazı boyutu
+                    fontWeight: "bold",  // Kalın yazı
+                    textAlign: "center",  // Yazı ortalanacak
+                    margin: "30px 10px 0 10px",  // Üstten ve yanlardan boşluk eklendi
+                }}
+            >
+                Black Hawk County Summary
+            </h3>
+            <p style={{ fontSize: "14px", marginBottom: "20px", textAlign: "justify", lineHeight: "1.5", padding: "0 10px" }}>
+                {menuContent}
+            </p>
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                <button
+                    style={{
+                        fontSize: "14px",
+                        padding: "10px 15px",
+                        marginRight: "8px",
+                        borderRadius: "5px",
+                        backgroundColor: "#4A90E2",  // Mavi buton
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                    }}
+                    onClick={() =>
+                        handleButtonClick(
+                            'language',
+                            setChartData,
+                            setIsChartVisible,
+                            setMenuContent,
+                            setShowBackButton
+                        )
+                    }
+                >
+                    Language
+                </button>
+                <button
+                    style={{
+                        fontSize: "14px",
+                        padding: "10px 15px",
+                        marginRight: "8px",
+                        borderRadius: "5px",
+                        backgroundColor: "#4A90E2",
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                    }}
+                    onClick={() =>
+                        handleButtonClick(
+                            'expenses',
+                            setChartData,
+                            setIsChartVisible,
+                            setMenuContent,
+                            setShowBackButton
+                        )
+                    }
+                >
+                    Expenses
+                </button>
+                {showBackButton && (
+                    <button
+                        style={{
+                            fontSize: "14px",
+                            padding: "10px 10px",
+                            borderRadius: "5px",
+                            backgroundColor: "#4A90E2",  // Mavi buton
+                            color: "white",
+                            border: "none",
+                            cursor: "pointer",
+                        }}
+                        onClick={() =>
+                            handleButtonClick(
+                                'back',
+                                setChartData,
+                                setIsChartVisible,
+                                setMenuContent,
+                                setShowBackButton
+                            )
+                        }
+                    >
+                        Back
+                    </button>
+                )}
+            </div>
+
+            {isChartVisible && (
+                <Bar
+                    data={chartData}
+                    options={{
+                        title: {
+                            display: true,
+                            text: 'Language vs Expenses',
+                            fontSize: 16,
+                            padding: 10,
+                        },
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                        },
+                    }}
+                />
+            )}
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <button
+                    style={{
+                        fontSize: "14px",
+                        padding: "10px 20px",
+                        borderRadius: "5px",
+                        backgroundColor: "#4A90E2",  // Mavi buton
+                        color: "white",
+                        border: "none",
+                        cursor: "pointer",
+                    }}
+                    onClick={() => setIsMenuOpenDemographic(false)}
+                >
+                    Close
+                </button>
+            </div>
+        </div>
+    )
+}
+
+
 // API verilerini almak için asenkron bir fonksiyon tanımlayın
 export async function fetchDataFromApis() {
 
-      // API isteklerini paralel olarak başlatın
-      const [response1, response2, response3, response4, response5, response6] = await Promise.all([
+    // API isteklerini paralel olarak başlatın
+    const [response1, response2, response3, response4, response5, response6] = await Promise.all([
         fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Age%20and%20Sex'),
         fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Older%20Population'),
         fetch('https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Poverty'),
@@ -13,14 +195,14 @@ export async function fetchDataFromApis() {
         fetch('https://api.census.gov/data/2022/acs/acs1/subject?get=group(S1901)&ucgid=0500000US19013')
     ]);
 
-     // Tüm isteklerin başarılı olup olmadığını kontrol edin
-     if (!response1.ok || !response2.ok || !response3.ok || !response4.ok || !response5.ok || !response6.ok) {
+    // Tüm isteklerin başarılı olup olmadığını kontrol edin
+    if (!response1.ok || !response2.ok || !response3.ok || !response4.ok || !response5.ok || !response6.ok) {
         throw new Error('HTTP error! One or more requests failed.');
     }
 
 
-      // Gelen verileri JSON formatında çözümleyin
-      const [data1, data2, data3, data4, data5, data6] = await Promise.all([
+    // Gelen verileri JSON formatında çözümleyin
+    const [data1, data2, data3, data4, data5, data6] = await Promise.all([
         response1.json(),
         response2.json(),
         response3.json(),
@@ -56,7 +238,7 @@ export async function fetchDataFromApis() {
             data0: data6[1][46],
         },
     };
-    
+
     return combinedData;
 }
 
@@ -67,32 +249,32 @@ export async function fetchDataFromApis() {
 import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 import { PolygonLayer } from '@deck.gl/layers';
 
-export async function drawBlackHawkCounty() {
-    // Black Hawk County border coordinates
-    const blackHawkCountyBorder = [
-        { lat: 42.642729, lng: -92.508407 },
-        { lat: 42.299418, lng: -92.482915 },
-        { lat: 42.299418, lng: -92.060234 },
-        { lat: 42.642729, lng: -92.060234 },
-        { lat: 42.642729, lng: -92.508407 }
-    ];
+// export async function drawBlackHawkCounty() {
+//     // Black Hawk County border coordinates
+//     const blackHawkCountyBorder = [
+//         { lat: 42.642729, lng: -92.508407 },
+//         { lat: 42.299418, lng: -92.482915 },
+//         { lat: 42.299418, lng: -92.060234 },
+//         { lat: 42.642729, lng: -92.060234 },
+//         { lat: 42.642729, lng: -92.508407 }
+//     ];
 
-    // Create a Deck.gl PolygonLayer
-    const blackHawkLayer = new PolygonLayer({
-        id: 'polygon-layer',
-        data: [
-            {
-                polygon: blackHawkCountyBorder.map(coord => [coord.lng, coord.lat])
-            }
-        ],
-        getPolygon: d => d.polygon,
-        getFillColor: [0, 0, 0, 0],
-        getLineColor: [255, 0, 0, 255],
-        getLineWidth: 100, // Adjust this to fit your needs
-        lineWidthMinPixels: 2,
-    });
-    return blackHawkLayer;
-}
+//     // Create a Deck.gl PolygonLayer
+//     const blackHawkLayer = new PolygonLayer({
+//         id: 'polygon-layer',
+//         data: [
+//             {
+//                 polygon: blackHawkCountyBorder.map(coord => [coord.lng, coord.lat])
+//             }
+//         ],
+//         getPolygon: d => d.polygon,
+//         getFillColor: [0, 0, 0, 0],
+//         getLineColor: [255, 0, 0, 255],
+//         getLineWidth: 100, // Adjust this to fit your needs
+//         lineWidthMinPixels: 2,
+//     });
+//     return blackHawkLayer;
+// }
 export const isPointInsidePolygon = (point, polygon) => {
     const x = point.geometry.coordinates[0], y = point.geometry.coordinates[1];
     const coordinates = polygon.geometry.coordinates[0];
@@ -106,26 +288,26 @@ export const isPointInsidePolygon = (point, polygon) => {
     return isInside;
 };
 
-export const useChartData = () => {
-    const [chartData, setChartData] = useState({
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-        datasets: [
-            {
-                label: 'language',
-                backgroundColor: 'rgba(75,192,192,1)',
-                borderColor: 'rgba(0,0,0,1)',
-                borderWidth: 2,
-                data: [65, 59, 80, 81, 56, 55, 40],
-            }
-        ]
-    });
-    return [chartData, setChartData];
-};
+// export const useChartData = () => {
+//     const [chartData, setChartData] = useState({
+//         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+//         datasets: [
+//             {
+//                 label: 'language',
+//                 backgroundColor: 'rgba(75,192,192,1)',
+//                 borderColor: 'rgba(0,0,0,1)',
+//                 borderWidth: 2,
+//                 data: [65, 59, 80, 81, 56, 55, 40],
+//             }
+//         ]
+//     });
+//     return [chartData, setChartData];
+// };
 
 
 
-export const handleButtonClick = async(buttonType, setChartData, setIsChartVisible, setMenuContent, setShowBackButton) => {
-   
+export const handleButtonClick = async (buttonType, setChartData, setIsChartVisible, setMenuContent, setShowBackButton) => {
+
     const fetchChartData = async () => {
         // API çağrısı burada yapılmalı
         // Bu örnekte, API cevabını bir değişkene sabit olarak ekliyoruz
@@ -133,11 +315,11 @@ export const handleButtonClick = async(buttonType, setChartData, setIsChartVisib
         const apiResponse = await fetch("https://data.census.gov/api/profile/content/topic?g=050XX00US19013&infoSection=Language%20Spoken%20at%20Home");
         const data = await apiResponse.json();
         return data;
-        }
+    }
 
     // Butona göre içeriği değiştir
     if (buttonType === 'language') {
-        const apiData =  await fetchChartData();
+        const apiData = await fetchChartData();
         debugger;
         // Chart data oluşturma
         const labels = apiData.vizData.stats.map(stats => stats.description);

@@ -9,6 +9,7 @@ import {
   fetchDataFromApis,
   drawBlackHawkCounty,
   isPointInsidePolygon,
+  SCDemographicData,
   handleButtonClick,
 } from "components/SCDemographicData";
 import { startTrafficSimulator } from "components/TrafficSimulator";
@@ -64,10 +65,11 @@ function DeckGLOverlay(props: DeckProps) {
 }
 //
 function Map3D() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpenFlood, setIsMenuOpenFlood] = useState(false);
+  const [isMenuOpenDemographic, setIsMenuOpenDemographic] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
   //const [mapLayersFlood, setMapLayersFlood] = useState([]);
-  const [chartData, setChartData] = useState(null);
+  //const [chartData, setChartData] = useState(null);
   const [menuContent, setMenuContent] = useState("Loading");
   const [countyName, setCountyName] = useState("Black Hawk County");
   const [showBackButton, setShowBackButton] = useState(false);
@@ -144,33 +146,33 @@ function Map3D() {
       }
     }
 
-    if (isDemographicActive) {
-      const longitude = event.coordinate[0];
-      const latitude = event.coordinate[1];
-      // setClickPosition({ x: latitude, y: longitude });
+    // if (isDemographicActive) {
+    //   const longitude = event.coordinate[0];
+    //   const latitude = event.coordinate[1];
+    //   // setClickPosition({ x: latitude, y: longitude });
 
-      const blackHawkCountyBorder = [
-        { lat: 42.642729, lng: -92.508407 },
-        { lat: 42.299418, lng: -92.482915 },
-        { lat: 42.299418, lng: -92.060234 },
-        { lat: 42.642729, lng: -92.060234 },
-        { lat: 42.642729, lng: -92.508407 },
-      ];
+    //   const blackHawkCountyBorder = [
+    //     { lat: 42.642729, lng: -92.508407 },
+    //     { lat: 42.299418, lng: -92.482915 },
+    //     { lat: 42.299418, lng: -92.060234 },
+    //     { lat: 42.642729, lng: -92.060234 },
+    //     { lat: 42.642729, lng: -92.508407 },
+    //   ];
 
-      const poly = polygon([blackHawkCountyBorder]);
-      const pt = point([latitude, longitude]);
-      const in_or_out = isPointInsidePolygon(pt, poly);
+    //   const poly = polygon([blackHawkCountyBorder]);
+    //   const pt = point([latitude, longitude]);
+    //   const in_or_out = isPointInsidePolygon(pt, poly);
 
-      if (in_or_out) {
-        setIsMenuOpen(true);
-        const data = await fetchDataFromApis();
-        setMenuContent(
-          `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
-        );
-        // setCountyName(data.source1.location);
-        setIsChartVisible(false);
-      }
-    }
+    //   if (in_or_out) {
+    //     setIsMenuOpen(true);
+    //     const data = await fetchDataFromApis();
+    //     setMenuContent(
+    //       `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
+    //     );
+    //     // setCountyName(data.source1.location);
+    //     setIsChartVisible(false);
+    //   }
+    // }
     // if (isWeatherActive) {
     //   removeLayer(WeathericonLayer.id);
     //   setMapLayers(null);
@@ -220,10 +222,8 @@ function Map3D() {
   const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
   const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
-  const [isMenuFloodOpen, setIsMenuFloodOpen] = useState(false); // Menü durumu
-  const toggleMenu = () => {
-    setIsMenuFloodOpen(!isMenuOpen);
-  };
+  //const [isMenuFloodOpen, setIsMenuFloodOpen] = useState(false); // Menü durumu
+  
   //const [isselectedTransit, setSelectedTransit] = useState(false);
 
   function setMapLayers(newLayers) {
@@ -403,6 +403,7 @@ function Map3D() {
         setMapLayers(layer);
         const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040);
         setMapLayers(FloodDamageIconLayer);
+        setIsMenuOpenFlood(true); 
         return;
       }
       if (key === "AQuality") {
@@ -422,10 +423,11 @@ function Map3D() {
         return;
       }
       if (key === "DemographicHousingData") {
-        const layer = await drawBlackHawkCounty();
-        setIsMenuOpen(true);
+        debugger;
+        //const layer = await drawBlackHawkCounty();
+        setIsMenuOpenDemographic(true);
         const data = await fetchDataFromApis();
-        setBlackHawkLayer(layer);
+        //setBlackHawkLayer(layer);
         // setCountyName(data.source1.location);
         setMenuContent(
           <div>
@@ -437,7 +439,8 @@ function Map3D() {
             <div>Poverty: {data.source3.data0}%</div>
           </div>
         );
-        setMapLayers(layer);
+        //setMapLayers(layer);
+        setIsChartVisible(false);
         // const data= await fetchDataFromApis();
         return;
       }
@@ -609,9 +612,8 @@ function Map3D() {
       }
 
       if (key === "DemographicHousingData") {
-        removeLayer(BlackHawkLayer.id);
         setMapLayers(null);
-        setIsMenuOpen(false);
+        setIsMenuOpenDemographic(false);
         setIsChartVisible(false);
         return;
       }
@@ -703,7 +705,8 @@ function Map3D() {
     <>
       <FloodMenu
         isFloodLayerSelected={isFloodLayerSelected}
-        toggleMenu={toggleMenu}
+        isMenuOpenFlood={isMenuOpenFlood}
+        setIsMenuOpenFlood={setIsMenuOpenFlood}
         handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
       />
 
@@ -714,6 +717,15 @@ function Map3D() {
         activeItems={activeItems}
         setActiveItems={setActiveItems}
       />
+      {isMenuOpenDemographic && (
+        <SCDemographicData
+        isChartVisible={isChartVisible}
+        menuContent={menuContent}
+        setIsMenuOpenDemographic={setIsMenuOpenDemographic} 
+        setIsChartVisible={setIsChartVisible}
+        setMenuContent={setMenuContent}
+      />
+      )}
       <div>
         {isRouteCheckboxMenuOpen && (
           <CheckboxLayerTransit
@@ -789,162 +801,6 @@ function Map3D() {
             </APIProvider>
             </div>
           </StrictMode>
-          {isMenuOpen && (
-            <div
-              style={{
-                position: "fixed",
-                right: 0,
-                top: "10px",
-                width: "300px",
-                height: "400px",
-                backgroundColor: "white",
-                boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-                borderRadius: "15px",
-                zIndex: 1000,
-                right: "5px",
-                overflowY: "auto",
-              }}
-            >
-              {/* Close button ("X") at the top-right corner */}
-              <button
-                onClick={() => setIsMenuOpen(false)}
-                style={{
-                  position: "absolute",
-                  top: "5px",
-                  right: "10px",
-                  background: "none",
-                  border: "none",
-                  fontSize: "16px",
-                  cursor: "pointer",
-                  color: "#333", // Dark gray color for the "X"
-                }}
-              >
-                &times;
-              </button>
-              <h3
-                style={{
-                  backgroundColor: "#4A90E2", // Same blue background
-                  color: "white", // White text
-                  padding: "5px", // Padding
-                  borderRadius: "4px", // Rounded corners (same style as LEGEND)
-                  fontSize: "16px", // Same font size
-                  textAlign: "center", // Centered text
-                  marginBottom: "10px", // Space below title
-                }}
-              >
-                {countyName} Summary
-              </h3>
-              {/* Menu content with updated styles */}
-              <p style={{ fontSize: "14px", marginBottom: "20px", textAlign: "justify", lineHeight: "1.5", padding: "0 10px" }}>
-                {menuContent}
-              </p>
-              <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <button
-                  style={{
-                    fontSize: "12px", // Slightly larger font for button text
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    backgroundColor: "lightblue",
-                    border: "none",
-                    cursor: "pointer",
-                    marginRight: "10px",
-                  }}
-                  onClick={() =>
-                    handleButtonClick(
-                      "language",
-                      setChartData,
-                      setIsChartVisible,
-                      setMenuContent,
-                      setShowBackButton
-                    )
-                  }
-                >
-                  Language
-                </button>
-                <button
-                  style={{
-                    fontSize: "12px", // Slightly larger font for button text
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    backgroundColor: "lightblue",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                  onClick={() =>
-                    handleButtonClick(
-                      "expenses",
-                      setChartData,
-                      setIsChartVisible,
-                      setMenuContent,
-                      setShowBackButton
-                    )
-                  }
-                >
-                  Expenses
-                </button>
-                {showBackButton && (
-                  <button
-                    style={{
-                      fontSize: "12px", // Slightly larger font for button text
-                      padding: "5px 10px",
-                      borderRadius: "5px",
-                      backgroundColor: "lightcoral",
-                      border: "none",
-                      cursor: "pointer",
-                      marginLeft: "10px",
-                    }}
-                    onClick={() =>
-                      handleButtonClick(
-                        "back",
-                        setChartData,
-                        setIsChartVisible,
-                        setMenuContent,
-                        setShowBackButton
-                      )
-                    }
-                  >
-                    Back
-                  </button>
-                )}
-              </div>
-
-              {/* Chart Section */}
-              {isChartVisible && (
-                <Bar
-                  data={chartData}
-                  options={{
-                    title: {
-                      display: true,
-                      text: "Language vs Expenses",
-                      fontSize: 16,
-                      padding: 10,
-                    },
-                    legend: {
-                      display: true,
-                      position: "bottom",
-                    },
-                  }}
-                />
-              )}
-
-              {/* Close button at bottom */}
-              <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <button
-                  style={{
-                    fontSize: "12px", // Slightly larger font for button text
-                    padding: "5px 10px",
-                    borderRadius: "5px",
-                    backgroundColor: "lightblue",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </>
