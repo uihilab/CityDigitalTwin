@@ -108,7 +108,7 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
                     }}
                     onClick={() =>
                         handleButtonClick(
-                            'expenses',
+                            'education',
                             setChartData,
                             setIsChartVisible,
                             setMenuContent,
@@ -116,7 +116,7 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
                         )
                     }
                 >
-                    Expenses
+                    Education
                 </button>
                 {showBackButton && (
                     <button
@@ -145,21 +145,26 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
             </div>
 
             {isChartVisible && (
-                <Bar
-                    data={chartData}
-                    options={{
-                        title: {
-                            display: true,
-                            text: 'Language vs Expenses',
-                            fontSize: 16,
-                            padding: 10,
-                        },
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                        },
-                    }}
-                />
+                <table style={{ width: "100%", textAlign: "left", marginTop: "20px", fontSize: "14px" }}>
+                <thead>
+                    <tr>
+                    <th style={{ fontWeight: "bold", color: "#4A90E2", padding: "5px" }}>
+                                {chartData.datasets[0].label === 'Language Spoken at Home' ? 'Language spoken at home' : 'Education Level'}
+                            </th>
+                            <th style={{ fontWeight: "bold", color: "#4A90E2", padding: "5px" }}>
+                                {chartData.datasets[0].label === 'Language Spoken at Home' ? 'Percentage' : 'Percentage'}
+                            </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {chartData.labels.map((label, index) => (
+                        <tr key={index}>
+                            <td style={{ padding: "5px", color: "#333", fontWeight: "normal" }}>{label}</td>
+                            <td style={{ padding: "5px", color: "#333", fontWeight: "normal" }}>{chartData.datasets[0].data[index]}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
             )}
             <div style={{ textAlign: "center", marginTop: "20px" }}>
                 <button
@@ -337,16 +342,16 @@ export const handleButtonClick = async (buttonType, setChartData, setIsChartVisi
                 }
             ]
         });
-    } else if (buttonType === 'expenses') {
+    } else if (buttonType === 'education') {
         setChartData({
-            labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            labels: ['High school or equivalent degree', 'Some college, no degree', 'Associate degree', 'Bachelor degree', 'Graduate or professional degree'],
             datasets: [
                 {
-                    label: 'Expenses',
+                    label: 'Education',
                     backgroundColor: 'rgba(255, 99, 132, 0.6)',
                     borderColor: 'rgba(255,99,132,1)',
                     borderWidth: 2,
-                    data: [35, 49, 70, 91, 36, 65, 30],
+                    data: [29.2, 18.7, 13.0, 19.5, 12.7],
                 }
             ]
         });

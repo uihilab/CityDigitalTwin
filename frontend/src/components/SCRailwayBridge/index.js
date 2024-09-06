@@ -42,7 +42,7 @@ export async function RailwayBridgesLayer() {
       year_built: feature.properties.yearbuilt,
       //foundation: feature.properties.foundation,
       //scour_index: feature.properties.scourindex,
-      //traffic: feature.properties.traffic,
+      //traffic: feature.properties.traffic,    
       //condition: feature.properties.condition,
       cost: feature.properties.cost,
       //comment: feature.properties.comment,
