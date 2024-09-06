@@ -1,5 +1,6 @@
 import Chart from 'chart.js/auto';
 import { IconLayer } from "@deck.gl/layers";
+import { Button } from '@mui/material';
 
 let menu = null;
 let buttonsDiv = null; // Butonlar için global değişken
@@ -20,12 +21,57 @@ export function createMenu() {
         menu.style.borderRadius = '15px';
         menu.style.zIndex = '1000';
         menu.style.overflowY = 'auto';
+        menu.style.padding = '10px';
+
         document.body.appendChild(menu);
+
+        // Başlık kısmını oluştur
+        const header = document.createElement('h3');
+
+        header.style.backgroundColor = '#4A90E2'; // Başlık mavi
+        header.style.borderRadius = '4px';
+        header.style.fontSize = '18px';
+        header.style.fontWeight = 'bold';
+        header.style.margin = '30px 10px 0 10px';
+        header.style.color = 'white'; // Beyaz yazı
+        header.style.padding = '5px'; // Başlık padding
+        header.style.borderTopLeftRadius = '10px';
+        header.style.borderTopRightRadius = '10px';
+        header.style.textAlign = 'center'; // Ortalı başlık
+        header.innerHTML = 'Air Quality Summary';
+
+        //document.body.appendChild(header);
+        menu.appendChild(header);
+        debugger;
+
+        // X (kapat) butonunu oluşturma
+
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '&times;';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '4px';
+        closeButton.style.borderTopLeftRadius = '10px';
+        closeButton.style.borderTopRightRadius = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.background = 'none';
+        closeButton.style.border = 'none';
+        closeButton.style.fontSize = '15px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.color = '#333'; // Siyah X işareti
+        closeButton.addEventListener('click', () => {
+            menu.remove(); // Menü kapat
+            menu = null; // Temizle
+        });
+
+        //document.body.appendChild(closeButton);
+        menu.appendChild(closeButton);
 
         // Butonlar için div oluştur
         buttonsDiv = document.createElement('div');
         buttonsDiv.style.marginTop = '10px';
-        menu.appendChild(buttonsDiv);
+
+        document.body.appendChild(buttonsDiv);
+        //  menu.appendChild(buttonsDiv);
     }
 }
 
@@ -45,7 +91,10 @@ let chartInstance = null;
 let airQualityDataCache = null; // Veriyi önbelleğe almak için
 
 export async function renderAirQualityChart(airQualityData) {
-    menu.innerHTML='';
+    if (canvas) {
+        canvas.remove(); // Var olan canvas elementini kaldır
+    }
+
     airQualityDataCache = airQualityData; // Veriyi önbelleğe al
     const hourlyData = airQualityData.hourly;
     const timeArray = hourlyData.time;
@@ -56,7 +105,8 @@ export async function renderAirQualityChart(airQualityData) {
     const dailyData = {};
     timeArray.forEach((timeString, index) => {
         const date = new Date(timeString);
-        const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        debugger;
+        const dateString = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
 
         if (!dailyData[dateString]) {
             dailyData[dateString] = { pm10Sum: 0, pm25Sum: 0, count: 0, details: [] };
@@ -120,18 +170,31 @@ export async function renderAirQualityChart(airQualityData) {
         }
     });
 
-    menu.appendChild(buttonsDiv);
+    //menu.appendChild(buttonsDiv);
+
     // Butonları oluşturma ve detayları gösterme
-    buttonsDiv.innerHTML = ''; // Önceki içerikleri temizle
+
+    //buttonsDiv.innerHTML = ''; // Önceki içerikleri temizle
     labels.forEach(date => {
         const button = document.createElement('button');
         button.innerHTML = date;
         button.style.margin = '5px';
+        button.style.fontSize = '14px';
+        button.style.padding = '10px 15px';
+        button.style.marginRight = '8px';
+        button.style.borderRadius = '5px';
+        button.style.backgroundColor = '#4A90E2';
+        button.style.color = 'white';
+        button.style.border = 'none';
+        button.style.cursor = 'pointer';
+
         button.addEventListener('click', () => {
             showDailyDetails(dailyData[date].details, date);
         });
         buttonsDiv.appendChild(button);
     });
+
+    menu.appendChild(buttonsDiv);
 }
 
 // Detayları gösterme fonksiyonu
@@ -139,42 +202,108 @@ export function showDailyDetails(details, date) {
     // Detayları göstermeden önce canvas ve butonları gizle
     canvas.style.display = 'none';
     buttonsDiv.style.display = 'none';
+    buttonsDiv.style.right = "10";
 
     // Detay içeriğini oluşturma
     const detailsDiv = document.createElement('div');
-    detailsDiv.innerHTML = `<h3>${date} Detayları</h3>`;
+    detailsDiv.style.position = 'relative';
+    detailsDiv.style.right = "10";
 
     const backButton = document.createElement('button');
-    backButton.innerHTML = 'Geri';
+    backButton.innerHTML = 'Back';
     backButton.style.margin = '5px';
+    backButton.style.backgroundColor = "#4A90E2";
+    backButton.style.color = "white";
+    backButton.style.padding = "10px 20px";
+    backButton.style.border = "none";
+    backButton.style.borderRadius = "5px";
+    backButton.style.right = '10px';
+    backButton.style.cursor = "pointer";
+
     backButton.addEventListener('click', () => {
+        debugger;
         // Geri butonuna tıklandığında temizlik ve varsayılan içerikleri geri yükle
         detailsDiv.remove();
         canvas.style.display = 'block';
         buttonsDiv.style.display = 'block';
     });
-
-    const detailsContent = details.map(detail => `
-        <div>
-            <strong>Time:</strong> ${detail.time} <br>
-            <strong>PM10:</strong> ${detail.pm10} <br>
-            <strong>PM2.5:</strong> ${detail.pm25}
-        </div>
-        <hr>
-    `).join('');
-
-    detailsDiv.innerHTML += detailsContent;
     detailsDiv.appendChild(backButton);
+
+    // İçerik için ayrı bir container oluşturma
+    const contentDiv = document.createElement('div');
+    contentDiv.style.marginTop = '10px'; // Geri butonunun altına boşluk bırakmak için
+    // Alternatif olarak padding kullanabilirsiniz
+
+    // Detay içeriklerini oluşturma ve contentDiv'e ekleme
+    details.forEach(detail => {
+        const time = new Date(detail.time); // Zamanı alıyoruz
+        const hour = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); // Sadece saat ve dakika
+
+        const detailItem = document.createElement('div');
+        detailItem.style.fontSize = '14px';
+        detailItem.style.marginBottom = '20px';
+        detailItem.style.textAlign = 'justify';
+        detailItem.style.lineHeight = '1.5';
+        detailItem.style.padding = '0 10px';
+
+        // Saat bilgisi
+        const hourStrong = document.createElement('strong');
+        hourStrong.style.color = '#333';
+        hourStrong.textContent = 'Hour:';
+        detailItem.appendChild(hourStrong);
+        detailItem.innerHTML += ` ${hour} <br>`;
+
+        // PM10 bilgisi
+        const pm10Strong = document.createElement('strong');
+        pm10Strong.style.color = '#333';
+        pm10Strong.textContent = 'PM10:';
+        detailItem.appendChild(pm10Strong);
+        detailItem.innerHTML += ` ${detail.pm10} <br>`;
+
+        // PM2.5 bilgisi
+        const pm25Strong = document.createElement('strong');
+        pm25Strong.style.color = '#333';
+        pm25Strong.textContent = 'PM2.5:';
+        detailItem.appendChild(pm25Strong);
+        detailItem.innerHTML += ` ${detail.pm25}`;
+
+        contentDiv.appendChild(detailItem);
+    });
+
+    // contentDiv'i detailsDiv'e ekleme
+    detailsDiv.appendChild(contentDiv);
+
+    const backButtonD = document.createElement('button');
+    backButtonD.innerHTML = 'Back';
+    backButtonD.style.margin = '5px';
+    backButtonD.style.backgroundColor = "#4A90E2";
+    backButtonD.style.color = "white";
+    backButtonD.style.padding = "10px 20px";
+    backButtonD.style.border = "none";
+    backButtonD.style.borderRadius = "5px";
+    backButtonD.style.right = '10px';
+    backButtonD.style.cursor = "pointer";
+
+    backButtonD.addEventListener('click', () => {
+        debugger;
+        // Geri butonuna tıklandığında temizlik ve varsayılan içerikleri geri yükle
+        detailsDiv.remove();
+        canvas.style.display = 'block';
+        buttonsDiv.style.display = 'block';
+    });
+    detailsDiv.appendChild(backButtonD);
+
+    // detailsDiv'i menüye ekleme
     menu.appendChild(detailsDiv);
 }
 
 export function addIconToMap(latitude, longitude) {
     const icon = new IconLayer({
         id: 'AQuality',
-        data: [{ position: [longitude,latitude ]}],
+        data: [{ position: [longitude, latitude] }],
         pickable: true,
         iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-        iconMapping:  `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
+        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
         getIcon: (d) => "paragon-5-orange",
         sizeScale: 15,
         getPosition: d => d.position,
@@ -182,5 +311,5 @@ export function addIconToMap(latitude, longitude) {
         getColor: d => [Math.sqrt(d.exits), 140, 0],
     });
 
-   return icon;
+    return icon;
 }
