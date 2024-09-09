@@ -48,7 +48,7 @@ const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask: true }
 };
 
-export async function getWeatherLayer(latitude = 42.484999, longitude = -92.353319 ) {
+export async function getWeatherLayer(latitude, longitude ) {
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
   const data = await response.json();
 
@@ -69,7 +69,7 @@ export async function getWeatherLayer(latitude = 42.484999, longitude = -92.3533
   
 
   const layerWeather = new IconLayer({
-    id: 'WForecast',
+    id: `WForecast_${latitude}_${longitude}`,
     data: processedData,
     pickable: true,
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
@@ -95,4 +95,17 @@ export async function getWeatherLayer(latitude = 42.484999, longitude = -92.3533
     getColor: d => [255, 0, 0]
   });
   return layerWeather;
+}
+export async function addWeatherLayersForAllLocations() {
+  const locations = [
+    { name: "Cedar Falls", latitude: 42.534899, longitude: -92.445316 },
+    { name: "Dewar", latitude: 42.470271, longitude: -92.213508 },
+    { name: "Raymond", latitude: 42.469423, longitude: -92.223089 },
+    { name: "Hudson", latitude: 42.406482, longitude: -92.454357 },
+    { name: "Dunkerton", latitude: 42.570989, longitude: -92.158785 },
+    { name: "Gilbertville", latitude: 42.418319, longitude: -92.214351 },
+    { name: "Blessing", latitude: 42.561486, longitude: -92.312137 },
+    { name: "La Porte City", latitude: 42.314428, longitude: -92.189625 },
+  ];
+  return locations;
 }

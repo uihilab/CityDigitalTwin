@@ -18,7 +18,7 @@ import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
 import AirQualityMenu  from "../SCAQ/index";
-import { getWeatherLayer } from "../SCWeather/index";
+import { getWeatherLayer, addWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index";
@@ -382,8 +382,13 @@ function Map3D() {
       }
       if (key === "WForecast") {
         //removeLayer("WForecast");
-        const layer = await getWeatherLayer(defaultCoords.lat, defaultCoords.long);
-        setMapLayers(layer);
+        var locations = await addWeatherLayersForAllLocations();
+
+        for (const location of locations) {
+          const layer = await getWeatherLayer(location.latitude, location.longitude);
+          setMapLayers(layer); // Her seferinde katmanları güncelle
+        }
+
         return;
       }
       if (key === "DemographicHousingData") {
@@ -571,7 +576,7 @@ function Map3D() {
       }
 
       if (key === "WForecast") {
-        removeLayer(WeathericonLayer.id);
+        removeLayer("WForecast");
         return;
       }
 
