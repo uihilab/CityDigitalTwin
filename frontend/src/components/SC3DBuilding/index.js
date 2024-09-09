@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, StrictMode, useMemo } from "react";
-import {GoogleMapsOverlay} from '@deck.gl/google-maps';
+import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
 import { GeoJsonLayer, IconLayer } from "@deck.gl/layers";
 import Sidenav from "examples/Sidenav";
@@ -44,7 +44,7 @@ const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 
 function DeckGLOverlay(props: DeckProps) {
   const map = useMap();
-  
+
   // Yeni overlay'i useMemo ile sadece props değiştiğinde yaratıyoruz.
   const overlay = useMemo(() => new GoogleMapsOverlay(props), [props]);
 
@@ -103,7 +103,7 @@ function Map3D() {
         lineWidthMaxPixels: 5,
         getLineColor: [0, 0, 0], // Black border
       });
-      
+
       // Check if 'black-hawk-county' layer exists in layersStatic
       const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county');
       if (!layerExists) {
@@ -117,33 +117,50 @@ function Map3D() {
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
-    const isAQualityActive = activeItems[layers.findIndex((item) => item.key === "AQuality")];
-    //const isWeatherActive = activeItems[layers.findIndex((item) => item.key === "WForecast")];
-    const isDemographicActive =
-      activeItems[layers.findIndex((item) => item.key === "DemographicHousingData")];
-    if (isAQualityActive) {
-      const longitude = event.coordinate[0];
-      const latitude = event.coordinate[1];
+    // event.coordinate veya event.lngLat'in tanımlı olup olmadığını kontrol edin
+    console.log('event:', event); // event nesnesinin yapısını görmek için
+
+    debugger;
+    const latLng = event.detail.latLng;
+
+    if (latLng) {
+      const latitude = latLng.lat;
+      const longitude = latLng.lng;
+      console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+
       setClickPosition({ x: latitude, y: longitude });
 
-      if (AQiconLayer !== null) {
-        removeLayer(AQiconLayer.id);
-        setMapLayers(null);
+      const isAQualityActiveItem = activeItems.find(item => item.key === "AQuality");
+      const isAQualityActive = isAQualityActiveItem ? isAQualityActiveItem.value : undefined;
+
+      if (isAQualityActive) {
+        try {
+          // Haritaya yeni tıklama yapıldığında önceki verileri ve ikonları temizle
+          const canvas = document.getElementById("airQualityCanvas");
+          if (canvas) {
+            canvas.remove(); // Var olan canvas elementini kaldır
+          }
+
+          if (AQiconLayer !== null) {
+            removeLayer(AQiconLayer.id); // Eski ikonu kaldır
+          }
+
+       
+          const airQualityData = await FetchAirQuality(latitude, longitude);
+          renderAirQualityChart(airQualityData);
+          //createMenu();
+          const iconLayer = addIconToMap(latitude, longitude);
+          
+          setAQIconLayer(iconLayer);
+          setMapLayers(iconLayer);
+         
+        }
+        catch (error) {
+          console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
+        }
       }
-
-      try {
-        const canvas = document.getElementById("airQualityCanvas");
-        canvas.remove();
-
-        const airQualityData = await FetchAirQuality(latitude, longitude);
-        renderAirQualityChart(airQualityData);
-
-        const iconlayer = addIconToMap(latitude, longitude);
-        setMapLayers(iconlayer);
-        setAQIconLayer(iconlayer);
-      } catch (error) {
-        console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
-      }
+    } else {
+      console.error("Koordinatlar bulunamadı!");
     }
 
     // if (isDemographicActive) {
@@ -223,7 +240,7 @@ function Map3D() {
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
   const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
   //const [isMenuFloodOpen, setIsMenuFloodOpen] = useState(false); // Menü durumu
-  
+
   //const [isselectedTransit, setSelectedTransit] = useState(false);
 
   function setMapLayers(newLayers) {
@@ -403,7 +420,7 @@ function Map3D() {
         setMapLayers(layer);
         const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040);
         setMapLayers(FloodDamageIconLayer);
-        setIsMenuOpenFlood(true); 
+        setIsMenuOpenFlood(true);
         return;
       }
       if (key === "AQuality") {
@@ -719,12 +736,12 @@ function Map3D() {
       />
       {isMenuOpenDemographic && (
         <SCDemographicData
-        isChartVisible={isChartVisible}
-        menuContent={menuContent}
-        setIsMenuOpenDemographic={setIsMenuOpenDemographic} 
-        setIsChartVisible={setIsChartVisible}
-        setMenuContent={setMenuContent}
-      />
+          isChartVisible={isChartVisible}
+          menuContent={menuContent}
+          setIsMenuOpenDemographic={setIsMenuOpenDemographic}
+          setIsChartVisible={setIsChartVisible}
+          setMenuContent={setMenuContent}
+        />
       )}
       <div>
         {isRouteCheckboxMenuOpen && (
@@ -744,7 +761,7 @@ function Map3D() {
           )}
         </div> */}
 
-        <div id="checkbox-area" style={{ width: "100%", height: "10vh", visible:"none" }}>
+        <div id="checkbox-area" style={{ width: "100%", height: "10vh", visible: "none" }}>
           {/* CheckboxLayer bileşeni sadece isCheckboxMenuOpen true olduğunda */}
           {isHighwayCheckboxMenuOpen && (
             <HighwayCheckboxComponent setMapLayers={setMapLayers} removeLayer={removeLayer} />
@@ -763,42 +780,44 @@ function Map3D() {
                 zIndex: 0, // Haritayı diğer öğelerin altında tutmak için
               }}
             >
-            <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
-              <Map
-                mapId={GOOGLE_MAP_ID}
-                defaultCenter={{ lat: 42.4937, lng: -92.345 }}
-                defaultZoom={12}
-                style={{ width: '100%', height: '100%' }}
-                tilt={45}
-              >
-                <DeckGLOverlay
-                  layers={[mapLayers]}
-                  getTooltip={getTooltipContent}
-                  interleaved={true}
-                 />
-                 
-              </Map>
-              {/* Canvas */}
-              <canvas
-                id="airQualityCanvas"
-                style={{
-                  position: "absolute",
-                  bottom: 10,
-                  left: 10,
-                  zIndex: 1,
-                  width: 100,
-                  height: 100,
-                  pointerEvents: "yes",
-                  opacity: 0.5,
-                  padding: 10,
-                }}
-              />
-              <div>
-                {/* {hoverInfo && renderTooltip(hoverInfo)} */}
-                <Popup clickPosition={clickPosition} object={clickedObject} />
-              </div>
-              <div id="App" />
-            </APIProvider>
+              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                <Map
+                  mapId={GOOGLE_MAP_ID}
+                  defaultCenter={{ lat: 42.4937, lng: -92.345 }}
+                  defaultZoom={12}
+                  style={{ width: '100%', height: '100%' }}
+                  tilt={45}
+                  onClick={handleMapClick}
+                >
+                  <DeckGLOverlay
+                    layers={[mapLayers]}
+                    getTooltip={getTooltipContent}
+
+                    interleaved={true}
+                  />
+
+                </Map>
+                {/* Canvas */}
+                <canvas
+                  id="airQualityCanvas"
+                  style={{
+                    position: "absolute",
+                    bottom: 10,
+                    left: 10,
+                    zIndex: 1,
+                    width: 100,
+                    height: 100,
+                    pointerEvents: "yes",
+                    opacity: 0.5,
+                    padding: 10,
+                  }}
+                />
+                <div>
+                  {/* {hoverInfo && renderTooltip(hoverInfo)} */}
+                  <Popup clickPosition={clickPosition} object={clickedObject} />
+                </div>
+                <div id="App" />
+              </APIProvider>
             </div>
           </StrictMode>
         </div>

@@ -94,6 +94,8 @@ export async function renderAirQualityChart(airQualityData) {
     if (canvas) {
         canvas.remove(); // Var olan canvas elementini kaldır
     }
+    if (!menu) createMenu(); // Eğer menü oluşturulmadıysa oluştur
+    buttonsDiv.innerHTML = '';   // Menüdeki eski içeriği temizle
 
     airQualityDataCache = airQualityData; // Veriyi önbelleğe al
     const hourlyData = airQualityData.hourly;
@@ -105,7 +107,6 @@ export async function renderAirQualityChart(airQualityData) {
     const dailyData = {};
     timeArray.forEach((timeString, index) => {
         const date = new Date(timeString);
-        debugger;
         const dateString = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
 
         if (!dailyData[dateString]) {
