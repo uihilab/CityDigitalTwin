@@ -53,7 +53,6 @@ export async function getWeatherLayer(latitude = 42.484999, longitude = -92.3533
   const data = await response.json();
 
   const processedData = (() => {
-    debugger;
     const item = { 
       temperature: data.current_weather.temperature,
       windspeed: data.current_weather.windspeed,

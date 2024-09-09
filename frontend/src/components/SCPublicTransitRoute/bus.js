@@ -118,7 +118,6 @@ export async function loadBusStopLayer() {
     throw new Error(`HTTP error! status: ${busRoute.status}`);
   }
   const stop = await busStop.json();
-  debugger;
   const processedData = stop.features.map((feature) => {
     const item = {
       stop_name: feature.properties.stop_name,

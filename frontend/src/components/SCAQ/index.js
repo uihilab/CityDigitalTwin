@@ -80,7 +80,6 @@ export async function FetchAirQuality(latitude, longitude) {
     const lat = latitude;
     const lon = longitude;
     const options = { method: 'GET', headers: { accept: 'application/json' } };
-    debugger;
 
     return fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5`, options)
         .then(response => response.json())

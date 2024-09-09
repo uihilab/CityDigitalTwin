@@ -3,7 +3,6 @@ import { GeoJsonLayer } from 'deck.gl';
 import { IconLayer } from "@deck.gl/layers";
 
 export async function loadBicycleLayer() {
-    debugger;
    const bicycleRoute = await fetch(`${process.env.PUBLIC_URL}/data/bicycle.geojson`);
    if (!bicycleRoute.ok) {
        throw new Error(`HTTP error! status: ${bicycleRoute.status}`);

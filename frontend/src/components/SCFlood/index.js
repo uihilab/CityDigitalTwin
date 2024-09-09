@@ -137,12 +137,12 @@ export const FloodMenu = ({ isFloodLayerSelected, isMenuOpenFlood, setIsMenuOpen
                 <div style={{ marginTop: '20px' }}>
                     <h4 style={{ backgroundColor: '#8CC152', color: 'white', padding: '5px', borderRadius: '4px', fontSize: '15px' }}>Flood Risk</h4>
                     <select id="layerSelect" defaultValue="25" onChange={handleLayerSelectChange} style={{ fontSize: '13px', width: '100%' }}>
-                        <option value="2">2yr</option>
-                        <option value="5">5yr</option>
+                        {/* <option value="2">2yr</option> */}
+                        <option value="10">10yr</option>
                         <option value="25">25yr</option>
                         <option value="50">50yr</option>
                         <option value="100">100yr</option>
-                        <option value="200">200yr</option>
+                        {/* <option value="200">200yr</option> */}
                         <option value="500">500yr</option>
                     </select>
                 </div>
@@ -152,14 +152,14 @@ export const FloodMenu = ({ isFloodLayerSelected, isMenuOpenFlood, setIsMenuOpen
 };
 
 export async function getFloodLayer(id, floodYear) {
-    try {
-        const path = `${process.env.PUBLIC_URL}/data/flood_${floodYear}yr.geojson`;
-        const response = await fetch(path);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        // Gelen verileri JSON formatında çözümleyin
-        const data = await response.json();
+  try {
+    const path = `${process.env.PUBLIC_URL}/data/flood/flood_${floodYear}yr.geojson`;
+    const response = await fetch(path);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    // Gelen verileri JSON formatında çözümleyin
+    const data = await response.json();
 
         const layer = new GeoJsonLayer({
             id,

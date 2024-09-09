@@ -251,8 +251,7 @@ export async function fetchDataFromApis() {
 //fetchDataFromApis();
 
 // Import necessary libraries
-import { GoogleMapsOverlay } from '@deck.gl/google-maps';
-import { PolygonLayer } from '@deck.gl/layers';
+import { PolygonLayer } from "@deck.gl/layers";
 
 // export async function drawBlackHawkCounty() {
 //     // Black Hawk County border coordinates
@@ -281,16 +280,19 @@ import { PolygonLayer } from '@deck.gl/layers';
 //     return blackHawkLayer;
 // }
 export const isPointInsidePolygon = (point, polygon) => {
-    const x = point.geometry.coordinates[0], y = point.geometry.coordinates[1];
-    const coordinates = polygon.geometry.coordinates[0];
-    let isInside = false;
-    for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
-        const yi = coordinates[i].lng, xi = coordinates[i].lat;
-        const yj = coordinates[j].lng, xj = coordinates[j].lat;
-        const intersect = ((yi > y) !== (yj > y)) && (x < ((xj - xi) * (y - yi)) / (yj - yi) + xi);
-        if (intersect) isInside = !isInside;
-    }
-    return isInside;
+  const x = point.geometry.coordinates[0];
+  const y = point.geometry.coordinates[1];
+  const coordinates = polygon.geometry.coordinates[0];
+  let isInside = false;
+  for (let i = 0, j = coordinates.length - 1; i < coordinates.length; j = i++) {
+    const yi = coordinates[i].lng;
+    const xi = coordinates[i].lat;
+    const yj = coordinates[j].lng;
+    const xj = coordinates[j].lat;
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) isInside = !isInside;
+  }
+  return isInside;
 };
 
 // export const useChartData = () => {
@@ -374,5 +376,3 @@ export const handleButtonClick = async (buttonType, setChartData, setIsChartVisi
     setMenuContent(null);
     setShowBackButton(true);
 };
-
-
