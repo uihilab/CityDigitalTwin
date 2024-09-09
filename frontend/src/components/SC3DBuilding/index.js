@@ -439,14 +439,9 @@ function Map3D() {
         return;
       }
       if (key === "DemographicHousingData") {
-<<<<<<< HEAD
         debugger;
         //const layer = await drawBlackHawkCounty();
         setIsMenuOpenDemographic(true);
-=======
-        //const layer = await drawBlackHawkCounty();
-        setIsMenuOpen(true);
->>>>>>> 42a2766a412d882c2059c0095389eb5f1d176584
         const data = await fetchDataFromApis();
         //setBlackHawkLayer(layer);
         // setCountyName(data.source1.location);
@@ -461,10 +456,7 @@ function Map3D() {
           </div>
         );
         //setMapLayers(layer);
-<<<<<<< HEAD
         setIsChartVisible(false);
-=======
->>>>>>> 42a2766a412d882c2059c0095389eb5f1d176584
         // const data= await fetchDataFromApis();
         return;
       }
@@ -636,12 +628,8 @@ function Map3D() {
       }
 
       if (key === "DemographicHousingData") {
-<<<<<<< HEAD
         setMapLayers(null);
         setIsMenuOpenDemographic(false);
-=======
-        setIsMenuOpen(false);
->>>>>>> 42a2766a412d882c2059c0095389eb5f1d176584
         setIsChartVisible(false);
         return;
       }
