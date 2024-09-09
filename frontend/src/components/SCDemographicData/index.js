@@ -20,7 +20,6 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
         ]
     });
     return (
-
         <div
             style={{
                 position: "absolute",
@@ -216,13 +215,15 @@ export async function fetchDataFromApis() {
         response6.json()
     ]);
 
+    function formatNumberWithCommas(number) {
+        return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     // Verileri kendi oluşturduğunuz yapıdaki bir değişkene atayın
     const combinedData = {
         source1: {
             desc0: data1.measureData.stats[0][0].description,
-            data0: data1.measureData.stats[0][0].estimate,
-            //desc1: data1.measureData.stats[1].description,
-            //data1: data1.measureData.stats[1].estimate,
+            data0: formatNumberWithCommas(data1.measureData.stats[0][0].estimate),
             location: data1.location,
         },
         source2: {
@@ -240,7 +241,11 @@ export async function fetchDataFromApis() {
             data0: data5[1][0],
         },
         source6: {
-            data0: data6[1][46],
+            data0: Number(data6[1][46]).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2, // İsteğe bağlı: Dolar cinsinde 2 ondalık basamak gösterir
+            }),
         },
     };
 
