@@ -18,7 +18,7 @@ import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
-import { getWeatherLayer } from "../SCWeather/index";
+import { getWeatherLayer, addWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index";
@@ -145,15 +145,15 @@ function Map3D() {
             removeLayer(AQiconLayer.id); // Eski ikonu kaldır
           }
 
-       
+
           const airQualityData = await FetchAirQuality(latitude, longitude);
           renderAirQualityChart(airQualityData);
           //createMenu();
           const iconLayer = addIconToMap(latitude, longitude);
-          
+
           setAQIconLayer(iconLayer);
           setMapLayers(iconLayer);
-         
+
         }
         catch (error) {
           console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
@@ -434,8 +434,13 @@ function Map3D() {
       }
       if (key === "WForecast") {
         //removeLayer("WForecast");
-        const layer = await getWeatherLayer(42.484999, -92.353319);
-        setMapLayers(layer);
+        var locations = await addWeatherLayersForAllLocations();
+
+        for (const location of locations) {
+          const layer = await getWeatherLayer(location.latitude, location.longitude);
+          setMapLayers(layer); // Her seferinde katmanları güncelle
+        }
+
         return;
       }
       if (key === "DemographicHousingData") {
@@ -623,7 +628,7 @@ function Map3D() {
       }
 
       if (key === "WForecast") {
-        removeLayer(WeathericonLayer.id);
+        removeLayer("WForecast");
         return;
       }
 
