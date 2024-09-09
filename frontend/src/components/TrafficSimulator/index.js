@@ -53,17 +53,17 @@ function drawRoutes(routes, setMapLayer) {
   setMapLayer(routeLayer);
 }
 
-export async function startTrafficSimulator(setMapLayer, setMapLayerStatic, viewportRef) {
+export async function startTrafficSimulator(setAnimationLayers, setMapLayerStatic, viewportRef) {
   const roadData = await loadRoadData();
   const roadDataTransformed = importOSMRoadsFromGeoJSON(roadData);
   //var roadDataTransformed = importRoadsFromGeoJSON_v2(roadData);
   const carSimulator = new CarSimulator(roadData, roadDataTransformed);
   drawRoutes(carSimulator.routes, setMapLayerStatic);
-  const animation = new DeckglAnimation(setMapLayer, carSimulator);
+  const animation = new DeckglAnimation(setAnimationLayers, carSimulator);
   animation.startAnimation(null, null, viewportRef);
 }
 
-export function stopTrafficSimulator(setMapLayer) {
+export function stopTrafficSimulator(setAnimationLayers) {
   //   const carSimulator = new CarSimulator(roadData, 5);
   //   const animation = new DeckglAnimation(setMapLayer, carSimulator);
   //   animation.startAnimation();
