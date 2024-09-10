@@ -96,7 +96,7 @@ export async function getWeatherLayer(latitude, longitude ) {
   });
   return layerWeather;
 }
-export async function addWeatherLayersForAllLocations() {
+export async function getWeatherLayersForAllLocations() {
   const locations = [
     { name: "Cedar Falls", latitude: 42.534899, longitude: -92.445316 },
     { name: "Dewar", latitude: 42.470271, longitude: -92.213508 },
@@ -107,5 +107,44 @@ export async function addWeatherLayersForAllLocations() {
     { name: "Blessing", latitude: 42.561486, longitude: -92.312137 },
     { name: "La Porte City", latitude: 42.314428, longitude: -92.189625 },
   ];
-  return locations;
+  const weatherDataPromises = locations.map(async (location) => {
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true`);
+    const data = await response.json();
+
+    return {
+      name: location.name,
+      latitude: location.latitude,
+      longitude: location.longitude,
+      temperature: data.current_weather.temperature,
+      windspeed: data.current_weather.windspeed,
+      winddirection: data.current_weather.winddirection,
+      time: data.current_weather.time,
+      tooltip_data: formatTooltipData({
+        name: location.name,
+        temperature: data.current_weather.temperature,
+        windspeed: data.current_weather.windspeed,
+        winddirection: data.current_weather.winddirection,
+        time: data.current_weather.time,
+      }),
+    };
+  });
+
+  // Tüm hava durumu verilerini almak için Promise.all kullanıyoruz
+  const weatherData = await Promise.all(weatherDataPromises);
+
+  // Tek bir IconLayer ile tüm konumları ekleyelim
+  const layerWeather = new IconLayer({
+    id: 'WForecast_AllLocations', // Tek katman ID'si
+    data: weatherData,
+    pickable: true,
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
+    getIcon: d => 'paragon-1-blue',
+    sizeScale: 5,
+    getPosition: d => [d.longitude, d.latitude],
+    getSize: d => 8,
+    getTooltip: ({ object }) => object && object.tooltip_data,
+  });
+
+  return layerWeather;
 }

@@ -435,13 +435,8 @@ function Map3D() {
       }
       if (key === "WForecast") {
         //removeLayer("WForecast");
-        var locations = await addWeatherLayersForAllLocations();
-
-        for (const location of locations) {
-          const layer = await getWeatherLayer(location.latitude, location.longitude);
-          setMapLayers(layer); // Her seferinde katmanları güncelle
-        }
-
+        const weatherLayer = await getWeatherLayersForAllLocations();
+        setMapLayers(weatherLayer); // Tek bir katman olarak ekliyoruz
         return;
       }
       if (key === "DemographicHousingData") {
@@ -629,7 +624,7 @@ function Map3D() {
       }
 
       if (key === "WForecast") {
-        removeLayer("WForecast");
+        removeLayer("WForecast_AllLocations");
         return;
       }
 
