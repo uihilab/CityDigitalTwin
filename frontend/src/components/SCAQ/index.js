@@ -1,6 +1,5 @@
 import Chart from 'chart.js/auto';
 import { IconLayer } from "@deck.gl/layers";
-import { Button } from '@mui/material';
 
 let menu = null;
 let buttonsDiv = null; // Butonlar için global değişken
@@ -42,7 +41,6 @@ export function createMenu() {
 
         //document.body.appendChild(header);
         menu.appendChild(header);
-        debugger;
 
         // X (kapat) butonunu oluşturma
 
@@ -73,6 +71,12 @@ export function createMenu() {
         document.body.appendChild(buttonsDiv);
         //  menu.appendChild(buttonsDiv);
     }
+}
+
+export function removeMenu()
+{
+    menu = null;
+    document.getElementById("rightmenu").remove();
 }
 
 // Hava kalitesi verilerini çekme ve grafiği oluşturma

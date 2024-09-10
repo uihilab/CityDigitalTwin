@@ -17,7 +17,7 @@ import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
-import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
+import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap, removeMenu } from "../SCAQ/index";
 import { getWeatherLayer, addWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
@@ -426,9 +426,9 @@ function Map3D() {
       if (key === "AQuality") {
         // Hava kalitesi verilerini al ve grafiği render et
         createMenu();
-        var data = await FetchAirQuality(42.4942408813, -92.34170190987821);
+        var data = await FetchAirQuality(defaultCoords.lat, defaultCoords.long);
         renderAirQualityChart(data);
-        const iconlayer = addIconToMap(42.4942408813, -92.34170190987821);
+        const iconlayer = addIconToMap(defaultCoords.lat, defaultCoords.long);
         setMapLayers(iconlayer);
         setAQIconLayer(iconlayer);
         return;
@@ -653,13 +653,12 @@ function Map3D() {
         removeLayer("cycleway");
         return;
       }
-
-      removeLayer(key);
-
       if (key === "AQuality") {
-        const menu = document.getElementById("rightmenu");
-        menu.remove();
+        removeLayer("AQuality");
+        removeMenu();
+        return;
       }
+      removeLayer(key);
     }
   }
 
