@@ -1,75 +1,116 @@
 import Chart from 'chart.js/auto';
 import { IconLayer } from "@deck.gl/layers";
 
-function AirQualityMenu({ latitude, longitude, setMapLayer, removelayer }) {
-  const [airQualityData, setAirQualityData] = useState(null);
-  const [chartInstance, setChartInstance] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
-  const [detailsData, setDetailsData] = useState([]);
-  const [dailyData, setDailyData] = useState({});
-  const [selectedDate, setSelectedDate] = useState(null);
-  
-  // Create a ref for the canvas element
-  const canvasRef = useRef(null);
-  useEffect(() => {
-    // Fetch air quality data when the component mounts
-    fetchAirQuality();
-  }, []);
+let menu = null;
+let buttonsDiv = null; // Butonlar için global değişken
+let canvas = null; // Canvas için global değişken
 
-  useEffect(() => {
-    if (airQualityData) {
-      // Add the icon to the map and wait for the canvas to be available
-      addIconToMap(latitude, longitude);
+// Menüyü oluşturma fonksiyonu
+export function createMenu() {
+    if (!menu) {
+        menu = document.createElement('div');
+        menu.id = "rightmenu";
+        menu.style.position = 'fixed';
+        menu.style.right = '5px';
+        menu.style.top = '10px';
+        menu.style.width = '300px';
+        menu.style.height = '400px';
+        menu.style.backgroundColor = 'white';
+        menu.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
+        menu.style.borderRadius = '15px';
+        menu.style.zIndex = '1000';
+        menu.style.overflowY = 'auto';
+        menu.style.padding = '10px';
+
+        document.body.appendChild(menu);
+
+        // Başlık kısmını oluştur
+        const header = document.createElement('h3');
+
+        header.style.backgroundColor = '#4A90E2'; // Başlık mavi
+        header.style.borderRadius = '4px';
+        header.style.fontSize = '18px';
+        header.style.fontWeight = 'bold';
+        header.style.margin = '30px 10px 0 10px';
+        header.style.color = 'white'; // Beyaz yazı
+        header.style.padding = '5px'; // Başlık padding
+        header.style.borderTopLeftRadius = '10px';
+        header.style.borderTopRightRadius = '10px';
+        header.style.textAlign = 'center'; // Ortalı başlık
+        header.innerHTML = 'Air Quality Summary';
+
+        //document.body.appendChild(header);
+        menu.appendChild(header);
+
+        // X (kapat) butonunu oluşturma
+
+        const closeButton = document.createElement('button');
+        closeButton.innerHTML = '&times;';
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '4px';
+        closeButton.style.borderTopLeftRadius = '10px';
+        closeButton.style.borderTopRightRadius = '10px';
+        closeButton.style.right = '10px';
+        closeButton.style.background = 'none';
+        closeButton.style.border = 'none';
+        closeButton.style.fontSize = '15px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.style.color = '#333'; // Siyah X işareti
+        closeButton.addEventListener('click', () => {
+            menu.remove(); // Menü kapat
+            menu = null; // Temizle
+        });
+
+        //document.body.appendChild(closeButton);
+        menu.appendChild(closeButton);
+
+        // Butonlar için div oluştur
+        buttonsDiv = document.createElement('div');
+        buttonsDiv.style.marginTop = '10px';
+
+        document.body.appendChild(buttonsDiv);
+        //  menu.appendChild(buttonsDiv);
     }
-  }, [airQualityData]);
+}
 
-  useEffect(() => {
-    // Render chart only when canvasRef is not null and airQualityData is available
-    if (canvasRef.current && airQualityData) {
-      renderAirQualityChart();
+export function removeMenu()
+{
+    menu = null;
+    document.getElementById("rightmenu").remove();
+}
+
+// Hava kalitesi verilerini çekme ve grafiği oluşturma
+export async function FetchAirQuality(latitude, longitude) {
+    const lat = latitude;
+    const lon = longitude;
+    const options = { method: 'GET', headers: { accept: 'application/json' } };
+
+    return fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&hourly=pm10,pm2_5`, options)
+        .then(response => response.json())
+        .catch(err => console.error(err));
+}
+
+let chartInstance = null;
+let airQualityDataCache = null; // Veriyi önbelleğe almak için
+
+export async function renderAirQualityChart(airQualityData) {
+    if (canvas) {
+        canvas.remove(); // Var olan canvas elementini kaldır
     }
-  }, [canvasRef.current, dailyData]);
+    if (!menu) createMenu(); // Eğer menü oluşturulmadıysa oluştur
+    buttonsDiv.innerHTML = '';   // Menüdeki eski içeriği temizle
 
-  function addIconToMap(latitude, longitude) {
-    const layer = new IconLayer({
-      id: "AQuality",
-      data: [{ position: [longitude, latitude] }],
-      pickable: true,
-      iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,
-      iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map.json`,
-      getIcon: () => "paragon-5-orange",
-      sizeScale: 15,
-      getPosition: (d) => d.position,
-      getSize: () => 5,
-      getColor: () => [255, 140, 0], // Adjust the color if needed
-    });
-    setMapLayer(layer); // Use setMapLayer to add the layer to the map
-  }
+    airQualityDataCache = airQualityData; // Veriyi önbelleğe al
+    const hourlyData = airQualityData.hourly;
+    const timeArray = hourlyData.time;
+    const pm10Values = hourlyData.pm10;
+    const pm25Values = hourlyData.pm2_5;
 
-  const fetchAirQuality = async () => {
-    const options = { method: "GET", headers: { accept: "application/json" } };
-    try {
-      const response = await fetch(
-        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latitude}&longitude=${longitude}&hourly=pm10,pm2_5`,
-        options
-      );
-      const data = await response.json();
-      setAirQualityData(data);
-      groupDailyData(data.hourly);
-    } catch (error) {
-      console.error("Error fetching air quality data:", error);
-    }
-  };
-
-  const groupDailyData = (hourly) => {
-    const { time, pm10, pm2_5 } = hourly;
-    const groupedData = {};
-
-    time.forEach((timeString, index) => {
-      const date = new Date(timeString);
-      const dateString = `${String(date.getMonth() + 1).padStart(2, "0")}/${String(
-        date.getDate()
-      ).padStart(2, "0")}`;
+    // Günlük ortalama hesaplaması için verileri gruplandırma
+    const dailyData = {};
+    timeArray.forEach((timeString, index) => {
+        const date = new Date(timeString);
+        const dateString = `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
 
         if (!dailyData[dateString]) {
             dailyData[dateString] = { pm10Sum: 0, pm25Sum: 0, count: 0, details: [] };

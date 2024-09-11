@@ -17,7 +17,7 @@ import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
-import AirQualityMenu  from "../SCAQ/index";
+import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap, removeMenu } from "../SCAQ/index";
 import { getWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
@@ -131,24 +131,83 @@ function Map3D() {
       console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
 
       setClickPosition({ x: latitude, y: longitude });
-    }
-  };
 
-  function loadAirQuality(latitude, longitude)
-  {
-    try {
-      setMenuContent(
-        <AirQualityMenu
-          latitude={latitude}
-          longitude={longitude}
-          setMapLayer={setMapLayers}
-        />
-      );
-    } catch (error) {
-      debugger;
-      console.error("Error fetching air quality data:", error);
+      const isAQualityActiveItem = activeItems.find(item => item.key === "AQuality");
+      const isAQualityActive = isAQualityActiveItem ? isAQualityActiveItem.value : undefined;
+
+      if (isAQualityActive) {
+        try {
+          // Haritaya yeni tıklama yapıldığında önceki verileri ve ikonları temizle
+          const canvas = document.getElementById("airQualityCanvas");
+          if (canvas) {
+            canvas.remove(); // Var olan canvas elementini kaldır
+          }
+
+          if (AQiconLayer !== null) {
+            removeLayer(AQiconLayer.id); // Eski ikonu kaldır
+          }
+
+       
+          const airQualityData = await FetchAirQuality(latitude, longitude);
+          renderAirQualityChart(airQualityData);
+          //createMenu();
+          const iconLayer = addIconToMap(latitude, longitude);
+          
+          setAQIconLayer(iconLayer);
+          setMapLayers(iconLayer);
+         
+        }
+        catch (error) {
+          console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
+        }
+      }
+    } else {
+      console.error("Koordinatlar bulunamadı!");
     }
-  }  
+
+    // if (isDemographicActive) {
+    //   const longitude = event.coordinate[0];
+    //   const latitude = event.coordinate[1];
+    //   // setClickPosition({ x: latitude, y: longitude });
+
+    //   const blackHawkCountyBorder = [
+    //     { lat: 42.642729, lng: -92.508407 },
+    //     { lat: 42.299418, lng: -92.482915 },
+    //     { lat: 42.299418, lng: -92.060234 },
+    //     { lat: 42.642729, lng: -92.060234 },
+    //     { lat: 42.642729, lng: -92.508407 },
+    //   ];
+
+    //   const poly = polygon([blackHawkCountyBorder]);
+    //   const pt = point([latitude, longitude]);
+    //   const in_or_out = isPointInsidePolygon(pt, poly);
+
+    //   if (in_or_out) {
+    //     setIsMenuOpen(true);
+    //     const data = await fetchDataFromApis();
+    //     setMenuContent(
+    //       `Populations and People: ${data.source4.data0} \n Medium Age: ${data.source1.data0} \n Over Age 64: ${data.source2.data0}% \n Number of Employment: ${data.source5.data0} \n  Household median income: ${data.source6.data0}\nPoverty: ${data.source3.data0}%`
+    //     );
+    //     // setCountyName(data.source1.location);
+    //     setIsChartVisible(false);
+    //   }
+    // }
+    // if (isWeatherActive) {
+    //   removeLayer(WeathericonLayer.id);
+    //   setMapLayers(null);
+    //   const longitude = event.coordinate[0];
+    //   const latitude = event.coordinate[1];
+    //   setClickPosition({ x: latitude, y: longitude });
+    //   try {
+    //     // Hava durumu verilerini kullanarak iconları haritaya ekle
+    //     const layer = await createWeatherIconLayer(latitude, longitude, 3);
+    //     setWeatherIconLayer(layer);
+    //     setMapLayers(layer);
+    //   } catch (error) {
+    //     console.error("Error in handleMapClick:", error);
+    //   }
+    // }
+  };
 
   const initialState = {
     electricGrid: false,
