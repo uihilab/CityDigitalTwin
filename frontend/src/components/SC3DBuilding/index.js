@@ -42,8 +42,6 @@ import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
-// const defaultLongitude= -92.34170190987821;//-92.345;
-// const defaultLatitude= 42.4942408813;//42.4937;
 
 function DeckGLOverlay(props: DeckProps) {
   const map = useMap();
@@ -68,23 +66,12 @@ function DeckGLOverlay(props: DeckProps) {
 }
 //
 function Map3D() {
-  const [mapLayers, setMapLayersState] = useState([]);
-  const [layersStatic, setLayersStatic] = useState([]);
-
-  function setMapLayers(newLayers) {
-    layersStatic.push(newLayers);
-    setLayersStatic(layersStatic);
-    const layersCopy = layersStatic.slice();
-    // layersCopy.push(layersAnimation);
-    setMapLayersState(layersCopy);
-  }
-
   const [isMenuOpenFlood, setIsMenuOpenFlood] = useState(false);
   const [isMenuOpenDemographic, setIsMenuOpenDemographic] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
   //const [mapLayersFlood, setMapLayersFlood] = useState([]);
   //const [chartData, setChartData] = useState(null);
-  const [menuContent, setMenuContent] = useState(null);
+  const [menuContent, setMenuContent] = useState("Loading");
   const [countyName, setCountyName] = useState("Black Hawk County");
   const [showBackButton, setShowBackButton] = useState(false);
   const [tooltip, setTooltip] = useState(null);
@@ -101,15 +88,6 @@ function Map3D() {
   });
 
   const blackHawkBorderDataPath = `${process.env.PUBLIC_URL}/data/black_hawk_county.geojson`;
-// const borderLayer =new GeoJsonLayer({
-//   id: 'black-hawk-county',
-//   blackHawkBorderDataPath,
-//   stroked: true,  // Ensure borders are drawn
-//   filled: false,  // Disable fill color
-//   lineWidthMinPixels: 2,
-//   lineWidthMaxPixels: 5,
-//   getLineColor: [0, 0, 0], // Black border
-// });
 
   useEffect(() => {
     // Load Black Hawk County GeoJSON when the map loads
@@ -140,11 +118,17 @@ function Map3D() {
 
   // Haritada tıklama olayını dinleyen fonksiyon
   const handleMapClick = async (event) => {
+    // event.coordinate veya event.lngLat'in tanımlı olup olmadığını kontrol edin
+    console.log('event:', event); // event nesnesinin yapısını görmek için
+
+    debugger;
     const latLng = event.detail.latLng;
-  
+
     if (latLng) {
       const latitude = latLng.lat;
       const longitude = latLng.lng;
+      console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+
       setClickPosition({ x: latitude, y: longitude });
     }
   };
@@ -172,8 +156,8 @@ function Map3D() {
   };
 
   const [viewport, setViewport] = useState({
-    longitude: defaultCoords.long, //-92.345,
-    latitude: defaultCoords.lat, //42.4937,
+    longitude: -92.345,
+    latitude: 42.4937,
     zoom: 13,
     heading: 1,
     pitch: 45,
@@ -190,18 +174,24 @@ function Map3D() {
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState([]);
-
+  const [mapLayers, setMapLayersState] = useState([]);
   //const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [AQiconLayer, setAQIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
-
+  const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
   const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
   //const [isMenuFloodOpen, setIsMenuFloodOpen] = useState(false); // Menü durumu
 
   //const [isselectedTransit, setSelectedTransit] = useState(false);
 
-
+  function setMapLayers(newLayers) {
+    layersStatic.push(newLayers);
+    setLayersStatic(layersStatic);
+    const layersCopy = layersStatic.slice();
+    // layersCopy.push(layersAnimation);
+    setMapLayersState(layersCopy);
+  }
 
   function setAnimationLayers(animationLayers) {
     const allLayers = [];
@@ -375,8 +365,13 @@ function Map3D() {
         return;
       }
       if (key === "AQuality") {
-        //Hava kalitesi verilerini al ve grafiği render et
-        loadAirQuality(defaultCoords.lat, defaultCoords.long);
+        // Hava kalitesi verilerini al ve grafiği render et
+        createMenu();
+        var data = await FetchAirQuality(defaultCoords.lat, defaultCoords.long);
+        renderAirQualityChart(data);
+        const iconlayer = addIconToMap(defaultCoords.lat, defaultCoords.long);
+        setMapLayers(iconlayer);
+        setAQIconLayer(iconlayer);
         return;
       }
       if (key === "WForecast") {
@@ -600,11 +595,11 @@ function Map3D() {
         return;
       }
       if (key === "AQuality") {
-        setMenuContent(null);
         removeLayer("AQuality");
+        removeMenu();
         return;
       }
-      removeLayer(key);     
+      removeLayer(key);
     }
   }
 
@@ -671,6 +666,7 @@ function Map3D() {
         setIsMenuOpenFlood={setIsMenuOpenFlood}
         handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
       />
+
       <Sidenav
         color={sidenavColor}
         brandName="Black Hawk County"
@@ -687,23 +683,6 @@ function Map3D() {
           setMenuContent={setMenuContent}
         />
       )}
-      {menuContent && (
-      <div style={{
-        position: "fixed",      // Fixed position to stay on top
-        top: "10px",            // Position 10px from the top
-        right: "10px",          // Position 10px from the right
-        width: "300px",         // Set a fixed width
-        height: "400px",        // Set a fixed height
-        backgroundColor: "white", // White background
-        boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Box shadow for visual effect
-        borderRadius: "15px",   // Rounded corners
-        zIndex: 1000,           // High z-index to ensure it stays on top of the map
-        overflowY: "auto",      // Allow vertical scrolling if content overflows
-        padding: "10px",        // Add some padding inside the menu
-      }}>
-        {menuContent} {/* This will display the AirQualityMenu */}
-      </div>
-    )}
       <div>
         {isRouteCheckboxMenuOpen && (
           <CheckboxLayerTransit
@@ -744,7 +723,7 @@ function Map3D() {
               <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                 <Map
                   mapId={GOOGLE_MAP_ID}
-                  defaultCenter={{ lat: defaultCoords.lat, lng: defaultCoords.long }}
+                  defaultCenter={{ lat: 42.4937, lng: -92.345 }}
                   defaultZoom={12}
                   style={{ width: '100%', height: '100%' }}
                   tilt={45}
@@ -758,7 +737,21 @@ function Map3D() {
                   />
 
                 </Map>
-
+                {/* Canvas */}
+                <canvas
+                  id="airQualityCanvas"
+                  style={{
+                    position: "absolute",
+                    bottom: 10,
+                    left: 10,
+                    zIndex: 1,
+                    width: 100,
+                    height: 100,
+                    pointerEvents: "yes",
+                    opacity: 0.5,
+                    padding: 10,
+                  }}
+                />
                 <div>
                   {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                   <Popup clickPosition={clickPosition} object={clickedObject} />
