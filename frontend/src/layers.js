@@ -279,6 +279,12 @@ const layers = [
         key: "TrafficFlow",
         icon: <Icon fontSize="small">Traffic</Icon>,
       },
+      {
+        type: "maplayer",
+        name: "Simulation",
+        key: "Simulation",
+        icon: <Icon fontSize="small">Simulation</Icon>,
+      },
     ],
   },
   {
