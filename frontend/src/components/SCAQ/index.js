@@ -12,7 +12,6 @@ function AirQualityMenu({ latitude, longitude, setMapLayer, removelayer }) {
   
   // Create a ref for the canvas element
   const canvasRef = useRef(null);
-
   useEffect(() => {
     // Fetch air quality data when the component mounts
     fetchAirQuality();

@@ -17,7 +17,7 @@ import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
-import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap } from "../SCAQ/index";
+import AirQualityMenu  from "../SCAQ/index";
 import { getWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
@@ -146,8 +146,6 @@ function Map3D() {
       const latitude = latLng.lat;
       const longitude = latLng.lng;
       setClickPosition({ x: latitude, y: longitude });
-  
-      
     }
   };
 
@@ -162,6 +160,7 @@ function Map3D() {
         />
       );
     } catch (error) {
+      debugger;
       console.error("Error fetching air quality data:", error);
     }
   }  
