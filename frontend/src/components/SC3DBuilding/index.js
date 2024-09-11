@@ -39,6 +39,7 @@ import { loadBusLayer, loadBusStopLayer } from "../SCPublicTransitRoute/bus.js";
 import { AddRailwayCrossingLayer } from "../SCRailwayCrossing/index.js";
 import { loadBicycleLayer } from "../SCBicycleNetwork/index.js";
 import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
+import SCSimulation from "components/SCSimulation";
 const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
 const GOOGLE_MAP_ID = "c940cf7b09635a6e";
 const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
@@ -685,6 +686,11 @@ function Map3D() {
     return null;
   }
 
+  const isActive = (key) => {
+    const item = activeItems.find(item => item.key === key);
+    return item ? item.value : false; // If the item exists, return its boolean value, otherwise return false
+  };
+  
   //const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   layers[0].clickFunc = layerLinkHandler;
 
@@ -779,7 +785,9 @@ function Map3D() {
                 zIndex: 0, // Haritayı diğer öğelerin altında tutmak için
               }}
             >
-              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+              { isActive("Simulation") ?
+            (<SCSimulation/>)  :
+              (<APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                 <Map
                   mapId={GOOGLE_MAP_ID}
                   defaultCenter={{ lat: 42.4937, lng: -92.345 }}
@@ -816,7 +824,9 @@ function Map3D() {
                   <Popup clickPosition={clickPosition} object={clickedObject} />
                 </div>
                 <div id="App" />
-              </APIProvider>
+              </APIProvider>)
+            }
+              
             </div>
           </StrictMode>
         </div>
