@@ -40,8 +40,8 @@ import { AddRailwayCrossingLayer } from "../SCRailwayCrossing/index.js";
 import { loadBicycleLayer } from "../SCBicycleNetwork/index.js";
 import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 import SCSimulation from "components/SCSimulation";
-const GOOGLE_MAPS_API_KEY = "AIzaSyA7FVqhmGPvuhHw2ibTjfhpy9S1ZY44o6s";
-const GOOGLE_MAP_ID = "c940cf7b09635a6e";
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
 const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
 
 function DeckGLOverlay(props: DeckProps) {
@@ -113,7 +113,7 @@ function Map3D() {
       }
     }
 
-    loadBlackHawkCounty();
+    //loadBlackHawkCounty();
   }, []);
 
 

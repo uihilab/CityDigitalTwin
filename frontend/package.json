@@ -24,6 +24,7 @@
     "@emotion/cache": "11.10.8",
     "@emotion/react": "11.10.8",
     "@emotion/styled": "11.10.8",
+    "@googlemaps/js-api-loader": "^1.16.8",
     "@loaders.gl/core": "^4.2.2",
     "@loaders.gl/json": "^4.2.2",
     "@loaders.gl/kml": "^4.2.2",

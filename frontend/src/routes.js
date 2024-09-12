@@ -48,6 +48,7 @@ import SmartCity from "layouts/smartcity";
 import SCEvents from "layouts/events";
 import SCBuilding from "layouts/map";
 import SC3DBuilding from "layouts/3Dmap";
+import Simulation from "layouts/Simulation";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
@@ -124,6 +125,14 @@ const routes = [
     icon: <Icon fontSize="small">Map</Icon>,
     route: "/3Dmap",
     component: <SC3DBuilding/>,
+  },
+  {
+    type: "collapse",
+    name: "Simulation",
+    key: "Simulation",
+    icon: <Icon fontSize="small">Simulation</Icon>,
+    route: "/Simulation",
+    component: <Simulation/>,
   },
   {
     type: "click",
