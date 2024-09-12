@@ -17,7 +17,7 @@ import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
-import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap, removeMenu } from "../SCAQ/index";
+import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap, removeMenu, showDailyDetails } from "../SCAQ/index";
 import { getWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
@@ -142,14 +142,19 @@ function Map3D() {
           if (canvas) {
             canvas.remove(); // Var olan canvas elementini kaldır
           }
-
+          removeMenu();
           if (AQiconLayer !== null) {
             removeLayer(AQiconLayer.id); // Eski ikonu kaldır
           }
 
-       
+           // Eğer detaylar açık ise, gösterilen içerik güncellenmeli
+           let existingDetailsDiv = document.getElementById('detailsDiv');
+           if (existingDetailsDiv) {
+            console.log("detay sayfasındasın")
+           }
           const airQualityData = await FetchAirQuality(latitude, longitude);
           renderAirQualityChart(airQualityData);
+          debugger;
           //createMenu();
           const iconLayer = addIconToMap(latitude, longitude);
           
