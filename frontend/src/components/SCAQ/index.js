@@ -203,6 +203,12 @@ export async function renderAirQualityChart(airQualityData) {
 
 // Detayları gösterme fonksiyonu
 export function showDailyDetails(details, date) {
+
+
+    let existingDetailsDiv = document.getElementById('detailsDiv');
+    if (existingDetailsDiv) {
+        existingDetailsDiv.remove(); // Önceki detayları kaldır
+    }
     // Detayları göstermeden önce canvas ve butonları gizle
     canvas.style.display = 'none';
     buttonsDiv.style.display = 'none';
