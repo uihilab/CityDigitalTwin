@@ -1,12 +1,14 @@
 import React, { useRef, useEffect, useState } from "react";
 import { GoogleMapsOverlay as DeckOverlay } from "@deck.gl/google-maps";
 import { ScenegraphLayer } from "@deck.gl/mesh-layers";
-import { PathLayer } from "@deck.gl/layers";
 import { Loader } from "@googlemaps/js-api-loader";
 import TripBuilder from "./trip-builder";
 
+import { startTrafficSimulator } from "components/TrafficSimulator";
+
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
+const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
 
 const DATA_URL =
   "https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/google-3d/trips.json";
@@ -19,6 +21,16 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
   const overlayRef = useRef(null);
   const animationRef = useRef(null);
 
+  const setAnimationLayers = (layers) => {
+    const overlay = overlayRef.current;
+    overlay.setProps({ layers });
+  }
+
+  const setMapLayerStatic = (layers) => {
+    return;
+  }
+
+
   useEffect(() => {
     const initializeMap = async () => {
       const loader = new Loader({ apiKey: GOOGLE_MAPS_API_KEY });
@@ -29,7 +41,7 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
 
       // Harita yalnızca bir kez başlatılır
       const map = new googlemaps.Map(containerRef.current, {
-        center: { lng: -95.36403, lat: 29.756433 },
+        center: { lng: defaultCoords.long, lat: defaultCoords.lat},
         zoom: 19,
         heading: 0,
         tilt: 45,
@@ -46,7 +58,8 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
       overlay.setMap(map);
       overlayRef.current = overlay;
 
-      startAnimation(map, overlay, data, options);
+      //startAnimation(map, overlay, data, options);
+      await startTrafficSimulator(setAnimationLayers, setMapLayerStatic, null);
     };
 
     if (!mapRef.current && containerRef.current) {
@@ -59,6 +72,8 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
       if (overlayRef.current) overlayRef.current.finalize();
     };
   }, []);
+
+
 
   const startAnimation = (map, overlay, data, options) => {
     const trips = data.map((waypoints) => new TripBuilder({ waypoints, loop: true }));

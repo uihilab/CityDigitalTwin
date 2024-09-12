@@ -20,18 +20,22 @@ class DeckglAnimation {
     const onAnimationFrame = () => {
       timestamp += 0.02;
       this.simulator.updateCarPositions(timestamp);
-      var viewport = viewportRef.current;
 
-      // Calculate the viewport
-      const currentViewport = new WebMercatorViewport({
-        width: window.innerWidth,
-        height: window.innerHeight,
-        longitude: viewport.longitude,
-        latitude: viewport.latitude,
-        zoom: viewport.zoom,
-      });
+      let currentViewport = null;
+      if (viewportRef) {
+        var viewport = viewportRef.current;
 
-      //console.log(viewport.latitude, viewport.longitude);
+        // Calculate the viewport
+        currentViewport = new WebMercatorViewport({
+          width: window.innerWidth,
+          height: window.innerHeight,
+          longitude: viewport.longitude,
+          latitude: viewport.latitude,
+          zoom: viewport.zoom,
+        });
+
+        //console.log(viewport.latitude, viewport.longitude);
+      }
 
       let allTripFrames = [];
 
@@ -57,10 +61,15 @@ class DeckglAnimation {
         });
       }
 
-      // Filter frame data to only include points within the viewport
-      const visibleFrame = allTripFrames.filter((d) =>
-        this.isPointInViewport(d.point, currentViewport)
-      );
+      let visibleFrame = null;
+      if (currentViewport) {
+        // Filter frame data to only include points within the viewport
+        visibleFrame = allTripFrames.filter((d) =>
+          this.isPointInViewport(d.point, currentViewport)
+        );
+      } else {
+        visibleFrame = allTripFrames;
+      }
       // // Set the camera to follow the first truck
       // if (options.tracking) {
       //   map.moveCamera({
