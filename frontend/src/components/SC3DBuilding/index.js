@@ -26,7 +26,7 @@ import { BridgesgridLayer } from "../SCBridge/index";
 import { BuildingLayer } from "../SCBuilding/layerBuilding";
 import { getFloodLayer, FloodMenu, createFloodDamageIconLayer } from "../SCFlood/index";
 import { getWellData, createWellLayer } from "../SCWell/well";
-import { fetchRailwayData, CreateRailwayLayer } from "../SCRailway/index";
+import { fetchRailwayData, CreateRailwayLayer, FetchRailwayStations, CreateRailwayStations } from "../SCRailway/index";
 import { RailwayBridgesLayer } from "../SCRailwayBridge/index";
 import { createSchoolLayer, getSchoolData } from "../SCAmeties/school_index";
 import { getPolicestationData, createPoliceStationsLayer } from "../SCAmeties/police_station";
@@ -493,12 +493,16 @@ function Map3D() {
         return;
       }
       if (key === "Train_Info") {
+        debugger;
         const RailwayData = await fetchRailwayData();
         const railLayer = CreateRailwayLayer(RailwayData);
         setMapLayers(railLayer);
         setrailwayData(railLayer);
-        const layerBridges = await RailwayBridgesLayer();
-        setMapLayers(layerBridges);
+        
+        const railwaystations = await FetchRailwayStations();
+        const stationslayer= await CreateRailwayStations(railwaystations);
+        setMapLayers(stationslayer);
+
         return;
       }
 
