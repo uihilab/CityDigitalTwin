@@ -82,18 +82,18 @@ export async function getWeatherLayer(latitude, longitude ) {
     //getColor: d => [255, 0, 0],
   });
 
-  const iconLayer = new IconLayer({
-    id: 'icon-layer',
-    data,
-    pickable: true,
-    iconAtlas: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
-    iconMapping: ICON_MAPPING,
-    getIcon: d => 'marker',
-    sizeScale: 15,
-    getPosition: d => d.position,
-    getSize: d => 50,
-    getColor: d => [255, 0, 0]
-  });
+  // const iconLayer = new IconLayer({
+  //   id: 'icon-layer',
+  //   data,
+  //   pickable: true,
+  //   iconAtlas: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+  //   iconMapping: ICON_MAPPING,
+  //   getIcon: d => 'marker',
+  //   sizeScale: 15,
+  //   getPosition: d => d.position,
+  //   getSize: d => 50,
+  //   getColor: d => [255, 0, 0]
+  // });
   return layerWeather;
 }
 export async function getWeatherLayersForAllLocations() {
@@ -106,6 +106,7 @@ export async function getWeatherLayersForAllLocations() {
     { name: "Gilbertville", latitude: 42.418319, longitude: -92.214351 },
     { name: "Blessing", latitude: 42.561486, longitude: -92.312137 },
     { name: "La Porte City", latitude: 42.314428, longitude: -92.189625 },
+    { name: "Waterloo", latitude: 42.4928, longitude: -92.3426 },
   ];
   const weatherDataPromises = locations.map(async (location) => {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true`);

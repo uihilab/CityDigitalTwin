@@ -18,7 +18,7 @@ import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { getTrafficEventData } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap, removeMenu, showDailyDetails } from "../SCAQ/index";
-import { getWeatherLayersForAllLocations } from "../SCWeather/index";
+import { getWeatherLayer, getWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
 import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/index";
 import { ElectricgridLayer } from "../SCElectric/index";
@@ -81,6 +81,7 @@ function Map3D() {
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
   const [clickedObject, setClickedObject] = useState(null);
   const [iconlayerFlood, seticonlayerFlood] = useState(null);
+  const [WeathericonLayer, setWeatherIconLayer] = useState(null);
 
   const [checkboxStateTransit, setCheckboxStateTransit] = useState({
     train: false,
@@ -135,6 +136,9 @@ function Map3D() {
       const isAQualityActiveItem = activeItems.find(item => item.key === "AQuality");
       const isAQualityActive = isAQualityActiveItem ? isAQualityActiveItem.value : undefined;
 
+      const isWeatherActiveItem = activeItems.find(item => item.key === "WForecast");
+      const isWeatherActive = isWeatherActiveItem ? isWeatherActiveItem.value : undefined;
+
       if (isAQualityActive) {
         try {
           // Haritaya yeni tıklama yapıldığında önceki verileri ve ikonları temizle
@@ -164,6 +168,21 @@ function Map3D() {
         }
         catch (error) {
           console.error("Hava kalitesi verileri alınırken bir hata oluştu:", error);
+        }
+      }
+      if (isWeatherActive) {
+        debugger;
+        try {
+          if(WeathericonLayer !==null)
+          {
+            removeLayer(WeathericonLayer.id);
+          }
+          // Hava durumu verilerini kullanarak iconları haritaya ekle
+          const layer = await getWeatherLayer(latitude, longitude);
+          setMapLayers(layer);
+          setWeatherIconLayer(layer);
+        } catch (error) {
+          console.error("Error in handleMapClick:", error);
         }
       }
     } else {
@@ -197,21 +216,6 @@ function Map3D() {
     //     setIsChartVisible(false);
     //   }
     // }
-    // if (isWeatherActive) {
-    //   removeLayer(WeathericonLayer.id);
-    //   setMapLayers(null);
-    //   const longitude = event.coordinate[0];
-    //   const latitude = event.coordinate[1];
-    //   setClickPosition({ x: latitude, y: longitude });
-    //   try {
-    //     // Hava durumu verilerini kullanarak iconları haritaya ekle
-    //     const layer = await createWeatherIconLayer(latitude, longitude, 3);
-    //     setWeatherIconLayer(layer);
-    //     setMapLayers(layer);
-    //   } catch (error) {
-    //     console.error("Error in handleMapClick:", error);
-    //   }
-    // }
   };
 
   const initialState = {
@@ -240,7 +244,6 @@ function Map3D() {
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState([]);
   const [mapLayers, setMapLayersState] = useState([]);
-  //const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [AQiconLayer, setAQIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
@@ -443,6 +446,7 @@ function Map3D() {
         //removeLayer("WForecast");
         const weatherLayer = await getWeatherLayersForAllLocations();
         setMapLayers(weatherLayer); // Tek bir katman olarak ekliyoruz
+        setWeatherIconLayer(weatherLayer);
         return;
       }
       if (key === "DemographicHousingData") {
@@ -631,6 +635,7 @@ function Map3D() {
 
       if (key === "WForecast") {
         removeLayer("WForecast_AllLocations");
+        removeLayer(WeathericonLayer.id);
         return;
       }
 
