@@ -55,7 +55,7 @@ function formatTooltipData(item) {
     });
 
     const layerRailway = new IconLayer({
-      id: 'RailwayCross',
+      id: 'RailwayStations',
       data: processedData,
       pickable: true,
       iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas.png`,

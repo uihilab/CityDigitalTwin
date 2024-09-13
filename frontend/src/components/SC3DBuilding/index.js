@@ -498,7 +498,7 @@ function Map3D() {
         const railLayer = CreateRailwayLayer(RailwayData);
         setMapLayers(railLayer);
         setrailwayData(railLayer);
-        
+
         const railwaystations = await FetchRailwayStations();
         const stationslayer= await CreateRailwayStations(railwaystations);
         setMapLayers(stationslayer);
@@ -598,7 +598,8 @@ function Map3D() {
 
       if (key === "Train_Info") {
         removeLayer("RailwayNetwork");
-        removeLayer("RailBridge");
+        removeLayer("RailwayStations");
+        debugger;
         return;
       }
 
