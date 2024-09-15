@@ -123,6 +123,7 @@ class DeckglAnimation {
       cancelAnimationFrame(this.animationId);
       this.isAnimating = false;
       this.animationId = null;
+      this.setMapLayers([]);
     }
   };
 }

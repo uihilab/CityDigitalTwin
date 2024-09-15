@@ -124,7 +124,7 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
         // Initialize the map
         const map = new googlemaps.Map(containerRef.current, {
           center: { lng: defaultCoords.long, lat: defaultCoords.lat },
-          zoom: 19,
+          zoom: 15,
           heading: 0,
           tilt: 45,
           isFractionalZoomEnabled: true,
@@ -168,15 +168,15 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
   }, []);
 
   const clearAllLayers = () => {
-    const blankLayer = [];
-
     const overlayStatic = overlayStaticRef.current;
-    if (overlayStatic) {
-      overlayStatic.setProps({ blankLayer });
-    }
     const overlayAnimation = overlayRef.current;
+
+    if (overlayStatic) {
+      overlayStatic.setProps({ layers: [] }); // Clears the static layers
+    }
+
     if (overlayAnimation) {
-      overlayAnimation.setProps({ blankLayer });
+      overlayAnimation.setProps({ layers: [] }); // Clears the animated layers (ScenegraphLayer)
     }
   };
 
@@ -192,7 +192,6 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
         stopTrafficSimulator(); // Ensure this completes before continuing
         clearAllLayers();
         startSimulation();
-        //await startTrafficSimulator(setAnimationLayers, addMapLayerStatic, null, floodYears);
       }
       changefloodyears(floodYears);
       prevFloodYearsRef.current = floodYears;
@@ -207,12 +206,7 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
   return (
     <>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
-      <FloodYearMenu
-        isMenuOpen
-        //setIsMenuOpen={setIsMenuOpen}
-        selectedFloodYear={floodYears}
-        handleFloodYearChange={setFloodYears}
-      />
+      <FloodYearMenu selectedFloodYear={floodYears} handleFloodYearChange={setFloodYears} />
     </>
   );
 }

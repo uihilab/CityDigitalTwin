@@ -1,8 +1,6 @@
 import React from "react";
 
 export function FloodYearMenu({
-  isMenuOpen,
-  setIsMenuOpen,
   selectedFloodYear,
   handleFloodYearChange,
 }) {
@@ -11,7 +9,7 @@ export function FloodYearMenu({
   };
 
   return (
-    isMenuOpen && (
+    (
       <div
         id="floodYearSelector"
         style={{
