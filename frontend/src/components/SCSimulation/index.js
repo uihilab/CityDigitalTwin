@@ -5,125 +5,216 @@ import { Loader } from "@googlemaps/js-api-loader";
 import TripBuilder from "./trip-builder";
 
 import { startTrafficSimulator } from "components/TrafficSimulator";
+import { getFloodLayer } from "components/SCFlood";
+import { stopTrafficSimulator } from "components/TrafficSimulator";
+import { FloodYearMenu } from "components/SCFlood/floodYearMenu";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
-const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
-
-const DATA_URL =
-  "https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/google-3d/trips.json";
-const MODEL_URL =
-  "https://raw.githubusercontent.com/visgl/deck.gl-data/master/examples/google-3d/truck.gltf";
+const defaultCoords = { lat: 42.4942408813, long: -92.34170190987821 };
 
 function SCSimulation({ options = { tracking: true, showPaths: true } }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const overlayRef = useRef(null);
   const animationRef = useRef(null);
+  const overlayStaticRef = useRef(null);
+  const [floodYears, setFloodYears] = useState(0);
+  // Store the previous floodYears value
+  const prevFloodYearsRef = useRef(-1);
+
+  // State to track if overlays are initialized
+  const [overlayInitialized, setOverlayInitialized] = useState(false);
+
+  // Function to remove existing flood layers
+  const removeFloodLayer = (layers) => {
+    // Filter out layers that start with "flood_"
+    return layers.filter((layer) => !layer.id?.startsWith("flood_"));
+  };
+
+  const setFloodLayer = (floodLayer) => {
+    const overlay = overlayStaticRef.current;
+    if (!overlay) return;
+
+    // Get the current layers from the overlay
+    let currentLayers = overlay.props.layers || [];
+
+    // Remove any existing flood layers
+    currentLayers = removeFloodLayer(currentLayers);
+
+    // Add the floodLayer to the current layers
+    const updatedLayers = [...currentLayers, floodLayer];
+
+    // Update the overlay with the new set of layers
+    overlay.setProps({ layers: updatedLayers });
+  };
+
+  // Function to handle flood years change
+  const changefloodyears = async (newYears) => {
+    try {
+      console.log(`Flood years changed to: ${newYears}`);
+
+      if (!overlayStaticRef.current) {
+        console.error("Overlay is not initialized.");
+        return;
+      }
+      const overlay = overlayStaticRef.current;
+      if (newYears > 0) {
+        const floodLayer = await getFloodLayer(`flood_${newYears}`, newYears); // Ensure this resolves
+        if (floodLayer) {
+          setFloodLayer(floodLayer); // Only update if floodLayer is valid
+        }
+      } else {
+        // Get the current layers from the overlay
+        let currentLayers = overlay.props.layers || [];
+
+        // Remove any existing flood layers
+        currentLayers = removeFloodLayer(currentLayers);
+
+        // Add the floodLayer to the current layers
+        const updatedLayers = [...currentLayers];
+
+        // Update the overlay with the new set of layers
+        overlay.setProps({ layers: updatedLayers });
+        return;
+      }
+    } catch (error) {
+      console.error("Error loading flood layer:", error);
+    }
+  };
 
   const setAnimationLayers = (layers) => {
     const overlay = overlayRef.current;
-    overlay.setProps({ layers });
-  }
+    if (overlay) {
+      overlay.setProps({ layers });
+    }
+  };
 
   const setMapLayerStatic = (layers) => {
-    return;
-  }
+    const overlay = overlayStaticRef.current;
+    if (overlay) {
+      overlay.setProps({ layers });
+    }
+  };
 
+  const addMapLayerStatic = (newLayers) => {
+    const overlay = overlayStaticRef.current;
+    if (overlay) {
+      // Get the current layers from the overlay
+      const currentLayers = overlay.props.layers || [];
+
+      const updatedLayers = [...currentLayers, newLayers];
+
+      // Update the overlay with the new set of layers
+      overlay.setProps({ layers: updatedLayers });
+    }
+  };
+
+  const startSimulation = async () => {
+    // Start the traffic simulator
+    await startTrafficSimulator(setAnimationLayers, addMapLayerStatic, null, floodYears);
+  };
 
   useEffect(() => {
     const initializeMap = async () => {
-      const loader = new Loader({ apiKey: GOOGLE_MAPS_API_KEY });
-      const googlemaps = await loader.importLibrary("maps");
+      try {
+        const loader = new Loader({ apiKey: GOOGLE_MAPS_API_KEY });
+        const googlemaps = await loader.importLibrary("maps");
 
-      const resp = await fetch(DATA_URL);
-      const data = await resp.json();
+        // Initialize the map
+        const map = new googlemaps.Map(containerRef.current, {
+          center: { lng: defaultCoords.long, lat: defaultCoords.lat },
+          zoom: 19,
+          heading: 0,
+          tilt: 45,
+          isFractionalZoomEnabled: true,
+          mapId: GOOGLE_MAP_ID,
+          mapTypeControlOptions: {
+            mapTypeIds: ["roadmap", "terrain"],
+          },
+          streetViewControl: false,
+        });
 
-      // Harita yalnızca bir kez başlatılır
-      const map = new googlemaps.Map(containerRef.current, {
-        center: { lng: defaultCoords.long, lat: defaultCoords.lat},
-        zoom: 19,
-        heading: 0,
-        tilt: 45,
-        isFractionalZoomEnabled: true,
-        mapId: GOOGLE_MAP_ID,
-        mapTypeControlOptions: {
-          mapTypeIds: ["roadmap", "terrain"],
-        },
-        streetViewControl: false,
-      });
-      mapRef.current = map;
+        mapRef.current = map;
 
-      const overlay = new DeckOverlay({});
-      overlay.setMap(map);
-      overlayRef.current = overlay;
+        // Initialize the overlays
+        const overlay = new DeckOverlay({});
+        overlay.setMap(map);
+        overlayRef.current = overlay;
 
-      //startAnimation(map, overlay, data, options);
-      await startTrafficSimulator(setAnimationLayers, setMapLayerStatic, null);
+        const overlayStatic = new DeckOverlay({});
+        overlayStatic.setMap(map);
+        overlayStaticRef.current = overlayStatic;
+
+        // Once the overlays are initialized, set the state to true
+        setOverlayInitialized(true);
+        // Start the traffic simulator
+        startSimulation(); //await startTrafficSimulator(setAnimationLayers, addMapLayerStatic, null, floodYears);
+      } catch (error) {
+        console.error("Error initializing the map or overlays:", error);
+      }
     };
 
     if (!mapRef.current && containerRef.current) {
-      initializeMap(); // Haritayı sadece bir kez başlat
+      initializeMap(); // Initialize the map only once
     }
 
     return () => {
-      // Cleanup işlemleri
+      // Cleanup
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
       if (overlayRef.current) overlayRef.current.finalize();
+      if (overlayStaticRef.current) overlayStaticRef.current.finalize();
     };
   }, []);
 
+  const clearAllLayers = () => {
+    const blankLayer = [];
 
-
-  const startAnimation = (map, overlay, data, options) => {
-    const trips = data.map((waypoints) => new TripBuilder({ waypoints, loop: true }));
-    let timestamp = 0;
-
-    const onAnimationFrame = () => {
-      timestamp += 0.02;
-
-      const frame = trips.map((trip) => trip.getFrame(timestamp));
-
-      // Kamera ilk aracı takip edecek
-      if (options.tracking) {
-        map.moveCamera({
-          center: { lat: frame[0].point[1], lng: frame[0].point[0] },
-          heading: frame[0].heading,
-        });
-      }
-
-      const layers = [
-        options.showPaths &&
-          new PathLayer({
-            id: "trip-lines",
-            data: trips,
-            getPath: (d) => d.keyframes.map((f) => f.point),
-            getColor: (_) => [128 * Math.random(), 255 * Math.random(), 255],
-            jointRounded: true,
-            opacity: 0.5,
-            getWidth: 0.5,
-          }),
-        new ScenegraphLayer({
-          id: "truck",
-          data: frame,
-          scenegraph: MODEL_URL,
-          sizeScale: 2,
-          getPosition: (d) => d.point,
-          getTranslation: [0, 0, 1],
-          getOrientation: (d) => [0, 180 - d.heading, 90],
-          _lighting: "pbr",
-        }),
-      ];
-
-      overlay.setProps({ layers });
-
-      animationRef.current = requestAnimationFrame(onAnimationFrame);
-    };
-
-    onAnimationFrame(); // Animasyonu başlat
+    const overlayStatic = overlayStaticRef.current;
+    if (overlayStatic) {
+      overlayStatic.setProps({ blankLayer });
+    }
+    const overlayAnimation = overlayRef.current;
+    if (overlayAnimation) {
+      overlayAnimation.setProps({ blankLayer });
+    }
   };
 
-  return <div ref={containerRef} style={{ width: "100%", height: "100%" }} />;
+  // Effect to handle flood years changes
+  useEffect(() => {
+    // Only call changefloodyears if overlay is initialized and floodYears has changed
+    if (
+      overlayInitialized &&
+      floodYears !== undefined &&
+      floodYears !== prevFloodYearsRef.current
+    ) {
+      if (prevFloodYearsRef.current >= 0) {
+        stopTrafficSimulator(); // Ensure this completes before continuing
+        clearAllLayers();
+        startSimulation();
+        //await startTrafficSimulator(setAnimationLayers, addMapLayerStatic, null, floodYears);
+      }
+      changefloodyears(floodYears);
+      prevFloodYearsRef.current = floodYears;
+    }
+  }, [floodYears, overlayInitialized]);
+
+  const handleFloodYearChange = (newFloodYear) => {
+    console.log("Selected Flood Year:", newFloodYear);
+    //setSelectedFloodYear(newFloodYear);
+  };
+
+  return (
+    <>
+      <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
+      <FloodYearMenu
+        isMenuOpen
+        //setIsMenuOpen={setIsMenuOpen}
+        selectedFloodYear={floodYears}
+        handleFloodYearChange={setFloodYears}
+      />
+    </>
+  );
 }
 
 export default SCSimulation;

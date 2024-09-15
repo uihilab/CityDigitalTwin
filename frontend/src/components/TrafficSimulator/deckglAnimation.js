@@ -10,20 +10,26 @@ class DeckglAnimation {
   constructor(setMapLayers, simulator) {
     this.setMapLayers = setMapLayers;
     this.simulator = simulator;
+    this.animationId = null; // Keep track of the animation frame ID
+    this.isAnimating = false; // Flag to indicate whether animation is running
   }
 
   startAnimation(routeData, options, viewportRef) {
     const MODEL_URL = `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`;
+    //const MODEL_URL = `${process.env.PUBLIC_URL}/data/Car-1_Green.glb`;
     //const data = routeData;
     let timestamp = 0;
-    let animation = null;
+    //let animation = null;
     const onAnimationFrame = () => {
+      // If the animation is stopped, don't continue
+      if (!this.isAnimating) return;
+
       timestamp += 0.02;
       this.simulator.updateCarPositions(timestamp);
 
       let currentViewport = null;
       if (viewportRef) {
-        var viewport = viewportRef.current;
+        const viewport = viewportRef.current;
 
         // Calculate the viewport
         currentViewport = new WebMercatorViewport({
@@ -102,11 +108,22 @@ class DeckglAnimation {
       ];
       this.setMapLayers(layers);
 
-      animation = requestAnimationFrame(onAnimationFrame);
+      // Request the next animation frame if still animating
+      this.animationId = requestAnimationFrame(onAnimationFrame);
     };
-    onAnimationFrame();
+    // Start animation loop
+    this.isAnimating = true;
+    this.animationId = requestAnimationFrame(onAnimationFrame);
 
-    return () => cancelAnimationFrame(animation);
+    //return () => cancelAnimationFrame(animation);
   }
+
+  stopAnimation = () => {  // Converted to an arrow function
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.isAnimating = false;
+      this.animationId = null;
+    }
+  };
 }
 export default DeckglAnimation;

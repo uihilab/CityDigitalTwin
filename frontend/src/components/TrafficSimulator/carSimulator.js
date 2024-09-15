@@ -9,8 +9,8 @@ class CarSimulator {
 
     this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
     this.routes = this.routeGenerator.generateRandomRoutes(400, 0.001);
-    console.log(JSON.stringify(this.routes));
-    debugger;
+    //console.log(JSON.stringify(this.routes));
+    //debugger;
     this.cars = this.generateCars(this.routes);
     this.lastTimestamp = null;
   }
@@ -61,7 +61,6 @@ class CarSimulator {
 
   generateCars(routes) {
     const cars = [];
-    debugger;
     routes.forEach((route, index) => {
       const car = {
         id: `car_route_${index}`,
@@ -70,7 +69,7 @@ class CarSimulator {
       };
       car.tripBuilder = new TripBuilder({
         waypoints: route,
-        speed: 15, //TODO: road.maxSpeed, // meters per second
+        speed: 30, //TODO: road.maxSpeed, // meters per second
         loop: true,
       });
       cars.push(car);

@@ -364,6 +364,11 @@ function Map3D() {
 
   async function layerLinkHandler(key, isActive, dataPath) {
     if (isActive) {
+      // if(key.startsWith("Simulation"))
+      // {
+      //   setSimulationFloodyears(0);
+      //   return;
+      // }
       if (key === "Electricgrid") {
         const Layer = await ElectricgridLayer();
         setMapLayers(Layer);
@@ -691,8 +696,8 @@ function Map3D() {
     return null;
   }
 
-  const isActive = (key) => {
-    const item = activeItems.find(item => item.key === key);
+  const isSimulationActive = () => {
+    const item = activeItems.find(item => item.key.startsWith("Simulation"));
     return item ? item.value : false; // If the item exists, return its boolean value, otherwise return false
   };
   
@@ -778,7 +783,7 @@ function Map3D() {
           )}
         </div>
         <div id="map" style={{ width: "100%", height: "100vh" }}>
-          <StrictMode>
+          {/* <StrictMode> */}
             <div
               id="map-container"
               style={{
@@ -790,7 +795,7 @@ function Map3D() {
                 zIndex: 0, // Haritayı diğer öğelerin altında tutmak için
               }}
             >
-              { isActive("Simulation") ?
+              { isSimulationActive() ?
             (<SCSimulation/>)  :
               (<APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                 <Map
@@ -833,7 +838,7 @@ function Map3D() {
             }
               
             </div>
-          </StrictMode>
+          {/* </StrictMode> */}
         </div>
       </div>
     </>

@@ -31,12 +31,12 @@ class RandomRouteTrafficGenerator {
       const end = createPointFeature(path.end);
       const route = this.findPath(start, end);
       if (route) {
-        console.log(route);
+        //console.log(route);
         this.routes.push(route.path);
       }
     });
 
-    console.log(this.routes);
+    //console.log(this.routes);
     return this.routes;
   }
 }

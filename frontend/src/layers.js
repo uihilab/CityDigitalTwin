@@ -64,7 +64,7 @@ const layers = [
         type: "maplayer",
         name: "Bicycle Amenities",
         key: "BicycleAmenities",
-        status: false
+        status: false,
       },
       {
         type: "maplayer",
@@ -175,20 +175,20 @@ const layers = [
         key: "PublicTransitRoutes",
         icon: <Icon fontSize="small">Transit</Icon>,
         collapse: [
-      {
-        type: "maplayer",
-        name: "Train Stations and Railway",
-        key: "Train_Info",
-        icon: <Icon fontSize="small">Train</Icon>,
+          {
+            type: "maplayer",
+            name: "Train Stations and Railway",
+            key: "Train_Info",
+            icon: <Icon fontSize="small">Train</Icon>,
+          },
+          {
+            type: "maplayer",
+            name: "Bus Stops and Routes",
+            key: "Bus_Info",
+            icon: <Icon fontSize="small">Bus</Icon>,
+          },
+        ],
       },
-      {
-        type: "maplayer",
-        name: "Bus Stops and Routes",
-        key: "Bus_Info",
-        icon: <Icon fontSize="small">Bus</Icon>,
-      }
-     ]
-    },
       {
         type: "maplayer",
         name: "Bicycle",
@@ -276,14 +276,20 @@ const layers = [
       {
         type: "maplayer",
         name: "Traffic Flow",
-        key: "TrafficFlow",
+        key: "Simulation_",
         icon: <Icon fontSize="small">Traffic</Icon>,
       },
       {
         type: "maplayer",
-        name: "Simulation",
-        key: "Simulation",
-        icon: <Icon fontSize="small">Simulation</Icon>,
+        name: "Train Route",
+        key: "Simulation_Train",
+        icon: <Icon fontSize="small">Train</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Bus Route",
+        key: "Simulation_Bus",
+        icon: <Icon fontSize="small">Bus</Icon>,
       },
     ],
   },

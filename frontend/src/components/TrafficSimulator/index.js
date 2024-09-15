@@ -1,70 +1,46 @@
 import CarSimulator from "./carSimulator";
 import DeckglAnimation from "./deckglAnimation";
-import { importOSMRoadsFromGeoJSON, importRoadsFromGeoJSON_v2 } from "./roadDataImporter";
-import { LineLayer, PathLayer } from "@deck.gl/layers";
+import { importOSMRoadsFromGeoJSON } from "./roadDataImporter";
+import { generateRoadLayer, getRouteLayer } from "./routes";
 
-const roadDataPath = `${process.env.PUBLIC_URL}/data/roads/roads_100yr_flood.geojson`;
-//const roadDataPath = `${process.env.PUBLIC_URL }/data/highway_waterloo.geojson`;
-//const roadDataPath = process.env.PUBLIC_URL +"/data/waterloo_roads_v2.geojson";
-async function loadRoadData() {
+function getRoadDataPath(floodYears) {
+  let result = `${process.env.PUBLIC_URL}/data/roads/roads_${floodYears}yr_flood.geojson`;
+  if (floodYears > 0) {
+    result = `${process.env.PUBLIC_URL}/data/roads/roads_${floodYears}yr_flood.geojson`;
+  } else {
+    result = `${process.env.PUBLIC_URL}/data/roads/roads_waterloo.geojson`;
+  }
+  return result;
+}
+
+async function loadRoadData(floodYears) {
+  const roadDataPath = getRoadDataPath(floodYears);
   const response = await fetch(roadDataPath);
   const roadData = await response.json();
   return roadData;
 }
 
-function drawRoutes(routes, setMapLayer) {
-  const routeLayer = new PathLayer({
-    id: "PathLayer",
-    data: routes,
+let stopAnimation = null;
 
-    /* props from PathLayer class */
-
-    // billboard: false,
-    // capRounded: false,
-    getColor: (d) => {
-      const hex = "#ed1c24";
-      // convert to RGB
-      return hex.match(/[0-9a-f]{2}/g).map((x) => parseInt(x, 16));
-    },
-    getPath: (d) => d,
-    getWidth: 5,
-    // jointRounded: false,
-    // miterLimit: 4,
-    // widthMaxPixels: Number.MAX_SAFE_INTEGER,
-    widthMinPixels: 2,
-    // widthScale: 1,
-    // widthUnits: 'meters',
-
-    /* props inherited from Layer class */
-
-    // autoHighlight: false,
-    // coordinateOrigin: [0, 0, 0],
-    // coordinateSystem: COORDINATE_SYSTEM.LNGLAT,
-    // highlightColor: [0, 0, 128, 128],
-    // modelMatrix: null,
-    // opacity: 1,
-    parameters: {
-      depthMask: false,
-    },
-    pickable: true,
-    // visible: true,
-    // wrapLongitude: false,
-  });
-  setMapLayer(routeLayer);
-}
-
-export async function startTrafficSimulator(setAnimationLayers, setMapLayerStatic, viewportRef) {
-  const roadData = await loadRoadData();
+export async function startTrafficSimulator(
+  setAnimationLayers,
+  setMapLayerStatic,
+  viewportRef,
+  floodYears
+) {
+  const roadData = await loadRoadData(floodYears);
   const roadDataTransformed = importOSMRoadsFromGeoJSON(roadData);
-  //var roadDataTransformed = importRoadsFromGeoJSON_v2(roadData);
+  const allRoadsLayer = generateRoadLayer(roadDataTransformed);
   const carSimulator = new CarSimulator(roadData, roadDataTransformed);
-  drawRoutes(carSimulator.routes, setMapLayerStatic);
+  setMapLayerStatic([allRoadsLayer, getRouteLayer(carSimulator.routes)]);
   const animation = new DeckglAnimation(setAnimationLayers, carSimulator);
   animation.startAnimation(null, null, viewportRef);
+  // Stop the animation when needed
+  stopAnimation = animation.stopAnimation;
 }
 
-export function stopTrafficSimulator(setAnimationLayers) {
-  //   const carSimulator = new CarSimulator(roadData, 5);
-  //   const animation = new DeckglAnimation(setMapLayer, carSimulator);
-  //   animation.startAnimation();
+export function stopTrafficSimulator() {
+  if (stopAnimation) {
+    stopAnimation();
+  }
 }

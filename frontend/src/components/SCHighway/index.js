@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { GeoJsonLayer } from "@deck.gl/layers";
 
-const highwayDataPath = `${process.env.PUBLIC_URL}/data/highway_waterloo.geojson`;
+const highwayDataPath = `${process.env.PUBLIC_URL}/data/roads/roads_waterloo.geojson`;
 const layerPrefix = "highway";
 // Verilen bir anahtar ve veri yolundaki GeoJSON verilerini yükler ve belirli bir özelliğe göre filtreler
 async function loadFilteredGeoJsonData(dataPath, propertyName) {
