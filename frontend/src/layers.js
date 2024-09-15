@@ -196,15 +196,7 @@ const layers = [
         icon: <Icon fontSize="small">Bicycle</Icon>,
         //dataPath:
         //"https://services.arcgis.com/8lRhdTsQyJpO52F1/ArcGIS/rest/services/City_View/FeatureServer/0/query?f=geojson&where=1%3D1&returnGeometry=true&spatialRel=esriSpatialRelIntersects&outFields=*&maxRecordCountFactor=2&outSR=102100&resultOffset=0&resultRecordCount=4000&cacheHint=true&quantizationParameters=%7B%22mode%22%3A%22view%22%2C%22originPosition%22%3A%22upperLeft%22%2C%22tolerance%22%3A1.058335450004216%2C%22extent%22%3A%7B%22xmin%22%3A-10754630.6656625%2C%22ymin%22%3A4921060.191306702%2C%22xmax%22%3A-10036824.38723184%2C%22ymax%22%3A5388520.414925002%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%2C%22latestWkid%22%3A3857%7D%7D%7D",
-      },
-      {
-        type: "maplayer",
-        name: "Transportation Events",
-        key: "TransEvents",
-        icon: <Icon fontSize="small">Events</Icon>,
-        dataPath:
-          "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
-      },
+      }
     ],
   },
   {
@@ -290,6 +282,14 @@ const layers = [
         name: "Bus Route",
         key: "Simulation_Bus",
         icon: <Icon fontSize="small">Bus</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Transportation Events",
+        key: "TransEvents",
+        icon: <Icon fontSize="small">Events</Icon>,
+        dataPath:
+          "https://services.arcgis.com/8lRhdTsQyJpO52F1/arcgis/rest/services/CARS511_Iowa_View/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
       },
     ],
   },

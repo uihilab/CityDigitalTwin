@@ -58,7 +58,7 @@ export const createElectricPowerLayer = (powerData, setTooltip) => {
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
     getIcon: (d) => "s4",
-    sizeScale: 10,
+    sizeScale: 5,
     getPosition: d => d.coordinates,
     getSize: d => 3, // İkon boyutunu ayarlayın
     onHover: ({ object, x, y }) => {
