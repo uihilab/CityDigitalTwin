@@ -7,16 +7,18 @@ class DeckglAnimation {
     return x >= 0 && x <= viewport.width && y >= 0 && y <= viewport.height;
   }
 
-  constructor(setMapLayers, simulator) {
+  constructor(setMapLayers, simulator, modelUrl) {
     this.setMapLayers = setMapLayers;
     this.simulator = simulator;
     this.animationId = null; // Keep track of the animation frame ID
     this.isAnimating = false; // Flag to indicate whether animation is running
+    this.modelUrl = modelUrl;
   }
 
   startAnimation(routeData, options, viewportRef) {
-    const MODEL_URL = `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`;
-    //const MODEL_URL = `${process.env.PUBLIC_URL}/data/Car-1_Green.glb`;
+    //const MODEL_URL = `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`;
+    //const MODEL_URL = `${process.env.PUBLIC_URL}/data/car_green.glb`;
+    const MODEL_URL = `${process.env.PUBLIC_URL}/data/Old_Rusty_Bus.glb`;
     //const data = routeData;
     let timestamp = 0;
     //let animation = null;
@@ -96,9 +98,9 @@ class DeckglAnimation {
         //   getWidth: 10
         // }),
         new ScenegraphLayer({
-          id: "animation-truck",
+          id: "animation-layer",
           data: visibleFrame,
-          scenegraph: MODEL_URL,
+          scenegraph: this.modelUrl,
           sizeScale: 20,
           getPosition: (d) => d.point,
           getTranslation: [0, 0, 1],

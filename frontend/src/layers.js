@@ -268,7 +268,7 @@ const layers = [
       {
         type: "maplayer",
         name: "Traffic Flow",
-        key: "Simulation_",
+        key: "Simulation_Car",
         icon: <Icon fontSize="small">Traffic</Icon>,
       },
       {

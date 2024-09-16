@@ -1,16 +1,10 @@
-import TrafficGenerator from "./trafficGenerator";
 import RandomRouteTrafficGenerator from "./trafficRandomRouteTraffic";
 import TripBuilder from "./trip-builder";
 
 class CarSimulator {
   constructor(roadDataRaw, roadData) {
-    //this.trafficGenerator = new TrafficGenerator(roadData);
-    //this.roads = this.trafficGenerator.generateRandomCars();
-
     this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
     this.routes = this.routeGenerator.generateRandomRoutes(400, 0.001);
-    //console.log(JSON.stringify(this.routes));
-    //debugger;
     this.cars = this.generateCars(this.routes);
     this.lastTimestamp = null;
   }

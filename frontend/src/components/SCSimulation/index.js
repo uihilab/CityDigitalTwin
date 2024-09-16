@@ -1,13 +1,12 @@
 import React, { useRef, useEffect, useState } from "react";
 import { GoogleMapsOverlay as DeckOverlay } from "@deck.gl/google-maps";
-import { ScenegraphLayer } from "@deck.gl/mesh-layers";
 import { Loader } from "@googlemaps/js-api-loader";
-import TripBuilder from "./trip-builder";
 
 import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "components/SCFlood";
 import { stopTrafficSimulator } from "components/TrafficSimulator";
 import { FloodYearMenu } from "components/SCFlood/floodYearMenu";
+import { ModelCarGreen } from "components/TrafficSimulator/modelFiles";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
@@ -112,7 +111,13 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
 
   const startSimulation = async () => {
     // Start the traffic simulator
-    await startTrafficSimulator(setAnimationLayers, addMapLayerStatic, null, floodYears);
+    await startTrafficSimulator(
+      setAnimationLayers,
+      addMapLayerStatic,
+      null,
+      floodYears,
+      ModelCarGreen
+    );
   };
 
   useEffect(() => {
