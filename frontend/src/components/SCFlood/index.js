@@ -23,6 +23,24 @@ function formatTooltipData(item) {
   return tooltipData.trim(); // Remove trailing newline
 }
 
+// Helper function to calculate the marker index based on damage percentages
+function calculateMarkerIndex(stprct, cnprct) {
+  const combinedPercentage = stprct + cnprct;
+  // Divide by 50 and round to determine which marker to use (0-3)
+  return Math.min(Math.round(combinedPercentage / 50), 3);
+}
+
+function getHazardColor(stprct, cnprct)
+{
+  const markers = [];
+  markers[0] = "yellow";
+  markers[1] = "orange";
+  markers[2] = "red";
+  markers[3] = "purple";
+  const index = calculateMarkerIndex(stprct, cnprct);
+  return markers[index];
+}
+
 export async function createFloodDamageIconLayer(mapid) {
   const url = `https://ifis.iowafloodcenter.org/ifis/app/inc/inc_get_hazusdata.php?mapid=${mapid}`;
 
@@ -54,7 +72,7 @@ export async function createFloodDamageIconLayer(mapid) {
       pickable: true,
       iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
       iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
-      getIcon: (d) => "yellow",
+      getIcon: (d) => getHazardColor(d.strDamage, d.cntDamagePercentage),
       sizeScale: 5,
       getPosition: (d) => d.position,
       getSize: (d) => 1,
