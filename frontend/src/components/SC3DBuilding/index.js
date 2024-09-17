@@ -40,6 +40,8 @@ import { AddRailwayCrossingLayer } from "../SCRailwayCrossing/index.js";
 import { loadBicycleLayer } from "../SCBicycleNetwork/index.js";
 import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 import SCSimulation from "components/SCSimulation";
+import { createRainSensorLayer } from "components/SCSensors";
+import { createStreamSensorLayer } from "components/SCSensors";
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
 const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
@@ -114,7 +116,7 @@ function Map3D() {
       }
     }
 
-    //loadBlackHawkCounty();
+    loadBlackHawkCounty();
   }, []);
 
 
@@ -372,6 +374,32 @@ function Map3D() {
       //   setSimulationFloodyears(0);
       //   return;
       // }
+      const lat = viewportRef.current.latitude;
+      const long = viewportRef.current.longitude;
+      if (key === "RainGauges") {
+        await createRainSensorLayer(setMapLayers, 
+          lat,
+          long,
+          5
+        );
+        return;
+      }
+      if (key === "StreamGauges") {
+        await createStreamSensorLayer(setMapLayers, 
+          lat,
+          long,
+          5
+        );
+        return;
+      }
+      if (key === "CommunitySensors") {
+        await createCommunitySensorLayer(setMapLayers, 
+          lat,
+          long,
+          5
+        );
+        return;
+      }
       if (key === "Electricgrid") {
         const Layer = await ElectricgridLayer();
         setMapLayers(Layer);
