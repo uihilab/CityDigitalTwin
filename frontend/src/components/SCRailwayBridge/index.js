@@ -59,7 +59,7 @@ export async function RailwayBridgesLayer() {
     pickable: true,
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_map.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_publictransportation.json`,
-    getIcon: (d) => "icons8-train-100",
+    getIcon: (d) => "harbour-bridge",
     sizeScale: 5,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 8,
