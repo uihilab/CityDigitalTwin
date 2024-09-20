@@ -42,6 +42,7 @@ import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
 import SCSimulation from "components/SCSimulation";
 import { createRainSensorLayer } from "components/SCSensors";
 import { createStreamSensorLayer } from "components/SCSensors";
+import { createSoilMoistureSensorLayer } from "components/SCSensors";
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
 const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
@@ -78,6 +79,7 @@ function Map3D() {
   const [countyName, setCountyName] = useState("Black Hawk County");
   const [showBackButton, setShowBackButton] = useState(false);
   const [tooltip, setTooltip] = useState(null);
+  const [tooltipHtml, setTooltipHtml] = useState(null);
   const [wellData, setWellData] = useState([]);
   const [railwayData, setrailwayData] = useState([]);
   const [clickPosition, setClickPosition] = useState({ x: null, y: null });
@@ -125,7 +127,6 @@ function Map3D() {
     // event.coordinate veya event.lngLat'in tanımlı olup olmadığını kontrol edin
     console.log('event:', event); // event nesnesinin yapısını görmek için
 
-    debugger;
     const latLng = event.detail.latLng;
 
     if (latLng) {
@@ -388,15 +389,17 @@ function Map3D() {
         await createStreamSensorLayer(setMapLayers, 
           lat,
           long,
-          5
+          30,
+          setTooltip
         );
         return;
       }
-      if (key === "CommunitySensors") {
-        await createCommunitySensorLayer(setMapLayers, 
+      if (key === "SoilMoistureSensors") {
+        await createSoilMoistureSensorLayer(setMapLayers, 
           lat,
           long,
-          5
+          30,
+          setTooltip
         );
         return;
       }
@@ -721,6 +724,11 @@ function Map3D() {
 
   function getTooltipContent({ object }) {
     if (object) {
+      //debugger;
+      // if (typeof object.getData === 'function') {
+      //   const htmlContent = await object.getData();
+      //   setTooltipHtml(htmlContent);
+      // }
       // Check for tooltip_data directly on the object first
       if (object.tooltip_data) {
         return `${object.tooltip_data}`;
@@ -847,10 +855,8 @@ function Map3D() {
                   <DeckGLOverlay
                     layers={[mapLayers]}
                     getTooltip={getTooltipContent}
-
                     interleaved={true}
                   />
-
                 </Map>
                 {/* Canvas */}
                 <canvas
@@ -871,6 +877,27 @@ function Map3D() {
                   {/* {hoverInfo && renderTooltip(hoverInfo)} */}
                   <Popup clickPosition={clickPosition} object={clickedObject} />
                 </div>
+                {/* <div>
+                {tooltipHtml && (
+                  <>
+                    <div
+                      id="tooltip-container"
+                      style={{
+                        position: "fixed", // Fixed positioning relative to the viewport
+                        top: "10px", // Adjust distance from the top of the page
+                        right: "10px", // Align to the right side of the page
+                        backgroundColor: "white",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
+                        zIndex: 9999, // Ensure it's above the map
+                      }}
+                      //dangerouslySetInnerHTML={{ __html: tooltipHtml}} // Inject the HTML content
+                    />
+                    </>
+                  )
+                }
+                  </div> */}
                 <div id="App" />
               </APIProvider>)
             }

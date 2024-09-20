@@ -1,74 +1,123 @@
-import { GeoJsonLayer, IconLayer } from '@deck.gl/layers';
-import { getStreamSensors, getCommunitySensors, getRainSensors } from './sensorData'; // Import your sensor functions here
+import { GeoJsonLayer, IconLayer, ColumnLayer } from "@deck.gl/layers";
+import {
+  getStreamSensors,
+  getCommunitySensors,
+  getRainSensors,
+  getStreamData,
+  getSoilMoistureSensors,
+} from "./sensorData"; // Import your sensor functions here
 
-export const createSensorLayer = (id, sensorData, setTooltip) => new IconLayer({
-  id: id,
-  data: sensorData,
-  pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
-  getIcon: (d) => "stream_gauge",
-  sizeScale: 10,
-  getPosition: (d) => [d.longitude, d.latitude], // Adjusted to your data's latitude/longitude format
-  getSize: (d) => 4, // Adjust the icon size as needed
-  onHover: ({ object, x, y }) => {
-    if (object) {
-      setTooltip({
-        x,
-        y,
-        tooltip_data: `Sensor Type: ${object.sensorType}, Value: ${object.value1}`, // Customize tooltip content
-      });
-    } else {
-      setTooltip(null);
-    }
-  },
-});
+const createIconLayer = (id, sensorData, setTooltip, iconName) =>
+  new IconLayer({
+    id: id,
+    data: sensorData,
+    pickable: true,
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
+    getIcon: (d) => iconName,
+    sizeScale: 10,
+    getPosition: (d) => [d.longitude, d.latitude], // Adjusted to your data's latitude/longitude format
+    getSize: (d) => 4, // Adjust the icon size as needed
+    onHover: ({ object, x, y }) => {
+      //debugger;
+      if (object) {
+        setTooltip({
+          x,
+          y,
+          tooltip_data: "test", //`Sensor Type: ${object.sensorType}, Sensor id: ${object.id}`, // Customize tooltip content
+        });
+      } else {
+        setTooltip(null);
+      }
+    },
+    // onClick: async ({ object, x, y }) => {
+    //   if (object) {
+    //     try {
+    //       // Call the getData function when an icon is clicked
+    //       const data = await getStreamData(object.id);
+    //       const htmlContent = JSON.stringify(data);
+    //       // Set the tooltip content and position
+    //       setTooltip(htmlContent);
+    //     } catch (error) {
+    //       console.error(`Error fetching data for sensor ID ${object.id}:`, error);
+    //       setTooltip("<p>Unable to load data for this sensor.</p>");
+    //     }
+    //   } else {
+    //     setTooltip(null); // Clear tooltip if nothing is clicked
+    //   }
+    // },
+  });
+
+export const createSensorColumnLayer = (id, sensorData, setTooltip) => {
+  return new ColumnLayer({
+    id: id,
+    data: sensorData,
+    diskResolution: 20,
+    radius: 100, // Adjust as needed
+    elevationScale: 1, // Adjust as needed
+    extruded: true,
+    pickable: true,
+    getPosition: (d) => [d.longitude, d.latitude], // Longitude and Latitude for positioning
+    getElevation: (d) => (d.data.today !== null ? d.data.today : 0), // Use value for elevation, default to 0 if null
+    getFillColor: (d) => {
+      if (d.data.today === null) {
+        return [200, 200, 200]; // Grey for null values
+      }
+      return d.data.today > 1000 ? [255, 0, 0] : [0, 128, 0]; // Red if value > 1000, Green otherwise
+    },
+    // onHover: ({ object, x, y }) => {
+    //   //debugger;
+    //   if (object) {
+    //     setTooltip({
+    //       x,
+    //       y,
+    //       tooltip_data: "test", //`Sensor Type: ${object.sensorType}, Sensor id: ${object.id}`, // Customize tooltip content
+    //     });
+    //   } else {
+    //     setTooltip(null);
+    //   }
+    // },
+    getLineColor: [0, 0, 0], // Black outlines for columns
+    lineWidthMinPixels: 1,
+  });
+};
 
 // Function to create the Stream Sensor layer and set it
-export async function createStreamSensorLayer(setMapLayer, lat, long, milesRange) {
+export async function createStreamSensorLayer(setMapLayer, lat, long, milesRange, setTooltip) {
   try {
     const streamSensorsData = await getStreamSensors(lat, long, milesRange);
-    // const streamLayer = new GeoJsonLayer({
-    //   id: 'stream-sensor-layer',
-    //   data: streamSensorsData,
-    //   pickable: true,
-    //   stroked: false,
-    //   filled: true,
-    //   pointRadiusMinPixels: 5,
-    //   getFillColor: [255, 0, 0], // Red color for stream sensors
-    // });
-    const layer = createSensorLayer("stream-sensors", streamSensorsData, null);
+    //console.log(JSON.stringify(streamSensorsData));
+    const layer = createSensorColumnLayer("stream-sensors", streamSensorsData, setTooltip, "stream_gauge");
+
     setMapLayer(layer);
   } catch (error) {
-    console.error('Error fetching or creating stream sensor layer:', error);
+    console.error("Error fetching or creating stream sensor layer:", error);
   }
 }
 
-// Function to create the Community Sensor layer and set it
-export async function createCommunitySensorLayer(setMapLayer, lat, long, milesRange) {
+export async function createSoilMoistureSensorLayer(
+  setMapLayer,
+  lat,
+  long,
+  milesRange,
+  setTooltip
+) {
   try {
-    const communitySensorsData = await getCommunitySensors(lat, long, milesRange);
-    const communityLayer = new GeoJsonLayer({
-      id: 'community-sensor-layer',
-      data: communitySensorsData,
-      pickable: true,
-      stroked: false,
-      filled: true,
-      pointRadiusMinPixels: 5,
-      getFillColor: [0, 255, 0], // Green color for community sensors
-    });
-    setMapLayer(communityLayer);
+    const communitySensorsData = await getSoilMoistureSensors(lat, long, milesRange);
+    const layer = createIconLayer("SoilMoistureSensors", communitySensorsData, setTooltip, "soil");
+    debugger;
+    setMapLayer(layer);
   } catch (error) {
-    console.error('Error fetching or creating community sensor layer:', error);
+    console.error("Error fetching or creating community sensor layer:", error);
   }
 }
 
 // Function to create the Rain Sensor layer and set it
-export async function createRainSensorLayer(setMapLayer, lat, long, milesRange) {
+export async function createRainSensorLayer(setMapLayer, lat, long, milesRange, setTooltip) {
   try {
     const rainSensorsData = await getRainSensors(lat, long, milesRange);
     const rainLayer = new GeoJsonLayer({
-      id: 'rain-sensor-layer',
+      id: "rain-sensor-layer",
       data: rainSensorsData,
       pickable: true,
       stroked: false,
@@ -78,6 +127,6 @@ export async function createRainSensorLayer(setMapLayer, lat, long, milesRange) 
     });
     setMapLayer(rainLayer);
   } catch (error) {
-    console.error('Error fetching or creating rain sensor layer:', error);
+    console.error("Error fetching or creating rain sensor layer:", error);
   }
 }

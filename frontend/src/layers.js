@@ -150,6 +150,24 @@ const layers = [
         key: "Flood",
         icon: <Icon fontSize="small">Flood</Icon>,
       },
+      // {
+      //   type: "maplayer",
+      //   name: "Rain Gauges",
+      //   key: "RainGauges",
+      //   icon: <Icon fontSize="small">Rain</Icon>,
+      // },
+      {
+        type: "maplayer",
+        name: "Stream Gauges",
+        key: "StreamGauges",
+        icon: <Icon fontSize="small">Steam</Icon>,
+      },
+      {
+        type: "maplayer",
+        name: "Soil Moisture Gauges",
+        key: "SoilMoistureSensors",
+        icon: <Icon fontSize="small">Soil Moisture</Icon>,
+      },
     ],
   },
   {
