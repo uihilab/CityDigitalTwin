@@ -95,6 +95,7 @@ function Map3D() {
 
   const blackHawkBorderDataPath = `${process.env.PUBLIC_URL}/data/black_hawk_county.geojson`;
 
+  const [borderLoaded, setBorderLoaded] = useState(false);
   useEffect(() => {
     // Load Black Hawk County GeoJSON when the map loads
     async function loadBlackHawkCounty() {
@@ -102,7 +103,7 @@ function Map3D() {
       const data = await response.json();
 
       const blackHawkLayer = new GeoJsonLayer({
-        id: 'black-hawk-county',
+        id: 'black-hawk-county-borders',
         data,
         stroked: true,  // Ensure borders are drawn
         filled: false,  // Disable fill color
@@ -112,13 +113,16 @@ function Map3D() {
       });
 
       // Check if 'black-hawk-county' layer exists in layersStatic
-      const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county');
+      const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county-borders');
       if (!layerExists) {
         setMapLayers(blackHawkLayer);
+        setBorderLoaded(true);
       }
     }
 
-    loadBlackHawkCounty();
+    if (!borderLoaded) {
+      loadBlackHawkCounty();
+    }    
   }, []);
 
 
@@ -828,7 +832,7 @@ function Map3D() {
             <HighwayCheckboxComponent setMapLayers={setMapLayers} removeLayer={removeLayer} />
           )}
         </div>
-        <div id="map" style={{ width: "100%", height: "100vh" }}>
+        <div id="map" >
           {/* <StrictMode> */}
             <div
               id="map-container"
@@ -848,9 +852,10 @@ function Map3D() {
                   mapId={GOOGLE_MAP_ID}
                   defaultCenter={{ lat: 42.4937, lng: -92.345 }}
                   defaultZoom={12}
-                  style={{ width: '100%', height: '100%' }}
-                  tilt={45}
+                  // style={{ width: '100%', height: '100%' }}
+                  tilt={0}
                   onClick={handleMapClick}
+                  options={{streetViewControl: false}}
                 >
                   <DeckGLOverlay
                     layers={[mapLayers]}

@@ -100,7 +100,7 @@ const layers = [
       // },
       {
         type: "maplayer",
-        name: "Waste Water Treatment Plants",
+        name: "Waste Water TP",
         key: "wastewater",
         icon: <Icon fontSize="small">WasteWater</Icon>,
         dataPath: `${process.env.PUBLIC_URL}/data/wastewater.geojson`,
@@ -146,7 +146,7 @@ const layers = [
       },
       {
         type: "maplayer",
-        name: "Flood",
+        name: "Flood Maps",
         key: "Flood",
         icon: <Icon fontSize="small">Flood</Icon>,
       },

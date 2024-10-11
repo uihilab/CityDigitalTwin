@@ -45,7 +45,7 @@ export async function RailwayBridgesLayer() {
       //scour_index: feature.properties.scourindex,
       //traffic: feature.properties.traffic,
       //condition: feature.properties.condition,
-      cost: feature.properties.cost,
+      //cost: feature.properties.cost,
       //comment: feature.properties.comment,
     };
 

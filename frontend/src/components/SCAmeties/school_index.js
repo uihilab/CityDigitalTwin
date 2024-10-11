@@ -11,7 +11,7 @@ function formatTooltipData(item) {
     tooltipData += `Number of Students: ${item.Number_Student}\n`;
   }
   if (item.comment !== undefined) {
-    tooltipData += `Comment: ${item.comment}`;
+    tooltipData += `Type: ${item.comment}`;
   }
 
   return tooltipData.trim(); // Remove trailing newline
