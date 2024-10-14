@@ -1,7 +1,6 @@
 import { IconLayer } from "@deck.gl/layers";
 
 function formatTooltipData(item) {
-  debugger;
   let tooltipData = "";
 
   if (item.name !== undefined) {
@@ -32,7 +31,7 @@ function formatTooltipData(item) {
   return tooltipData.trim(); // Remove trailing newline
 }
 
-export async function RailwayBridgesLayer() {
+export async function RailwayBridgesLayer(openDetailsBox) {
   const response = await fetch(`${process.env.PUBLIC_URL}/data/railwaybridge.geojson`);
   const data = await response.json();
 
@@ -65,6 +64,12 @@ export async function RailwayBridgesLayer() {
     getSize: (d) => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
     //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
+      }
+    },
   });
 
   return layerRailwayBridges;

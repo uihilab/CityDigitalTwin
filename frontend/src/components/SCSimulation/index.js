@@ -154,7 +154,7 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
         // Once the overlays are initialized, set the state to true
         setOverlayInitialized(true);
         // Start the traffic simulator
-        startSimulation(); //await startTrafficSimulator(setAnimationLayers, addMapLayerStatic, null, floodYears);
+        startSimulation();
       } catch (error) {
         console.error("Error initializing the map or overlays:", error);
       }

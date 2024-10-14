@@ -43,6 +43,8 @@ import SCSimulation from "components/SCSimulation";
 import { createRainSensorLayer } from "components/SCSensors";
 import { createStreamSensorLayer } from "components/SCSensors";
 import { createSoilMoistureSensorLayer } from "components/SCSensors";
+import DetailsBox from "../DetailsBox/index";
+
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
 const defaultCoords = {lat:  42.4942408813, long: -92.34170190987821 };
@@ -86,6 +88,21 @@ function Map3D() {
   const [clickedObject, setClickedObject] = useState(null);
   const [iconlayerFlood, seticonlayerFlood] = useState(null);
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
+  const [mapTiltAngle, setMapTiltAngle] = useState(0);
+
+   // Central state for the details box
+   const [isDetailsBoxOpen, setIsDetailsBoxOpen] = useState(false);
+   const [detailsContent, setDetailsContent] = useState(null);
+ 
+   // Function to open the details box with content
+   const openDetailsBox = (content) => {
+     setDetailsContent(content);
+     setIsDetailsBoxOpen(true);
+   };
+ 
+   const closeDetailsBox = () => {
+     setIsDetailsBoxOpen(false);
+   };
 
   const [checkboxStateTransit, setCheckboxStateTransit] = useState({
     train: false,
@@ -415,19 +432,19 @@ function Map3D() {
 
       if (key === "Electricpower") {
         const Data = await getElectricData();
-        const powerLayer = createElectricPowerLayer(Data, setTooltip);
+        const powerLayer = createElectricPowerLayer(Data, openDetailsBox);
         setMapLayers(powerLayer);
         return;
       }
 
       if (key === "RailwayCross") {
-        const RailwayCrossingLayer = await AddRailwayCrossingLayer();
+        const RailwayCrossingLayer = await AddRailwayCrossingLayer(openDetailsBox);
         setMapLayers(RailwayCrossingLayer);
         return;
       }
 
       if (key === "Bridges") {
-        const layerBridges = await BridgesgridLayer();
+        const layerBridges = await BridgesgridLayer(openDetailsBox);
         setMapLayers(layerBridges);
         return;
       }
@@ -440,6 +457,7 @@ function Map3D() {
       if (key === "Buildings") {
         const layerBuilding = await BuildingLayer();
         setMapLayers(layerBuilding);
+        setMapTiltAngle(45);
         return;
       }
       if (key === "Drought") {
@@ -518,7 +536,7 @@ function Map3D() {
       if (key === "wells") {
         const wellData = await getWellData();
         setWellData(wellData);
-        const wellLayer = createWellLayer(wellData, setTooltip);
+        const wellLayer = createWellLayer(wellData, openDetailsBox);
         setMapLayers(wellLayer);
       }
       // if (key === "PublicTransitRoutes") {
@@ -547,13 +565,13 @@ function Map3D() {
       }
 
       if (key === "BicycleNetwork") {
-        const BicycleLayer = await loadBicycleLayer();
+        const BicycleLayer = await loadBicycleLayer(openDetailsBox);
         setMapLayers(BicycleLayer);
         return;
       }
 
       if (key === "BicycleAmenities") {
-        const BicycleAmenities = await loadBicycleAmetiesLayer();
+        const BicycleAmenities = await loadBicycleAmetiesLayer(openDetailsBox);
         setMapLayers(BicycleAmenities);
         return;
       }
@@ -570,47 +588,48 @@ function Map3D() {
       }
       if (key === "School") {
         const Data = await getSchoolData();
-        const schoolLayer = createSchoolLayer(Data, setTooltip);
+        const schoolLayer = createSchoolLayer(Data, openDetailsBox);
         setMapLayers(schoolLayer);
         return;
       }
       if (key === "RailBridge") {
-        const Data = await RailwayBridgesLayer();
+        const Data = await RailwayBridgesLayer(openDetailsBox);
         setMapLayers(Data);
         return;
       }
       if (key === "PoliceStations") {
         const Data = await getPolicestationData();
-        const policeLayer = createPoliceStationsLayer(Data, setTooltip);
+        const policeLayer = createPoliceStationsLayer(Data, openDetailsBox);
         setMapLayers(policeLayer);
         return;
       }
       if (key === "FireStations") {
         const Data = await getFirestationData();
-        const fireLayer = createFireStationsLayer(Data, setTooltip);
+        const fireLayer = createFireStationsLayer(Data, openDetailsBox);
         setMapLayers(fireLayer);
         return;
       }
       if (key === "CareFacilities") {
         const Data = await getCareFacilitiesData();
-        const careLayer = createCareFacilitiesLayer(Data, setTooltip);
+        const careLayer = createCareFacilitiesLayer(Data, openDetailsBox);
         setMapLayers(careLayer);
         return;
       }
       if (key === "Communication") {
         const Data = await getCommunicationData();
-        const communicationLayer = createCommunicationLayer(Data, setTooltip);
+        const communicationLayer = createCommunicationLayer(Data, openDetailsBox);
         setMapLayers(communicationLayer);
         return;
       }
       if (key === "wastewater") {
         const Data = await getWasteWaterData();
-        const wastewaterLayer = createWasteWaterLayer(Data, setTooltip);
+        const wastewaterLayer = createWasteWaterLayer(Data, openDetailsBox);
         setMapLayers(wastewaterLayer);
         return;
       }
       await loadLayer(key, dataPath);
     } else {
+      closeDetailsBox();
       if (isRouteCheckboxMenuOpen === true) {
         handlePublicTransitRoutesClick(false);
         return;
@@ -634,6 +653,10 @@ function Map3D() {
           legendElement.remove();
         }
         return;
+      }
+
+      if (key === "Buildings") {
+        setMapTiltAngle(0);
       }
 
       if (key === "Train_Info") {
@@ -799,6 +822,7 @@ function Map3D() {
         activeItems={activeItems}
         setActiveItems={setActiveItems}
       />
+      <DetailsBox isOpen={isDetailsBoxOpen} details={detailsContent} onClose={closeDetailsBox} />
       {isMenuOpenDemographic && (
         <SCDemographicData
           isChartVisible={isChartVisible}
@@ -853,7 +877,7 @@ function Map3D() {
                   defaultCenter={{ lat: 42.4937, lng: -92.345 }}
                   defaultZoom={12}
                   // style={{ width: '100%', height: '100%' }}
-                  tilt={0}
+                  tilt={mapTiltAngle}
                   onClick={handleMapClick}
                   options={{streetViewControl: false}}
                 >

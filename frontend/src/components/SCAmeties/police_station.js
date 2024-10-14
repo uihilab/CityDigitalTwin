@@ -37,7 +37,7 @@ export async function getPolicestationData() {
   }
 }
 
-export const createPoliceStationsLayer = (policeData, setTooltip) => new IconLayer({
+export const createPoliceStationsLayer = (policeData, openDetailsBox) => new IconLayer({
   id: "PoliceStations",
   data: policeData,
   pickable: true,
@@ -47,15 +47,10 @@ export const createPoliceStationsLayer = (policeData, setTooltip) => new IconLay
   sizeScale: 10,
   getPosition: (d) => d.coordinates,
   getSize: (d) => 3, // Adjust the icon size
-  onHover: ({ object, x, y }) => {
-    if (object) {
-      setTooltip({
-        x,
-        y,
-        tooltip_data: object.tooltip_data,
-      });
-    } else {
-      setTooltip(null);
+  onClick: (info, event) => {
+    //console.log("Clicked:", info);
+    if (info.object) {
+      openDetailsBox(info.object.tooltip_data);
     }
   },
 });

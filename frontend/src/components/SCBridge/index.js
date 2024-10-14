@@ -25,7 +25,7 @@ function formatTooltipData(item) {
   return tooltipData.trim(); // Remove trailing newline
 }
 
-export async function BridgesgridLayer() {
+export async function BridgesgridLayer(openDetailsBox) {
 
   const response = await fetch(`${process.env.PUBLIC_URL}/data/iowa_bridges.geojson`);
   const data = await response.json();
@@ -57,6 +57,12 @@ export async function BridgesgridLayer() {
     getSize: (d) => 5,
     getTooltip: ({ object }) => object && object.tooltip_data,
     //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
+      }
+    },
   });
 
   return layerBridges;

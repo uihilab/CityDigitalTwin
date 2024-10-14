@@ -37,7 +37,7 @@ export async function getFirestationData() {
   }
 }
 
-export const createFireStationsLayer = (fireData, setTooltip) => new IconLayer({
+export const createFireStationsLayer = (fireData, openDetailsBox) => new IconLayer({
   id: "FireStations",
   data: fireData,
   pickable: true,
@@ -47,15 +47,10 @@ export const createFireStationsLayer = (fireData, setTooltip) => new IconLayer({
   sizeScale: 10,
   getPosition: (d) => d.coordinates,
   getSize: (d) => 3, // Adjust the icon size
-  onHover: ({ object, x, y }) => {
-    if (object) {
-      setTooltip({
-        x,
-        y,
-        tooltip_data: object.tooltip_data,
-      });
-    } else {
-      setTooltip(null);
+  onClick: (info, event) => {
+    //console.log("Clicked:", info);
+    if (info.object) {
+      openDetailsBox(info.object.tooltip_data);
     }
   },
 });

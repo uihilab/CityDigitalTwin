@@ -17,7 +17,7 @@ function formatTooltipData(item) {
     return tooltipData.trim(); // Remove trailing newline
   }
 
-export async function loadBicycleAmetiesLayer() {
+export async function loadBicycleAmetiesLayer(openDetailsBox) {
     const ameties = await fetch(`${process.env.PUBLIC_URL}/data/bicycleameties.geojson`);
     if (!ameties.ok) {
         throw new Error(`HTTP error! status: ${ameties.status}`);
@@ -48,6 +48,12 @@ export async function loadBicycleAmetiesLayer() {
         getSize: (d) => 6,
         getTooltip: ({ object }) => object && object.tooltip_data,
         //getColor: d => [255, 0, 0],
+        onClick: (info, event) => {
+          //console.log("Clicked:", info);
+          if (info.object) {
+            openDetailsBox(info.object.tooltip_data);
+          }
+        },
       });
       return AmetiesLayer;
 }

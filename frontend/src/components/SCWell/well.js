@@ -44,7 +44,7 @@ export async function getWellData() {
   }
 }
 
-export const createWellLayer = (wellData, setTooltip) =>
+export const createWellLayer = (wellData, openDetailsBox) =>
   new IconLayer({
     id: "WellLayer",
     data: wellData,
@@ -61,15 +61,10 @@ export const createWellLayer = (wellData, setTooltip) =>
     sizeScale: 7,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 3, // Adjust the icon size
-    onHover: ({ object, x, y }) => {
-      if (object) {
-        setTooltip({
-          x,
-          y,
-          tooltip_data: object.tooltip_data,
-        });
-      } else {
-        setTooltip(null);
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
       }
     },
   });

@@ -2,7 +2,7 @@ import { IconLayer } from "@deck.gl/layers";
 
 // Function to format the tooltip data for communication facilities
 function formatTooltipData(item) {
-  let tooltipData = '';
+  let tooltipData = "";
 
   if (item.comm_city !== undefined) {
     tooltipData += `City: ${item.comm_city}\n`;
@@ -33,25 +33,21 @@ export async function getCommunicationData() {
   }
 }
 
-export const createCommunicationLayer = (communicationData, setTooltip) => new IconLayer({
-  id: "Communication",
-  data: communicationData,
-  pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
-  getIcon: (d) => "icons8-radio-station-32",
-  sizeScale: 10,
-  getPosition: (d) => d.coordinates,
-  getSize: (d) => 3, // Adjust the icon size
-  onHover: ({ object, x, y }) => {
-    if (object) {
-      setTooltip({
-        x,
-        y,
-        tooltip_data: object.tooltip_data,
-      });
-    } else {
-      setTooltip(null);
-    }
-  },
-});
+export const createCommunicationLayer = (communicationData, openDetailsBox) =>
+  new IconLayer({
+    id: "Communication",
+    data: communicationData,
+    pickable: true,
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
+    getIcon: (d) => "icons8-radio-station-32",
+    sizeScale: 10,
+    getPosition: (d) => d.coordinates,
+    getSize: (d) => 3, // Adjust the icon size
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
+      }
+    },
+  });

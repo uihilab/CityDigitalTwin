@@ -1,6 +1,6 @@
 import { IconLayer } from "@deck.gl/layers";
 
-export async function AddRailwayCrossingLayer() {
+export async function AddRailwayCrossingLayer(openDetailsBox) {
     const response = await fetch(`${process.env.PUBLIC_URL}/data/Rail_Crossing.geojson`);
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -31,6 +31,12 @@ export async function AddRailwayCrossingLayer() {
         getSize: d => 5,
         getTooltip: ({ object }) => object && object.tooltip_data,
         //getColor: d => [255, 0, 0],
+        onClick: (info, event) => {
+            //console.log("Clicked:", info);
+            if (info.object) {
+              openDetailsBox(info.object.tooltip_data);
+            }
+          },
     });
     debugger;
     return layerRailway;

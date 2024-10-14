@@ -38,7 +38,7 @@ export async function getWasteWaterData() {
   }
 }
 
-export const createWasteWaterLayer = (wastewaterData, setTooltip) => {
+export const createWasteWaterLayer = (wastewaterData, openDetailsBox) => {
   const wastewaterLayer = new IconLayer({
     id: "wastewater",
     data: wastewaterData,
@@ -49,16 +49,10 @@ export const createWasteWaterLayer = (wastewaterData, setTooltip) => {
     sizeScale: 5,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 3, // İkon boyutunu ayarlayın
-    onHover: ({ object, x, y }) => {
-      if (object) {
-        const tooltipData = formatTooltipData(object);
-        setTooltip({
-          x,
-          y,
-          tooltip_data: tooltipData,
-        });
-      } else {
-        setTooltip(null);
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
       }
     },
   });

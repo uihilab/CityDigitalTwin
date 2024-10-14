@@ -50,7 +50,7 @@ export async function getElectricData() {
   return result;
 }
 
-export const createElectricPowerLayer = (powerData, setTooltip) => {
+export const createElectricPowerLayer = (powerData, openDetailsBox) => {
   const powerLayer = new IconLayer({
     id: "Electricpower",
     data: powerData,
@@ -59,16 +59,12 @@ export const createElectricPowerLayer = (powerData, setTooltip) => {
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
     getIcon: (d) => "s4",
     sizeScale: 5,
-    getPosition: d => d.coordinates,
-    getSize: d => 3, // İkon boyutunu ayarlayın
-    onHover: ({ object, x, y }) => {
-      if (object) {
-        const tooltipData = formatTooltipData(object);
-        setTooltip({
-          x,
-          y,
-          tooltip_data: tooltipData,
-        });
+    getPosition: (d) => d.coordinates,
+    getSize: (d) => 3,
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
       }
     },
   });

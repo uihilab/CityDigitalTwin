@@ -2,7 +2,7 @@ import { IconLayer } from "@deck.gl/layers";
 
 // Function to format the tooltip data for care facilities
 function formatTooltipData(item) {
-  let tooltipData = '';
+  let tooltipData = "";
 
   if (item.carefacilities_name !== undefined) {
     tooltipData += `Name: ${item.carefacilities_name}\n`;
@@ -45,25 +45,21 @@ export async function getCareFacilitiesData() {
   }
 }
 
-export const createCareFacilitiesLayer = (careData, setTooltip) => new IconLayer({
-  id: "CareFacilities",
-  data: careData,
-  pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
-  getIcon: (d) => "care-facilities",
-  sizeScale: 10,
-  getPosition: (d) => d.coordinates,
-  getSize: (d) => 3, // Adjust the icon size
-  onHover: ({ object, x, y }) => {
-    if (object) {
-      setTooltip({
-        x,
-        y,
-        tooltip_data: object.tooltip_data,
-      });
-    } else {
-      setTooltip(null);
-    }
-  },
-});
+export const createCareFacilitiesLayer = (careData, openDetailsBox) =>
+  new IconLayer({
+    id: "CareFacilities",
+    data: careData,
+    pickable: true,
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
+    getIcon: (d) => "care-facilities",
+    sizeScale: 10,
+    getPosition: (d) => d.coordinates,
+    getSize: (d) => 3, // Adjust the icon size
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.tooltip_data);
+      }
+    },
+  });
