@@ -16,7 +16,7 @@ import { startTrafficSimulator } from "components/TrafficSimulator";
 import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
-import { getTrafficEventData } from "../SCEvents/TrafficEvent";
+import { createTrafficEventLayer, getTrafficEventData } from "../SCEvents/TrafficEvent";
 import { renderAirQualityChart, FetchAirQuality, createMenu, addIconToMap, removeMenu, showDailyDetails } from "../SCAQ/index";
 import { getWeatherLayer, getWeatherLayersForAllLocations } from "../SCWeather/index";
 import Popup from "./Popup";
@@ -96,8 +96,11 @@ function Map3D() {
  
    // Function to open the details box with content
    const openDetailsBox = (content) => {
-     setDetailsContent(content);
-     setIsDetailsBoxOpen(true);
+    setDetailsContent(content);
+    if(content)
+    {
+      setIsDetailsBoxOpen(true);
+    } 
    };
  
    const closeDetailsBox = () => {
@@ -202,7 +205,7 @@ function Map3D() {
             removeLayer(WeathericonLayer.id);
           }
           // Hava durumu verilerini kullanarak iconları haritaya ekle
-          const layer = await getWeatherLayer(latitude, longitude);
+          const layer = await getWeatherLayer(latitude, longitude, openDetailsBox);
           setMapLayers(layer);
           setWeatherIconLayer(layer);
         } catch (error) {
@@ -354,32 +357,6 @@ function Map3D() {
     }
   };
 
-  async function loadTransportationEvents() {
-    try {
-      const trafficEventData = await getTrafficEventData();
-
-      const layerEvent = new IconLayer({
-        id: "TransEvents",
-        data: trafficEventData,
-        pickable: true,
-        iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
-        iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
-        getIcon: (d) => "wa3",
-        sizeScale: 1,
-        getPosition: (d) => d.coordinates,
-        getSize: (d) => 50,
-        getColor: (d) => [255, 255, 255],
-        getAngle: (d) => 0,
-        onClick: (info) => {
-          expandTooltip(info);
-        },
-      });
-
-      loadLayerwithLayer(layerEvent);
-    } catch (error) {
-      console.error("Error fetching event:", error);
-    }
-  }
   // PublicTransitRoutes linkine tıklandığında checkbox menüsünü açacak fonksiyon
   const handlePublicTransitRoutesClick = (isRouteLayer) => {
     setIsRouteCheckboxMenuOpen(isRouteLayer);
@@ -425,14 +402,14 @@ function Map3D() {
         return;
       }
       if (key === "Electricgrid") {
-        const Layer = await ElectricgridLayer();
+        const Layer = await ElectricgridLayer(openDetailsBox);
         setMapLayers(Layer);
         return;
       }
 
       if (key === "Electricpower") {
-        const Data = await getElectricData();
-        const powerLayer = createElectricPowerLayer(Data, openDetailsBox);
+        const data = await getElectricData();
+        const powerLayer = createElectricPowerLayer(data, openDetailsBox);
         setMapLayers(powerLayer);
         return;
       }
@@ -450,12 +427,15 @@ function Map3D() {
       }
 
       if (key === "TransEvents") {
-        await loadTransportationEvents();
+        debugger;
+        const data = await getTrafficEventData();
+        const layer = createTrafficEventLayer(data, openDetailsBox);
+        setMapLayers(layer);
         return;
       }
 
       if (key === "Buildings") {
-        const layerBuilding = await BuildingLayer();
+        const layerBuilding = await BuildingLayer(openDetailsBox);
         setMapLayers(layerBuilding);
         setMapTiltAngle(45);
         return;
@@ -485,7 +465,7 @@ function Map3D() {
         setIsFloodLayerSelected(true);
         const layer = await getFloodLayer("flood", currentLayerFlood);
         setMapLayers(layer);
-        const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040);
+        const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040, openDetailsBox);
         setMapLayers(FloodDamageIconLayer);
         setIsMenuOpenFlood(true);
         return;
@@ -502,7 +482,7 @@ function Map3D() {
       }
       if (key === "WForecast") {
         //removeLayer("WForecast");
-        const weatherLayer = await getWeatherLayersForAllLocations();
+        const weatherLayer = await getWeatherLayersForAllLocations(openDetailsBox);
         setMapLayers(weatherLayer); // Tek bir katman olarak ekliyoruz
         setWeatherIconLayer(weatherLayer);
         return;
@@ -545,7 +525,7 @@ function Map3D() {
       // }
       if (key === "Bus_Info") {
         const busLayer = await loadBusLayer();
-        const busStop = await loadBusStopLayer();
+        const busStop = await loadBusStopLayer(openDetailsBox);
         setMapLayers(busStop);
         setMapLayers(busLayer);
         return;
@@ -558,7 +538,7 @@ function Map3D() {
         setrailwayData(railLayer);
 
         const railwaystations = await FetchRailwayStations();
-        const stationslayer= await CreateRailwayStations(railwaystations);
+        const stationslayer= await CreateRailwayStations(railwaystations, openDetailsBox);
         setMapLayers(stationslayer);
 
         return;

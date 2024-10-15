@@ -1,31 +1,16 @@
-import { IconLayer, GeoJsonLayer } from "@deck.gl/layers";
+import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-function formatTooltipData(item) {
-  let tooltipData = '';
+const keyMappings = {
+  plant_name: "Plant Name",
+  city: "City",
+  county: "County",
+  operator_name: "Operator",
+  fuel_type: "Fuel Type",
+  capacity: "Capacity (MW)",
+};
 
-  if (item.plant_name !== undefined) {
-    tooltipData += `Plant Name: ${item.plant_name}\n`;
-  }
-  if (item.city !== undefined) {
-    tooltipData += `City: ${item.city}\n`;
-  }
-  if (item.county !== undefined) {
-    tooltipData += `County: ${item.county}\n`;
-  }
-  if (item.operator_name !== undefined) {
-    tooltipData += `Operator: ${item.operator_name}\n`;
-  }
-  if (item.fuel_type !== undefined) {
-    tooltipData += `Fuel Type: ${item.fuel_type}\n`;
-  }
-  if (item.capacity !== undefined) {
-    tooltipData += `Capacity (MW): ${item.capacity}\n`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
-
-export async function ElectricgridLayer() {
+export async function ElectricgridLayer(openDetailsBox) {
   const response = await fetch(`${process.env.PUBLIC_URL}/data/PowerPlants.json`);
   const data = await response.json();
 
@@ -40,7 +25,8 @@ export async function ElectricgridLayer() {
       capacity: feature.properties.namepcap,
     };
 
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
 
@@ -55,7 +41,11 @@ export async function ElectricgridLayer() {
     getPosition: d => d.coordinates,
     getSize: d => 5,
     getTooltip: ({ object }) => object && object.tooltip_data,
-    //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
   });
 
   return layerPower;

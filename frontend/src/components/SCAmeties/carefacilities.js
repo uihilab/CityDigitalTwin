@@ -1,27 +1,13 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "components/SC3DBuilding/formatObjectData";
 
-// Function to format the tooltip data for care facilities
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.carefacilities_name !== undefined) {
-    tooltipData += `Name: ${item.carefacilities_name}\n`;
-  }
-  if (item.carefacilities_city !== undefined) {
-    tooltipData += `City: ${item.carefacilities_city}\n`;
-  }
-  if (item.carefacilities_address !== undefined) {
-    tooltipData += `Address: ${item.carefacilities_address}\n`;
-  }
-  if (item.carefacilities_phonenumber !== undefined) {
-    tooltipData += `Phone Number: ${item.carefacilities_phonenumber}\n`;
-  }
-  if (item.carefacilities_numbeds !== undefined) {
-    tooltipData += `Number of Beds: ${item.carefacilities_numbeds}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  carefacilities_name: "Name",
+  carefacilities_city: "City",
+  carefacilities_address: "Address",
+  carefacilities_phonenumber: "Phone Number",
+  carefacilities_numbeds: "Number of Beds",
+};
 
 export async function getCareFacilitiesData() {
   try {
@@ -37,7 +23,8 @@ export async function getCareFacilitiesData() {
         carefacilities_numbeds: feature.properties.numbeds,
       };
 
-      item.tooltip_data = formatTooltipData(item);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return item;
     });
   } catch (error) {
@@ -57,9 +44,8 @@ export const createCareFacilitiesLayer = (careData, openDetailsBox) =>
     getPosition: (d) => d.coordinates,
     getSize: (d) => 3, // Adjust the icon size
     onClick: (info, event) => {
-      //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });

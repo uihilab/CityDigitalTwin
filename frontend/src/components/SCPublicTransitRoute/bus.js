@@ -1,5 +1,6 @@
 import { GeoJsonLayer } from "deck.gl";
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
 // Function to generate a sharper color based on the length of the coordinates array for each round
 function generateSharpColorBasedOnRoundLength(coordinatesLength) {
@@ -99,20 +100,12 @@ export async function loadBusLayer() {
   });
   return layers;
 }
+const keyMappings = {
+  stop_name: "Stop Name",
+  wheelchair: "Wheelchair Capacity",
+};
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.stop_name !== undefined) {
-    tooltipData += `Stop Name: ${item.stop_name}\n`;
-  }
-  if (item.wheelchair !== undefined) {
-    tooltipData += `wheelchair: ${item.wheelchair}\n`;
-  }
-  return tooltipData.trim(); // Remove trailing newline
-}
-
-export async function loadBusStopLayer() {
+export async function loadBusStopLayer(openDetailsBox) {
   const busStop = await fetch(`${process.env.PUBLIC_URL}/data/busstop.geojson`);
   if (!busStop.ok) {
     throw new Error(`HTTP error! status: ${busRoute.status}`);
@@ -124,7 +117,8 @@ export async function loadBusStopLayer() {
       coordinates: feature.geometry.coordinates,
       wheelchair: feature.properties.wheelchair,
     };
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
 
@@ -139,7 +133,11 @@ export async function loadBusStopLayer() {
     getPosition: (d) => d.coordinates,
     getSize: (d) => 5,
     getTooltip: ({ object }) => object && object.tooltip_data,
-    //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
   });
   return StopLayer;
 }

@@ -1,21 +1,11 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-// Function to format the tooltip data for fire stations
-function formatTooltipData(item) {
-  let tooltipData = '';
-
-  if (item.firestations_name !== undefined) {
-    tooltipData += `Name: ${item.firestations_name}\n`;
-  }
-  if (item.firestations_city !== undefined) {
-    tooltipData += `City: ${item.firestations_city}\n`;
-  }
-  if (item.firestations_address !== undefined) {
-    tooltipData += `Address: ${item.firestations_address}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  firestations_name: "Name",
+  firestations_city: "City",
+  firestations_address: "Address",
+};
 
 export async function getFirestationData() {
   try {
@@ -29,7 +19,8 @@ export async function getFirestationData() {
         firestations_address: feature.properties.address,
       };
 
-      item.tooltip_data = formatTooltipData(item);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return item;
     });
   } catch (error) {
@@ -50,7 +41,7 @@ export const createFireStationsLayer = (fireData, openDetailsBox) => new IconLay
   onClick: (info, event) => {
     //console.log("Clicked:", info);
     if (info.object) {
-      openDetailsBox(info.object.tooltip_data);
+      openDetailsBox(info.object.details_data);
     }
   },
 });

@@ -1,19 +1,11 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.wastewater_name !== undefined) {
-    tooltipData += `Name: ${item.wastewater_name}\n`;
-  }
-  if (item.wastewater_city !== undefined) {
-    tooltipData += `City: ${item.wastewater_city}\n`;
-  }
-  if (item.wastewater_address !== undefined) {
-    tooltipData += `Address: ${item.wastewater_address}\n`;
-  }
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  wastewater_name: "Name",
+  wastewater_city: "City",
+  wastewater_address: "Address",
+};
 
 export async function getWasteWaterData() {
   try {
@@ -27,7 +19,8 @@ export async function getWasteWaterData() {
         wastewater_city: feature.properties.city,
         wastewater_address: feature.properties.address,
       };
-      item.tooltip_data = formatTooltipData(item);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return item;
     });
 
@@ -48,11 +41,10 @@ export const createWasteWaterLayer = (wastewaterData, openDetailsBox) => {
     getIcon: (d) => "s5",
     sizeScale: 5,
     getPosition: (d) => d.coordinates,
-    getSize: (d) => 3, // İkon boyutunu ayarlayın
+    getSize: (d) => 3,
     onClick: (info, event) => {
-      //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });

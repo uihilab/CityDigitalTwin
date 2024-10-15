@@ -1,21 +1,11 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-// Function to format the tooltip data for schools
-function formatTooltipData(item) {
-  let tooltipData = '';
-
-  if (item.Name !== undefined) {
-    tooltipData += `Name: ${item.Name}\n`;
-  }
-  if (item.Number_Student !== undefined) {
-    tooltipData += `Number of Students: ${item.Number_Student}\n`;
-  }
-  if (item.comment !== undefined) {
-    tooltipData += `Type: ${item.comment}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  Name: "Name",
+  Number_Student: "Number of Students",
+  comment: "Type",
+};
 
 export async function getSchoolData() {
   try {
@@ -29,7 +19,8 @@ export async function getSchoolData() {
         comment: feature.properties.comment,
       };
 
-      item.tooltip_data = formatTooltipData(item);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return item;
     });
   } catch (error) {
@@ -37,20 +28,20 @@ export async function getSchoolData() {
   }
 }
 
-export const createSchoolLayer = (schoolData, openDetailsBox) => new IconLayer({
-  id: "School",
-  data: schoolData,
-  pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
-  getIcon: (d) => "school_937018",
-  sizeScale: 10,
-  getPosition: (d) => d.coordinates,
-  getSize: (d) => 3, // Adjust the icon size
-  onClick: (info, event) => {
-    //console.log("Clicked:", info);
-    if (info.object) {
-      openDetailsBox(info.object.tooltip_data);
-    }
-  },
-});
+export const createSchoolLayer = (schoolData, openDetailsBox) =>
+  new IconLayer({
+    id: "School",
+    data: schoolData,
+    pickable: true,
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas_ameni.png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map_ameni.json`,
+    getIcon: (d) => "school_937018",
+    sizeScale: 10,
+    getPosition: (d) => d.coordinates,
+    getSize: (d) => 3, // Adjust the icon size
+    onClick: (info, event) => {
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
+  });

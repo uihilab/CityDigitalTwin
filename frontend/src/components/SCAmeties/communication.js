@@ -1,18 +1,11 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-// Function to format the tooltip data for communication facilities
-function formatTooltipData(item) {
-  let tooltipData = "";
+const keyMappings = {
+  comm_city: "City",
+  comm_owner: "Owner",
+};
 
-  if (item.comm_city !== undefined) {
-    tooltipData += `City: ${item.comm_city}\n`;
-  }
-  if (item.comm_owner !== undefined) {
-    tooltipData += `Owner: ${item.comm_owner}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
 
 export async function getCommunicationData() {
   try {
@@ -25,7 +18,8 @@ export async function getCommunicationData() {
         comm_owner: feature.properties.owner,
       };
 
-      item.tooltip_data = formatTooltipData(item);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return item;
     });
   } catch (error) {
@@ -47,7 +41,7 @@ export const createCommunicationLayer = (communicationData, openDetailsBox) =>
     onClick: (info, event) => {
       //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });

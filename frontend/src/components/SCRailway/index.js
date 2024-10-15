@@ -1,20 +1,13 @@
 import { GeoJsonLayer } from "@deck.gl/layers";
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-  if (item.name !== undefined) {
-    tooltipData += `Name: ${item.name}\n`;
-  }
-  if (item.station_number !== undefined) {
-    tooltipData += `Station Number: ${item.station_number}\n`;
-  }
-  if (item.station_type !== undefined) {
-    tooltipData += `Station Type: ${item.station_type}\n`;
+const keyMappings = {
+  name: "Name",
+  station_number: "Station Number",
+  station_type: "Station Type",
+};
 
-    return tooltipData.trim(); // Remove trailing newline
-  }
-}
 export async function fetchRailwayData() {
   const response = await fetch(`${process.env.PUBLIC_URL}/data/Rail_Line_Active.geojson`);
   if (!response.ok) {
@@ -37,7 +30,7 @@ export function CreateRailwayLayer(geojsonData) {
   });
   return layers;
 }
-export async function CreateRailwayStations(geojsonData) {
+export async function CreateRailwayStations(geojsonData, openDetailsBox) {
   const processedData = geojsonData.features.map((feature) => {
     const item = {
       name: feature.properties.NAME,
@@ -50,7 +43,8 @@ export async function CreateRailwayStations(geojsonData) {
       station_type: feature.properties.BASE_STATION_TYPE,
     };
 
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
 
@@ -65,7 +59,11 @@ export async function CreateRailwayStations(geojsonData) {
     getPosition: (d) => d.coordinates,
     getSize: (d) => 5,
     getTooltip: ({ object }) => object && object.tooltip_data,
-    //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
   });
   return layerRailway;
 }

@@ -1,35 +1,17 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.name !== undefined) {
-    tooltipData += `Bridge Name: ${item.name}\n`;
-  }
-  if (item.year_built !== undefined && item.year_built > 0) {
-    tooltipData += `Year Built: ${item.year_built}\n`;
-  }
-  // if (item.foundation !== undefined) {
-  //   tooltipData += `Foundation: ${item.foundation}\n`;
-  // }
-  // if (item.scour_index !== undefined) {
-  //   tooltipData += `Scour Index: ${item.scour_index}\n`;
-  // }
-  // if (item.traffic !== undefined) {
-  //   tooltipData += `Traffic: ${item.traffic}\n`;
-  // }
-  // if (item.condition !== undefined) {
-  //   tooltipData += `Condition: ${item.condition}\n`;
-  // }
-  if (item.cost !== undefined) {
-    tooltipData += `Cost: ${item.cost}\n`;
-  }
-  // if (item.comment !== undefined) {
-  //   tooltipData += `Comment: ${item.comment}`;
-  // }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  name: "Bridge Name",
+  year_built: "Year Built",
+  cost: "Cost",
+  // You can uncomment and add these as needed:
+  // foundation: "Foundation",
+  // scour_index: "Scour Index",
+  // traffic: "Traffic",
+  // condition: "Condition",
+  // comment: "Comment",
+};
 
 export async function RailwayBridgesLayer(openDetailsBox) {
   const response = await fetch(`${process.env.PUBLIC_URL}/data/railwaybridge.geojson`);
@@ -48,7 +30,8 @@ export async function RailwayBridgesLayer(openDetailsBox) {
       //comment: feature.properties.comment,
     };
 
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
 
@@ -63,11 +46,9 @@ export async function RailwayBridgesLayer(openDetailsBox) {
     getPosition: (d) => d.coordinates,
     getSize: (d) => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
-    //getColor: d => [255, 0, 0],
     onClick: (info, event) => {
-      //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });

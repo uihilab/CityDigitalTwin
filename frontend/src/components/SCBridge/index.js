@@ -1,32 +1,16 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.bridge_name !== undefined) {
-    tooltipData += `Bridge Name: ${item.bridge_name}\n`;
-  }
-  if (item.city !== undefined) {
-    tooltipData += `City: ${item.city}\n`;
-  }
-  if (item.county !== undefined) {
-    tooltipData += `County: ${item.county}\n`;
-  }
-  if (item.condition !== undefined) {
-    tooltipData += `Condition: ${item.condition}\n`;
-  }
-  if (item.sufficiency !== undefined) {
-    tooltipData += `Sufficiency Rating: ${item.sufficiency}\n`;
-  }
-  if (item.age !== undefined) {
-    tooltipData += `Age: ${item.age}\n`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  bridge_name: "Bridge Name",
+  city: "City",
+  county: "County",
+  condition: "Condition",
+  sufficiency: "Sufficiency Rating",
+  age: "Age",
+};
 
 export async function BridgesgridLayer(openDetailsBox) {
-
   const response = await fetch(`${process.env.PUBLIC_URL}/data/iowa_bridges.geojson`);
   const data = await response.json();
 
@@ -41,7 +25,8 @@ export async function BridgesgridLayer(openDetailsBox) {
       age: feature.properties.Age,
     };
 
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
 
@@ -60,7 +45,7 @@ export async function BridgesgridLayer(openDetailsBox) {
     onClick: (info, event) => {
       //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });

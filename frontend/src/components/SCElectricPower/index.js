@@ -1,32 +1,14 @@
 import { IconLayer } from "@deck.gl/layers";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.e_name !== undefined) {
-    tooltipData += `Name: ${item.e_name}\n`;
-  }
-  if (item.e_city !== undefined) {
-    tooltipData += `City: ${item.e_city}\n`;
-  }
-  if (item.e_owner !== undefined) {
-    tooltipData += `Owner: ${item.e_owner}\n`;
-  }
-  if (item.e_contact !== undefined) {
-    tooltipData += `Contact: ${item.e_contact}\n`;
-  }
-  if (item.e_capacity !== undefined) {
-    tooltipData += `Capacity: ${item.e_capacity}\n`;
-  }
-  if (item.e_cost !== undefined) {
-    tooltipData += `Cost: ${item.e_cost}\n`;
-  }
-  if (item.e_comment !== undefined) {
-    tooltipData += `Comment: ${item.e_comment}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  e_name: "Name",
+  e_city: "City",
+  e_owner: "Owner",
+  e_contact: "Contact",
+  e_capacity: "Capacity",
+  e_cost: "Cost",
+  e_comment: "Comment",
+};
 
 export async function getElectricData() {
   const response = await fetch(`${process.env.PUBLIC_URL}/data/electiricpowerfacilities.geojson`);
@@ -43,7 +25,8 @@ export async function getElectricData() {
       e_cost: feature.properties.cost,
       e_comment: feature.properties.comment,
     };
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
 
@@ -62,9 +45,8 @@ export const createElectricPowerLayer = (powerData, openDetailsBox) => {
     getPosition: (d) => d.coordinates,
     getSize: (d) => 3,
     onClick: (info, event) => {
-      //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });

@@ -1,36 +1,16 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-// Function to format the tooltip data for traffic events
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.name !== undefined) {
-    tooltipData += `Name: ${item.name}\n`;
-  }
-  if (item.classType !== undefined) {
-    tooltipData += `Class: ${item.classType}\n`;
-  }
-  if (item.mass !== undefined) {
-    tooltipData += `Priority: ${item.mass}\n`;
-  }
-  if (item.year !== undefined) {
-    tooltipData += `Year: ${item.year}\n`;
-  }
-  if (item.updateDate !== undefined) {
-    tooltipData += `Update Date: ${item.updateDate}\n`;
-  }
-  if (item.route !== undefined) {
-    tooltipData += `Route: ${item.route}\n`;
-  }
-  if (item.endTime !== undefined) {
-    tooltipData += `End Time: ${item.endTime}\n`;
-  }
-  if (item.description !== undefined) {
-    tooltipData += `Description: ${item.description}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  name: "Name",
+  classType: "Class",
+  mass: "Priority",
+  year: "Year",
+  updateDate: "Update Date",
+  route: "Route",
+  endTime: "End Time",
+  description: "Description",
+};
 
 export async function getTrafficEventData() {
   try {
@@ -69,31 +49,29 @@ export function convertToMarkers(jsonData) {
       description,
     };
 
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
   return convertedData;
 }
 
-export const createTrafficEventLayer = (trafficEventData, setTooltip) => new IconLayer({
-  id: "TrafficEventLayer",
-  data: trafficEventData,
-  pickable: true,
-  iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
-  iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
-  getIcon: (d) => "wa3",
-  sizeScale: 10,
-  getPosition: (d) => d.coordinates,
-  getSize: (d) => 3, // Adjust the icon size
-  onHover: ({ object, x, y }) => {
-    if (object) {
-      setTooltip({
-        x,
-        y,
-        tooltip_data: object.tooltip_data,
-      });
-    } else {
-      setTooltip(null);
-    }
-  },
-});
+export const createTrafficEventLayer = (trafficEventData, openDetailsBox) =>
+  new IconLayer({
+    id: "TransEvents",
+    data: trafficEventData,
+    pickable: true,
+    iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
+    iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
+    getIcon: (d) => "wa3",
+    sizeScale: 10,
+    getPosition: (d) => d.coordinates,
+    getSize: (d) => 3, // Adjust the icon size
+    getTooltip: ({ object }) => object && object.tooltip_data,
+    onClick: (info, event) => {
+      console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
+  });

@@ -1,26 +1,41 @@
 .details-box {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: white;
-    border: 1px solid #ccc;
-    padding: 15px;
-    z-index: 9999;
-    width: 300px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .close-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 18px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-  
-  .details-content {
-    padding: 10px;
-  }
-  
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(195deg, #42424a, #191919); /* Gradient background */
+  color: white; /* Set text color to white */
+  border: 1px solid #ccc;
+  padding: 15px;
+  z-index: 9999;
+  width: 300px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: white; /* Set close button text color to white */
+}
+
+.close-btn:hover {
+  color: #ddd; /* Change the close button color on hover */
+}
+
+.details-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: white; /* Ensure the title is white */
+}
+
+.details-content {
+  padding: 10px;
+  color: white; /* Ensure all content text is white */
+}

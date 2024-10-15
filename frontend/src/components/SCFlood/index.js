@@ -1,27 +1,15 @@
 // SCFlood/index.js
 import { GeoJsonLayer, IconLayer } from "@deck.gl/layers";
-import React, { useState } from "react";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
+import React from "react";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.ID !== undefined) {
-    tooltipData += `ID: ${item.ID}\n`;
-  }
-  if (item.strDamage !== undefined) {
-    tooltipData += `Structural Damage (percent): ${item.strDamage}\n`;
-  }
-  if (item.dollarDamage !== undefined) {
-    tooltipData += `Structural Damage (dolar): ${item.dollarDamage}\n`;
-  }
-  if (item.cntDamagePercentage !== undefined) {
-    tooltipData += `Content Damage (percent): ${item.cntDamagePercentage}\n`;
-  }
-  if (item.cntDamageDollar !== undefined) {
-    tooltipData += `Content Damage (dolar): ${item.cntDamageDollar}\n`;
-  }
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  ID: "ID",
+  strDamage: "Structural Damage (%)",
+  dollarDamage: "Structural Damage ($)",
+  cntDamagePercentage: "Content Damage (%)",
+  cntDamageDollar: "Content Damage ($)",
+};
 
 // Helper function to calculate the marker index based on damage percentages
 function calculateMarkerIndex(stprct, cnprct) {
@@ -41,7 +29,7 @@ function getHazardColor(stprct, cnprct)
   return markers[index];
 }
 
-export async function createFloodDamageIconLayer(mapid) {
+export async function createFloodDamageIconLayer(mapid, openDetailsBox) {
   const url = `https://ifis.iowafloodcenter.org/ifis/app/inc/inc_get_hazusdata.php?mapid=${mapid}`;
 
   try {
@@ -61,7 +49,8 @@ export async function createFloodDamageIconLayer(mapid) {
         cntDamagePercentage: item[5],
         cntDamageDollar: item[6],
       };
-      dataItem.tooltip_data = formatTooltipData(dataItem);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return dataItem;
     });
 
@@ -78,6 +67,11 @@ export async function createFloodDamageIconLayer(mapid) {
       getSize: (d) => 1,
       getColor: (d) => [255, 0, 0],
       getTooltip: ({ object }) => object && object.tooltip_data,
+      onClick: (info, event) => {
+        if (info.object) {
+          openDetailsBox(info.object.details_data);
+        }
+      },
     });
 
     return iconLayer;

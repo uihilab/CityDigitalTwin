@@ -1,31 +1,16 @@
 
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 import { icon } from "leaflet";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.temperature !== undefined) {
-    tooltipData += `Temperature: ${item.temperature}°C\n`;
-  }
-  if (item.windspeed !== undefined) {
-    tooltipData += `Wind Speed: ${item.windspeed}km/h\n`;
-  }
-  if (item.winddirection !== undefined) {
-    tooltipData += `Wind Direction: ${item.winddirection}°\n`;
-  }
-  if (item.time !== undefined) {
-    tooltipData += `Time: ${item.time}\n`;
-  }
-  if (item.elevation !== undefined) {
-    tooltipData += `Elevation: ${item.elevation}m\n`;
-  }
-  if (item.timezone !== undefined) {
-    tooltipData += `Time Zone: ${item.timezone}`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  temperature: "Temperature",
+  windspeed: "Wind Speed",
+  winddirection: "Wind Direction",
+  time: "Time",
+  elevation: "Elevation",
+  timezone: "Time Zone",
+};
 
 // Coordinates for Waterloo, IA
 const test = [
@@ -48,7 +33,7 @@ const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 128, mask: true }
 };
 
-export async function getWeatherLayer(latitude, longitude ) {
+export async function getWeatherLayer(latitude, longitude, openDetailsBox) {
   const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
   const data = await response.json();
 
@@ -63,7 +48,8 @@ export async function getWeatherLayer(latitude, longitude ) {
       coordinates: [data.longitude, data.latitude]//[-92.3426, 42.4928]//
     };
 
-    item.tooltip_data = formatTooltipData(item);
+    item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+    item.details_data = formatObjectData(item, keyMappings, "details");
     return [item]; // Wrap the item in an array
   })();
   
@@ -79,7 +65,11 @@ export async function getWeatherLayer(latitude, longitude ) {
     getPosition: d =>  d.coordinates ,
     getSize: d => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
-    //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
   });
 
   // const iconLayer = new IconLayer({
@@ -96,7 +86,7 @@ export async function getWeatherLayer(latitude, longitude ) {
   // });
   return layerWeather;
 }
-export async function getWeatherLayersForAllLocations() {
+export async function getWeatherLayersForAllLocations(openDetailsBox) {
   const locations = [
     { name: "Cedar Falls", latitude: 42.534899, longitude: -92.445316 },
     { name: "Dewar", latitude: 42.470271, longitude: -92.213508 },
@@ -120,13 +110,6 @@ export async function getWeatherLayersForAllLocations() {
       windspeed: data.current_weather.windspeed,
       winddirection: data.current_weather.winddirection,
       time: data.current_weather.time,
-      tooltip_data: formatTooltipData({
-        name: location.name,
-        temperature: data.current_weather.temperature,
-        windspeed: data.current_weather.windspeed,
-        winddirection: data.current_weather.winddirection,
-        time: data.current_weather.time,
-      }),
     };
   });
 
@@ -145,6 +128,11 @@ export async function getWeatherLayersForAllLocations() {
     getPosition: d => [d.longitude, d.latitude],
     getSize: d => 8,
     getTooltip: ({ object }) => object && object.tooltip_data,
+    onClick: (info, event) => {
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
+      }
+    },
   });
 
   return layerWeather;

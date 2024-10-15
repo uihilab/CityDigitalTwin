@@ -5,8 +5,9 @@ function DetailsBox({ isOpen, details, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="details-box">
-      <button className="close-btn" onClick={onClose}>Close</button>
+    <div className="details-box MuiTypography-root">
+      <button className="close-btn" onClick={onClose}>X</button>
+      <h2 className="details-title">Details</h2>
       <div className="details-content" dangerouslySetInnerHTML={{ __html: details }} />
     </div>
   );

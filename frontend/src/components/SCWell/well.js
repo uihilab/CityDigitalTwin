@@ -1,26 +1,13 @@
 import { IconLayer } from "@deck.gl/layers";
+import formatObjectData from "../SC3DBuilding/formatObjectData";
 
-function formatTooltipData(item) {
-  let tooltipData = "";
-
-  if (item.county !== undefined) {
-    tooltipData += `County: ${item.county}\n`;
-  }
-  if (item.depth !== undefined) {
-    tooltipData += `Depth: ${item.depth} meters\n`;
-  }
-  if (item.well_type !== undefined) {
-    tooltipData += `Well Type: ${item.well_type}\n`;
-  }
-  if (item.location !== undefined) {
-    tooltipData += `Location: ${item.location}\n`;
-  }
-  if (item.owner_name !== undefined) {
-    tooltipData += `Owner: ${item.owner_name}\n`;
-  }
-
-  return tooltipData.trim(); // Remove trailing newline
-}
+const keyMappings = {
+  county: "County",
+  depth: "Depth (meters)",
+  well_type: "Well Type",
+  location: "Location",
+  owner_name: "Owner",
+};
 
 export async function getWellData() {
   try {
@@ -36,7 +23,8 @@ export async function getWellData() {
         owner_name: feature.properties.OWNER_NAME
       };
 
-      item.tooltip_data = formatTooltipData(item);
+      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      item.details_data = formatObjectData(item, keyMappings, "details");
       return item;
     });
   } catch (error) {
@@ -64,7 +52,7 @@ export const createWellLayer = (wellData, openDetailsBox) =>
     onClick: (info, event) => {
       //console.log("Clicked:", info);
       if (info.object) {
-        openDetailsBox(info.object.tooltip_data);
+        openDetailsBox(info.object.details_data);
       }
     },
   });
