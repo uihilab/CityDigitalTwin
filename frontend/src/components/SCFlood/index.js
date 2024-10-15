@@ -18,8 +18,7 @@ function calculateMarkerIndex(stprct, cnprct) {
   return Math.min(Math.round(combinedPercentage / 50), 3);
 }
 
-function getHazardColor(stprct, cnprct)
-{
+function getHazardColor(stprct, cnprct) {
   const markers = [];
   markers[0] = "yellow";
   markers[1] = "orange";
@@ -62,10 +61,11 @@ export async function createFloodDamageIconLayer(mapid, openDetailsBox) {
       iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_atlas(ifis).png`,
       iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_map(ifis).json`,
       getIcon: (d) => getHazardColor(d.strDamage, d.cntDamagePercentage),
-      sizeScale: 5,
+      sizeScale: 3,
       getPosition: (d) => d.position,
-      getSize: (d) => 1,
+      getSize: (d) => 4,
       getColor: (d) => [255, 0, 0],
+      getElevation: 50,
       getTooltip: ({ object }) => object && object.tooltip_data,
       onClick: (info, event) => {
         if (info.object) {
@@ -219,7 +219,7 @@ export async function getFloodLayer(id, floodYear) {
     const layer = new GeoJsonLayer({
       id,
       data,
-      pickable: true,
+      pickable: false,
       stroked: true,
       filled: true,
       lineWidthMinPixels: 2,

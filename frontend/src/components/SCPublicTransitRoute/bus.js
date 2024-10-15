@@ -129,9 +129,9 @@ export async function loadBusStopLayer(openDetailsBox) {
     iconAtlas: `${process.env.PUBLIC_URL}/icons/icon_map.png`,
     iconMapping: `${process.env.PUBLIC_URL}/icons/icon_atlas_publictransportation.json`,
     getIcon: (d) => "icons8-bus-100",
-    sizeScale: 15,
+    sizeScale: 6,
     getPosition: (d) => d.coordinates,
-    getSize: (d) => 5,
+    getSize: (d) => 6,
     getTooltip: ({ object }) => object && object.tooltip_data,
     onClick: (info, event) => {
       if (info.object) {

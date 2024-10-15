@@ -45,7 +45,8 @@ export async function getWeatherLayer(latitude, longitude, openDetailsBox) {
       time: data.current_weather.time,
       elevation: data.elevation,
       timezone: data.timezone,
-      coordinates: [data.longitude, data.latitude]//[-92.3426, 42.4928]//
+      //coordinates: [data.longitude, data.latitude]//[-92.3426, 42.4928]//
+      coordinates: [longitude, latitude]//[-92.3426, 42.4928]//
     };
 
     item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");

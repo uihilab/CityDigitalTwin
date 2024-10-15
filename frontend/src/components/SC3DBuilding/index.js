@@ -113,37 +113,42 @@ function Map3D() {
     tram: false,
   });
 
+  const [map, setMap] = useState(null); // State to track the map instance
+
+  const handleMapLoad = (mapInstance) => {
+    //console.log("Map has fully loaded");
+    setMap(mapInstance);  // Store the map instance in state
+  };
+
   const blackHawkBorderDataPath = `${process.env.PUBLIC_URL}/data/black_hawk_county.geojson`;
 
   const [borderLoaded, setBorderLoaded] = useState(false);
   useEffect(() => {
-    // Load Black Hawk County GeoJSON when the map loads
-    async function loadBlackHawkCounty() {
-      const response = await fetch(blackHawkBorderDataPath);
-      const data = await response.json();
-
-      const blackHawkLayer = new GeoJsonLayer({
-        id: 'black-hawk-county-borders',
-        data,
-        stroked: true,  // Ensure borders are drawn
-        filled: false,  // Disable fill color
-        lineWidthMinPixels: 2,
-        lineWidthMaxPixels: 5,
-        getLineColor: [0, 0, 0], // Black border
-      });
-
-      // Check if 'black-hawk-county' layer exists in layersStatic
-      const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county-borders');
-      if (!layerExists) {
-        setMapLayers(blackHawkLayer);
-        setBorderLoaded(true);
-      }
-    }
-
-    if (!borderLoaded) {
+    if (map && !borderLoaded) {
+      const loadBlackHawkCounty = async () => {
+        const response = await fetch(blackHawkBorderDataPath);
+        const data = await response.json();
+        const blackHawkLayer = new GeoJsonLayer({
+          id: 'black-hawk-county-borders',
+          data,
+          stroked: true,
+          filled: false,
+          lineWidthMinPixels: 2,
+          lineWidthMaxPixels: 5,
+          getLineColor: [0, 0, 0],
+        });
+  
+        const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county-borders');
+        if (!layerExists) {
+          setMapLayers(blackHawkLayer);
+          setBorderLoaded(true);
+        }
+      };
+  
       loadBlackHawkCounty();
-    }    
-  }, []);
+    }
+  }, [map, borderLoaded]);  // Ensure this only runs after map is loaded
+  
 
 
   // Haritada tıklama olayını dinleyen fonksiyon
@@ -198,7 +203,6 @@ function Map3D() {
         }
       }
       if (isWeatherActive) {
-        debugger;
         try {
           if(WeathericonLayer !==null)
           {
@@ -526,8 +530,8 @@ function Map3D() {
       if (key === "Bus_Info") {
         const busLayer = await loadBusLayer();
         const busStop = await loadBusStopLayer(openDetailsBox);
-        setMapLayers(busStop);
         setMapLayers(busLayer);
+        setMapLayers(busStop);
         return;
       }
       if (key === "Train_Info") {
@@ -780,7 +784,7 @@ function Map3D() {
     setMapLayers(layer);
 
     if (mapid !== null) {
-      const iconLayer = await createFloodDamageIconLayer(mapid); // IconLayer'ı oluştur
+      const iconLayer = await createFloodDamageIconLayer(mapid, openDetailsBox); // IconLayer'ı oluştur
       setMapLayers(iconLayer);
       //seticonlayerFlood(iconLayer);
     }
@@ -860,12 +864,15 @@ function Map3D() {
                   tilt={mapTiltAngle}
                   onClick={handleMapClick}
                   options={{streetViewControl: false}}
+                  onIdle={handleMapLoad}
                 >
+                  {map && (
                   <DeckGLOverlay
                     layers={[mapLayers]}
                     getTooltip={getTooltipContent}
                     interleaved={true}
                   />
+                )}
                 </Map>
                 {/* Canvas */}
                 <canvas
