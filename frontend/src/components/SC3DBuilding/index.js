@@ -115,16 +115,14 @@ function Map3D() {
 
   const [map, setMap] = useState(null); // State to track the map instance
 
-  const handleMapLoad = (mapInstance) => {
-    //console.log("Map has fully loaded");
-    setMap(mapInstance);  // Store the map instance in state
-  };
-
   const blackHawkBorderDataPath = `${process.env.PUBLIC_URL}/data/black_hawk_county.geojson`;
 
   const [borderLoaded, setBorderLoaded] = useState(false);
-  useEffect(() => {
-    if (map && !borderLoaded) {
+
+  const handleMapLoad = (mapInstance) => {
+    //console.log("Map has fully loaded");
+    setMap(mapInstance);  // Store the map instance in state
+    if (!borderLoaded) {
       const loadBlackHawkCounty = async () => {
         const response = await fetch(blackHawkBorderDataPath);
         const data = await response.json();
@@ -145,8 +143,35 @@ function Map3D() {
         }
       };
   
-      loadBlackHawkCounty();
+      //loadBlackHawkCounty();
     }
+  };
+
+  
+  useEffect(() => {
+    // if (map && !borderLoaded) {
+    //   const loadBlackHawkCounty = async () => {
+    //     const response = await fetch(blackHawkBorderDataPath);
+    //     const data = await response.json();
+    //     const blackHawkLayer = new GeoJsonLayer({
+    //       id: 'black-hawk-county-borders',
+    //       data,
+    //       stroked: true,
+    //       filled: false,
+    //       lineWidthMinPixels: 2,
+    //       lineWidthMaxPixels: 5,
+    //       getLineColor: [0, 0, 0],
+    //     });
+  
+    //     const layerExists = layersStatic.some(layer => layer.id === 'black-hawk-county-borders');
+    //     if (!layerExists) {
+    //       setMapLayers(blackHawkLayer);
+    //       setBorderLoaded(true);
+    //     }
+    //   };
+  
+    //   loadBlackHawkCounty();
+    // }
   }, [map, borderLoaded]);  // Ensure this only runs after map is loaded
   
 
