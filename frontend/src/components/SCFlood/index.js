@@ -1,7 +1,7 @@
-// SCFlood/index.js
+import React from "react";
 import { GeoJsonLayer, IconLayer } from "@deck.gl/layers";
 import formatObjectData from "../SC3DBuilding/formatObjectData";
-import React from "react";
+
 
 const keyMappings = {
   ID: "ID",

@@ -44,6 +44,27 @@ function generateColorBasedOnRoundLength(coordinatesLength) {
   return [r, g, b, 255]; // Return the RGBA color with full opacity
 }
 
+function generateRouteArray(geoJsonData) {
+  // Extract unique routes from the GeoJSON data
+  const routesMap = new Map();
+
+  geoJsonData.features.forEach((feature) => {
+    const properties = feature.properties;
+    const routeId = properties.route_id;
+    const routeName = properties.route_long || properties.route_shortname || "Unknown";
+
+    if (!routesMap.has(routeId)) {
+      routesMap.set(routeId, routeName);
+    }
+  });
+
+  // Convert the Map to an array
+  const routesArray = Array.from(routesMap, ([routeId, routeName]) => ({
+    routeId,
+    routeName,
+  }));
+}
+
 // Preprocess the GeoJSON data to split MultiLineString into individual LineStrings
 function preprocessBusRouteData(busGeoJson) {
   const newFeatures = [];
@@ -74,32 +95,135 @@ function preprocessBusRouteData(busGeoJson) {
   };
 }
 
-export async function loadBusLayer() {
-  const busRoute = await fetch(`${process.env.PUBLIC_URL}/data/Bus_Route_4326.geojson`);
+function colorizeRoutes(routes) {
+
+  const routeColors = {
+    "1": "#FF5733",    // FAIRGROUNDS
+    "2": "#33C1FF",    // MAURY ST
+    "3": "#FFC300",    // UNIVERSITY
+    "4": "#DAF7A6",    // E 14TH ST
+    "6": "#C70039",    // INDIANOLA AVE
+    "7": "#900C3F",    // SW 9TH ST
+    "8": "#581845",    // FLEUR DR
+    "9": "#800080",    // Cedar Falls Loop - PURPLE
+    "10": "#FF8C00",   // EAST UNIVERSITY
+    "11": "#2E8B57",   // INGERSOLL / VALLEY JUNCTION
+    "12": "#4682B4",   // UNI Weekend Safe Ride
+    "5L": "#D2B48C",   // Crossroads/La Porte Road - TAN
+    "5W11": "#D2B48C", // Crossroads/West 11th Street - TAN
+  };
+
+  routes.features.forEach((feature) => {
+    // Get the route_id from the feature's properties
+    const routeId = feature.properties.route_id;
+//debugger;
+    // Assign the color based on the route_id
+    feature.properties.color = routeColors[routeId] || "#000000"; // Default to black if not found
+    feature.properties.colorrgba = hexToRGBA(feature.properties.color);
+  });
+
+  return routes;
+}
+
+function hexToRGBA(hex) {
+  hex = hex.replace('#', '');
+  let bigint = parseInt(hex, 16);
+  let r, g, b;
+
+  if (hex.length === 6) {
+    r = (bigint >> 16) & 255;
+    g = (bigint >> 8) & 255;
+    b = bigint & 255;
+  } else if (hex.length === 3) {
+    r = ((bigint >> 8) & 15) * 17;
+    g = ((bigint >> 4) & 15) * 17;
+    b = (bigint & 15) * 17;
+  } else {
+    throw new Error('Invalid hex color format.');
+  }
+
+  return [r, g, b, 255];
+}
+
+export async function getRoutesInfo() {
+  const data = await getBusRouteData();
+  const routes = {};
+  data.features.forEach((feature) => {
+    const route_id = feature.properties.route_id;
+    if (!routes[route_id]) {
+      routes[route_id] = {
+        route_id: route_id,
+        route_name: feature.properties.route_long,
+        route_shortname: feature.properties.route_shortname,
+        color: feature.properties.color,
+      };
+    }
+  });
+  return Object.values(routes);
+}
+
+// Function to group features by route_id
+function separateFeaturesByRoute(data) {
+  const routeFeatures = {};
+  data.features.forEach((feature) => {
+    const route_id = feature.properties.route_id;
+    if (!routeFeatures[route_id]) {
+      routeFeatures[route_id] = [];
+    }
+    routeFeatures[route_id].push(feature);
+  });
+  return routeFeatures;
+}
+
+function filterGeoJSONByRouteIds(geojsonData, route_ids) {
+  const routeIdsSet = new Set(route_ids);
+  const filteredFeatures = geojsonData.features.filter((feature) => {
+    return routeIdsSet.has(feature.properties.route_id);
+  });
+
+  return {
+    type: "FeatureCollection",
+    features: filteredFeatures,
+  };
+}
+
+export async function getBusRouteData() {
+  const busRoute = await fetch(`${process.env.PUBLIC_URL}/data/waterloo_bus_routes_4326.geojson`);
   if (!busRoute.ok) {
     throw new Error(`HTTP error! status: ${busRoute.status}`);
   }
 
-  // Gelen verileri JSON formatında çözümleyin
   const busGeoJson = await busRoute.json();
   // Preprocess the data to split MultiLineString into individual LineStrings
   const processedBusGeoJson = preprocessBusRouteData(busGeoJson);
+  const coloredBusRoutes = colorizeRoutes(processedBusGeoJson);
 
+  return coloredBusRoutes;
+}
+
+export async function loadBusLayer(routeIdsToKeep) {
+  const routeData = await getBusRouteData();
+  let filteredRoutes = routeData;
+  if (routeIdsToKeep) {
+    filteredRoutes = filterGeoJSONByRouteIds(filteredRoutes, routeIdsToKeep);
+  }
   const layers = new GeoJsonLayer({
     id: "BusRoute",
-    data: processedBusGeoJson,
+    data: filteredRoutes,
     pickable: true,
 
     // Define dynamic color generation for each round (now each is a separate LineString)
-    getLineColor: (d) => {
-      const coordinatesLength = d.geometry.coordinates.length; // Get the length of the coordinates array
-      return generateSharpColorBasedOnRoundLength(coordinatesLength); // Use sharper color bands
-    },
+    getLineColor: (d) => d.properties.colorrgba,
+    //   {
+    //   const coordinatesLength = d.geometry.coordinates.length; // Get the length of the coordinates array
+    //   return generateSharpColorBasedOnRoundLength(coordinatesLength); // Use sharper color bands
+    // },
     getLineWidth: 20,
     getElevation: 30,
   });
   return layers;
 }
+
 const keyMappings = {
   stop_name: "Stop Name",
   wheelchair: "Wheelchair Capacity",

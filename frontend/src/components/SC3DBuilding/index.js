@@ -35,7 +35,7 @@ import { getCareFacilitiesData, createCareFacilitiesLayer } from "../SCAmeties/c
 import { getCommunicationData, createCommunicationLayer } from "../SCAmeties/communication";
 import { getWasteWaterData, createWasteWaterLayer } from "../SCWasteWater/index";
 import { getElectricData, createElectricPowerLayer } from "../SCElectricPower/index";
-import { loadBusLayer, loadBusStopLayer } from "../SCPublicTransitRoute/bus.js";
+import { getRoutesInfo, loadBusLayer, loadBusStopLayer } from "../SCPublicTransitRoute/bus.js";
 import { AddRailwayCrossingLayer } from "../SCRailwayCrossing/index.js";
 import { loadBicycleLayer } from "../SCBicycleNetwork/index.js";
 import { loadBicycleAmetiesLayer } from "../SCBicycleAmenities/index.js";
@@ -44,6 +44,7 @@ import { createRainSensorLayer } from "components/SCSensors";
 import { createStreamSensorLayer } from "components/SCSensors";
 import { createSoilMoistureSensorLayer } from "components/SCSensors";
 import DetailsBox from "../DetailsBox/index";
+import { BusRouteMenu } from "components/SCPublicTransitRoute/busRouteMenu";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
@@ -89,7 +90,36 @@ function Map3D() {
   const [iconlayerFlood, seticonlayerFlood] = useState(null);
   const [WeathericonLayer, setWeatherIconLayer] = useState(null);
   const [mapTiltAngle, setMapTiltAngle] = useState(0);
+//Bus Route
+const [selectedRoutes, setSelectedRoutes] = useState([]);
+const [routesData, setRoutesData] = useState([]);
 
+useEffect(() => {
+  // Fetch routes data when the component mounts
+  const fetchRoutesData = async () => {
+    try {
+      const data = await getRoutesInfo();
+      setRoutesData(data);
+console.log(data);
+      // Set selectedRoutes to include all route IDs
+      const allRouteIds = data.map((route) => route.route_id);
+      setSelectedRoutes(allRouteIds);
+    } catch (error) {
+      console.error("Error fetching routes data:", error);
+    }
+  };
+
+  fetchRoutesData();
+}, []);
+
+const handleRouteChange = async (updatedRoutes) => {  
+  setSelectedRoutes(updatedRoutes);
+  console.log(updatedRoutes);
+  removeLayer("BusRoute");
+  const busLayer = await loadBusLayer(updatedRoutes);  
+  setMapLayers(busLayer);
+};
+//Bus Route
    // Central state for the details box
    const [isDetailsBoxOpen, setIsDetailsBoxOpen] = useState(false);
    const [detailsContent, setDetailsContent] = useState(null);
@@ -143,7 +173,7 @@ function Map3D() {
         }
       };
   
-      //loadBlackHawkCounty();
+      loadBlackHawkCounty();
     }
   };
 
@@ -552,11 +582,14 @@ function Map3D() {
       //   handlePublicTransitRoutesClick(true);
       //   return;
       // }
-      if (key === "Bus_Info") {
-        const busLayer = await loadBusLayer();
+      if (key === "Bus_Stops") {
         const busStop = await loadBusStopLayer(openDetailsBox);
-        setMapLayers(busLayer);
         setMapLayers(busStop);
+        return;
+      }
+      if (key === "Bus_Routes") {
+        const busLayer = await loadBusLayer(selectedRoutes);
+        setMapLayers(busLayer);
         return;
       }
       if (key === "Train_Info") {
@@ -675,8 +708,12 @@ function Map3D() {
         return;
       }
 
-      if (key === "Bus_Info") {
+      if (key === "Bus_Routes") {
         removeLayer("BusRoute");
+        return;
+      }
+
+      if (key === "Bus_Stops") {
         removeLayer("BusStop");
         return;
       }
@@ -823,7 +860,11 @@ function Map3D() {
         setIsMenuOpenFlood={setIsMenuOpenFlood}
         handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
       />
-
+      <BusRouteMenu
+        selectedRoutes={selectedRoutes}
+        handleRouteChange={handleRouteChange}
+        routesData={routesData}
+      />
       <Sidenav
         color={sidenavColor}
         brandName="Black Hawk County"

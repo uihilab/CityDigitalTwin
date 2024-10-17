@@ -201,8 +201,14 @@ const layers = [
           },
           {
             type: "maplayer",
-            name: "Bus Stops and Routes",
-            key: "Bus_Info",
+            name: "Bus Stops",
+            key: "Bus_Stops",
+            icon: <Icon fontSize="small">Bus</Icon>,
+          },
+          {
+            type: "maplayer",
+            name: "Bus Routes",
+            key: "Bus_Routes",
             icon: <Icon fontSize="small">Bus</Icon>,
           },
         ],
