@@ -73,6 +73,7 @@ function DeckGLOverlay(props: DeckProps) {
 }
 //
 function Map3D() {
+  const [isBusRouteActive, setIsBusRouteActive] = useState(false);
   const [isMenuOpenFlood, setIsMenuOpenFlood] = useState(false);
   const [isMenuOpenDemographic, setIsMenuOpenDemographic] = useState(false);
   const [isChartVisible, setIsChartVisible] = useState(false);
@@ -100,7 +101,6 @@ useEffect(() => {
     try {
       const data = await getRoutesInfo();
       setRoutesData(data);
-console.log(data);
       // Set selectedRoutes to include all route IDs
       const allRouteIds = data.map((route) => route.route_id);
       setSelectedRoutes(allRouteIds);
@@ -588,6 +588,7 @@ const handleRouteChange = async (updatedRoutes) => {
         return;
       }
       if (key === "Bus_Routes") {
+        setIsBusRouteActive(true);
         const busLayer = await loadBusLayer(selectedRoutes);
         setMapLayers(busLayer);
         return;
@@ -710,6 +711,7 @@ const handleRouteChange = async (updatedRoutes) => {
 
       if (key === "Bus_Routes") {
         removeLayer("BusRoute");
+        setIsBusRouteActive(false);
         return;
       }
 
@@ -860,11 +862,13 @@ const handleRouteChange = async (updatedRoutes) => {
         setIsMenuOpenFlood={setIsMenuOpenFlood}
         handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
       />
+      {isBusRouteActive && (
       <BusRouteMenu
         selectedRoutes={selectedRoutes}
         handleRouteChange={handleRouteChange}
         routesData={routesData}
       />
+    )}      
       <Sidenav
         color={sidenavColor}
         brandName="Black Hawk County"
