@@ -23,13 +23,16 @@ export function CreateRailwayLayer(geojsonData) {
     id: "RailwayNetwork",
     data: geojsonData,
     pickable: true,
-    getLineColor: [0, 0, 139, 255],
+    getLineColor: [255, 69, 0, 255], // Changed to a bright orange-red color
     getRadius: 90,
-    getLineWidth: 10,
+    getLineWidth: 12, // Adjusted line width for better visibility
     getElevation: 30,
+    lineDashArray: [0, 0], // Removed dash style for a solid, consistent line
   });
   return layers;
 }
+
+
 export async function CreateRailwayStations(geojsonData, openDetailsBox) {
   const processedData = geojsonData.features.map((feature) => {
     const item = {

@@ -41,7 +41,7 @@ function collapseItem(theme, ownerState) {
     display: "flex",
     alignItems: "center",
     width: "100%",
-    padding: `${pxToRem(8)} ${pxToRem(16)}`,
+    padding: `${pxToRem(8)} ${pxToRem(5)}`,
     margin: `${pxToRem(1.5)} ${pxToRem(16)}`,
     borderRadius: borderRadius.md,
     cursor: "pointer",
@@ -98,7 +98,7 @@ function collapseText(theme, ownerState) {
   const { typography, transitions, breakpoints, functions } = theme;
   const { miniSidenav, transparentSidenav, active } = ownerState;
 
-  const { size, fontWeightRegular, fontWeightLight } = typography;
+  const { size, fontWeightBold } = typography;
   const { pxToRem } = functions;
 
   return {
@@ -115,12 +115,13 @@ function collapseText(theme, ownerState) {
     },
 
     "& span": {
-      fontWeight: active ? fontWeightRegular : fontWeightLight,
+      fontWeight: fontWeightBold,  // Apply bold font weight here
       fontSize: size.sm,
       lineHeight: 0,
     },
   };
 }
+
 
 function collapseArrow(theme, ownerState) {
   const { palette, typography, transitions, breakpoints, functions } = theme;

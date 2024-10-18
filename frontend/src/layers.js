@@ -195,7 +195,7 @@ const layers = [
         collapse: [
           {
             type: "maplayer",
-            name: "Train Stations and Railway",
+            name: "Railway Network",
             key: "Train_Info",
             icon: <Icon fontSize="small">Train</Icon>,
           },
