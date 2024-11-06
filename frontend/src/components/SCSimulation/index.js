@@ -6,13 +6,13 @@ import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "components/SCFlood";
 import { stopTrafficSimulator } from "components/TrafficSimulator";
 import { FloodYearMenu } from "components/SCFlood/floodYearMenu";
-import { ModelCarGreen } from "components/TrafficSimulator/modelFiles";
+import { ModelCarGreen, ModelBus } from "components/TrafficSimulator/modelFiles";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
 const defaultCoords = { lat: 42.4942408813, long: -92.34170190987821 };
 
-function SCSimulation({ options = { tracking: true, showPaths: true } }) {
+function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes = [] }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const overlayRef = useRef(null);
@@ -110,14 +110,17 @@ function SCSimulation({ options = { tracking: true, showPaths: true } }) {
   };
 
   const startSimulation = async () => {
-    // Start the traffic simulator
-    await startTrafficSimulator(
-      setAnimationLayers,
-      addMapLayerStatic,
-      null,
-      floodYears,
-      ModelCarGreen
-    );
+    simTypes.forEach(async (simType) => {
+      // Start the traffic simulator for each simulation type
+      await startTrafficSimulator(
+        simType, // Pass the current simulation type
+        setAnimationLayers, // Other parameters remain the same
+        addMapLayerStatic,
+        null,
+        floodYears,
+        simType === "car" ? ModelCarGreen : ModelBus // Example: different models for different types
+      );
+    });
   };
 
   useEffect(() => {

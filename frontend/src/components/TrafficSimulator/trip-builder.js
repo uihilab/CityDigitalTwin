@@ -14,12 +14,17 @@ export default class TripBuilder {
     this.loop = loop;
     this.totalTime = 0;
 
+    // Add forward path
     for (const p of waypoints) {
       this._moveTo(p);
     }
+
+    // If loop is true, add return path
     if (loop && waypoints.length > 2) {
-      this._moveTo(waypoints[0]);
-      this._turnTo(this.keyframes[0].heading);
+      // Add all points in reverse order (excluding the last point since we're already there)
+      for (let i = waypoints.length - 2; i >= 0; i--) {
+        this._moveTo(waypoints[i]);
+      }
     }
   }
 
@@ -70,10 +75,16 @@ export default class TripBuilder {
 
   getFrame(timestamp) {
     timestamp = this.loop ? timestamp % this.totalTime : Math.min(timestamp, this.totalTime);
-    const i = this.keyframes.findIndex((s) => s.time >= timestamp);
-    const startState = this.keyframes[i - 1];
-    const endState = this.keyframes[i];
-    const r = (timestamp - startState.time) / (endState.time - startState.time);
+    let i = this.keyframes.findIndex((s) => s.time >= timestamp);
+    const startState = i > 0 ? this.keyframes[i - 1] : this.keyframes[this.keyframes.length - 1];
+    const endState = i >= 0 ? this.keyframes[i] : this.keyframes[0];
+    
+    // Handle loop wrap-around
+    let timeDiff = endState.time - startState.time;
+    if (timeDiff <= 0) {
+      timeDiff = this.totalTime - startState.time + endState.time;
+    }
+    const r = (timestamp - startState.time) / timeDiff;
 
     return {
       point: [

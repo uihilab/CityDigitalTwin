@@ -114,3 +114,39 @@ export function importRoadsFromGeoJSON_v2(geojson) {
 
   return roads;
 }
+
+
+export function importBusRoutesFromGeoJSON(geoJSON) {
+  const roads = [];
+
+  const filteredRoads = geoJSON.features;
+  filteredRoads.forEach((feature, index) => {
+    const properties = feature.properties;
+    const geometry = feature.geometry;
+    const id = properties.route_id || index; // Use full_id if available, otherwise use the index
+    let coordinates = geometry.coordinates;
+    // Flatten the MultiLineString coordinates
+    coordinates = coordinates.reduce((acc, val) => acc.concat(val), []);
+    const roadType = "bus_route";
+    const maxSpeedMilesPerHour = properties.maxspeed ? parseInt(properties.maxspeed, 10) : 30;
+    const maxSpeedMetersPerSec = mphToMps(maxSpeedMilesPerHour);
+    const isOneway = properties.oneway === "yes";
+    const laneCount = properties.lanes ? parseInt(properties.lanes, 10) : null;
+    const name = properties.route_long;
+    const roadLength = turf.length(geometry);
+    const road = new RoadModel(
+      id,
+      coordinates,
+      roadType,
+      maxSpeedMetersPerSec,
+      isOneway,
+      laneCount,
+      name,
+      geometry,
+      roadLength
+    );
+    roads.push(road);
+  });
+
+  return roads;
+}

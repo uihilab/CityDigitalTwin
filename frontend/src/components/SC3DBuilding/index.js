@@ -569,7 +569,11 @@ const handleRouteChange = async (updatedRoutes) => {
         return;
       }
       if (key === "TrafficFlow") {
-        await startTrafficSimulator(setAnimationLayers, setMapLayers, viewportRef);
+        //await startTrafficSimulator("car", setAnimationLayers, setMapLayers, viewportRef);
+        return;
+      }
+      if (key === "TrafficFlowBus") {
+        //await startTrafficSimulator("bus", setAnimationLayers, setMapLayers, viewportRef);
         return;
       }
       if (key === "wells") {
@@ -821,7 +825,19 @@ const handleRouteChange = async (updatedRoutes) => {
     const item = activeItems.find(item => item.key.startsWith("Simulation"));
     return item ? item.value : false; // If the item exists, return its boolean value, otherwise return false
   };
+
+  const keyMapping = {
+    "Simulation_Car": "car",
+    "Simulation_Bus": "bus"
+  };
   
+  const getSimulationTypes = () => {    
+    const keysArray = activeItems
+      .filter(item => item.key.startsWith("Simulation"))
+      .map(item => keyMapping[item.key] || item.key);
+    return keysArray;
+  };
+
   //const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   layers[0].clickFunc = layerLinkHandler;
 
@@ -924,7 +940,7 @@ const handleRouteChange = async (updatedRoutes) => {
               }}
             >
               { isSimulationActive() ?
-            (<SCSimulation/>)  :
+            (<SCSimulation simTypes={getSimulationTypes()}/>)  :
               (<APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
                 <Map
                   mapId={GOOGLE_MAP_ID}

@@ -95,28 +95,27 @@ function preprocessBusRouteData(busGeoJson) {
   };
 }
 
-function colorizeRoutes(routes) {
-
+export function colorizeRoutes(routes) {
   const routeColors = {
-    "1": "#FF5733",    // FAIRGROUNDS
-    "2": "#33C1FF",    // MAURY ST
-    "3": "#FFC300",    // UNIVERSITY
-    "4": "#DAF7A6",    // E 14TH ST
-    "6": "#C70039",    // INDIANOLA AVE
-    "7": "#900C3F",    // SW 9TH ST
-    "8": "#581845",    // FLEUR DR
-    "9": "#800080",    // Cedar Falls Loop - PURPLE
-    "10": "#FF8C00",   // EAST UNIVERSITY
-    "11": "#2E8B57",   // INGERSOLL / VALLEY JUNCTION
-    "12": "#4682B4",   // UNI Weekend Safe Ride
-    "5L": "#D2B48C",   // Crossroads/La Porte Road - TAN
+    1: "#FF5733", // FAIRGROUNDS
+    2: "#33C1FF", // MAURY ST
+    3: "#FFC300", // UNIVERSITY
+    4: "#DAF7A6", // E 14TH ST
+    6: "#C70039", // INDIANOLA AVE
+    7: "#900C3F", // SW 9TH ST
+    8: "#581845", // FLEUR DR
+    9: "#800080", // Cedar Falls Loop - PURPLE
+    10: "#FF8C00", // EAST UNIVERSITY
+    11: "#2E8B57", // INGERSOLL / VALLEY JUNCTION
+    12: "#4682B4", // UNI Weekend Safe Ride
+    "5L": "#D2B48C", // Crossroads/La Porte Road - TAN
     "5W11": "#D2B48C", // Crossroads/West 11th Street - TAN
   };
 
   routes.features.forEach((feature) => {
     // Get the route_id from the feature's properties
     const routeId = feature.properties.route_id;
-//debugger;
+    //debugger;
     // Assign the color based on the route_id
     feature.properties.color = routeColors[routeId] || "#000000"; // Default to black if not found
     feature.properties.colorrgba = hexToRGBA(feature.properties.color);
@@ -126,7 +125,7 @@ function colorizeRoutes(routes) {
 }
 
 function hexToRGBA(hex) {
-  hex = hex.replace('#', '');
+  hex = hex.replace("#", "");
   let bigint = parseInt(hex, 16);
   let r, g, b;
 
@@ -139,7 +138,7 @@ function hexToRGBA(hex) {
     g = ((bigint >> 4) & 15) * 17;
     b = (bigint & 15) * 17;
   } else {
-    throw new Error('Invalid hex color format.');
+    throw new Error("Invalid hex color format.");
   }
 
   return [r, g, b, 255];
