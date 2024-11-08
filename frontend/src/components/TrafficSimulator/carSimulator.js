@@ -9,7 +9,7 @@ class CarSimulator {
     this.lastTimestamp = null;
   }
 
-  updateCarPositions(timestamp) {
+  updatePositions(timestamp) {  // Changed from updateCarPositions
     const frames = [];
     if (!this.lastTimestamp) {
       this.lastTimestamp = 0;

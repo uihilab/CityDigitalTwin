@@ -828,7 +828,8 @@ const handleRouteChange = async (updatedRoutes) => {
 
   const keyMapping = {
     "Simulation_Car": "car",
-    "Simulation_Bus": "bus"
+    "Simulation_Bus": "bus",
+    "Simulation_Train": "train"
   };
   
   const getSimulationTypes = () => {    

@@ -1,8 +1,10 @@
 import CarSimulator from "./carSimulator";
 import BusSimulator from "./busSimulator";
+import TrainSimulator from "./trainSimulator";
 import DeckglAnimation from "./deckglAnimation";
-import { importBusRoutesFromGeoJSON, importOSMRoadsFromGeoJSON } from "./roadDataImporter";
+import { importBusRoutesFromGeoJSON, importOSMRoadsFromGeoJSON, importRailwaysFromGeoJSON } from "./roadDataImporter";
 import { colorizeRoutes, generateRoadLayer, getRouteLayer } from "./routes";
+import { ModelTrain } from "./modelFiles";
 
 function getRoadDataPath(floodYears) {
   let result = "";
@@ -30,6 +32,8 @@ async function loadRoadData(floodYears, roadType) {
     roadDataPath = getRoadDataPath(floodYears);
   } else if (roadType === "bus") {
     roadDataPath = getBusRoadDataPath(floodYears);
+  } else if (roadType === "train") {
+    roadDataPath = `${process.env.PUBLIC_URL}/data/train/Rail_Line_Active_linestring.geojson`;
   }
   const response = await fetch(roadDataPath);
   const roadData = await response.json();
@@ -61,6 +65,15 @@ export async function startTrafficSimulator(
     roadDataTransformed = colorizeRoutes(roadDataTransformed);
     allRoadsLayer = generateRoadLayer(roadDataTransformed);
     simulator = new BusSimulator(roadData, roadDataTransformed);
+  } else if (simulationType === "train") {
+    roadData = await loadRoadData(floodYears, simulationType);
+    //remove elevation data from train road data
+    roadData.features.forEach((feature) => {
+      feature.geometry.coordinates = feature.geometry.coordinates.map((coord) => [coord[0], coord[1]]);
+    });
+    roadDataTransformed = importRailwaysFromGeoJSON(roadData);
+    allRoadsLayer = generateRoadLayer(roadDataTransformed);//"#ed1c24"
+    simulator = new TrainSimulator(roadData, roadDataTransformed);
   }
   setMapLayerStatic([allRoadsLayer, getRouteLayer(simulator.routes)]);
   const animation = new DeckglAnimation(setAnimationLayers, simulator, modelUrl);

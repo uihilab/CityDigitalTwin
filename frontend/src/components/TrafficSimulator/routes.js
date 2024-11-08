@@ -42,7 +42,7 @@ export function getRouteLayer(routes) {
   //setMapLayer(routeLayer);
 }
 
-export function generateRoadLayer(roads) {
+export function generateRoadLayer(roads, color = "#808080") {
   const routeLayer = new PathLayer({
     id: "RoadsLayer",
     data: roads,
@@ -55,7 +55,7 @@ export function generateRoadLayer(roads) {
       if (d.colorrgba) {
         return d.colorrgba;
       }
-      const hex = "#808080";
+      const hex = color;
       // convert to RGB
       return hex.match(/[0-9a-f]{2}/g).map((x) => parseInt(x, 16));
     },

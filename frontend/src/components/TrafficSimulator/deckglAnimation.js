@@ -27,7 +27,7 @@ class DeckglAnimation {
       if (!this.isAnimating) return;
 
       timestamp += 0.02;
-      this.simulator.updateCarPositions(timestamp);
+      this.simulator.updatePositions(timestamp);  // Changed from updateCarPositions
 
       let currentViewport = null;
       if (viewportRef) {
@@ -53,6 +53,27 @@ class DeckglAnimation {
             // Run tripBuilder.getFrame and collect the result
             const frame = car.tripBuilder.getFrame(timestamp);
             allTripFrames.push(frame);
+          }
+        });
+      }
+
+      if (this.simulator.trains) {
+        this.simulator.trains.forEach((train) => {
+          if (train.tripBuilder) {
+            // Add locomotive
+            const frame = train.tripBuilder.getFrame(timestamp);
+            frame.isLocomotive = true; // Flag to use different model
+            allTripFrames.push(frame);
+
+            // Add cars
+            train.cars.forEach((car) => {
+              const carFrame = {
+                point: car.position,
+                heading: car.heading,
+                isLocomotive: false // Flag to use wagon model
+              };
+              allTripFrames.push(carFrame);
+            });
           }
         });
       }

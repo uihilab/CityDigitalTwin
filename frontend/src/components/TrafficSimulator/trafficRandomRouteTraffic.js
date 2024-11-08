@@ -1,7 +1,7 @@
 import PathFinder from "geojson-path-finder";
 import generateRandomPaths from "./randomPathGenerator";
 
-const createPointFeature = (coordinates) => ({
+export const createPointFeature = (coordinates) => ({
   type: "Feature",
   geometry: {
     type: "Point",
@@ -14,7 +14,7 @@ class RandomRouteTrafficGenerator {
   constructor(roadDataRaw, roadData) {
     this.roadDataRaw = roadDataRaw;
     this.roadData = roadData;
-    this.pathFinder = new PathFinder(this.roadDataRaw, { tolerance: 1e-4 });//{ tolerance: 1e-3 }
+    this.pathFinder = new PathFinder(this.roadDataRaw, { tolerance: 1e-3 });//{ tolerance: 1e-3 }
   }
 
   findPath(start, end) {
@@ -24,19 +24,21 @@ class RandomRouteTrafficGenerator {
 
   generateRandomRoutes(numPaths, minDistance) {
     const randomPaths = generateRandomPaths(this.roadData, numPaths, minDistance);
-    this.routes = [];
+    return this.generateRoutes(randomPaths);
+  }
 
-    randomPaths.forEach((path) => {
+  generateRoutes(paths) {
+    this.routes = [];
+debugger;
+    paths.forEach((path) => {
       const start = createPointFeature(path.start);
       const end = createPointFeature(path.end);
       const route = this.findPath(start, end);
       if (route) {
-        //console.log(route);
         this.routes.push(route.path);
       }
     });
 
-    //console.log(this.routes);
     return this.routes;
   }
 }
