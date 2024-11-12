@@ -6,7 +6,6 @@ import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "components/SCFlood";
 import { stopTrafficSimulator } from "components/TrafficSimulator";
 import { FloodYearMenu } from "components/SCFlood/floodYearMenu";
-import { ModelCarGreen, ModelBus } from "components/TrafficSimulator/modelFiles";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
@@ -117,8 +116,7 @@ function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes 
         setAnimationLayers, // Other parameters remain the same
         addMapLayerStatic,
         null,
-        floodYears,
-        simType === "car" ? ModelCarGreen : ModelBus // Example: different models for different types
+        floodYears
       );
     });
   };

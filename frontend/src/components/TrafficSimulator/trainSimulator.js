@@ -1,43 +1,13 @@
 import RandomRouteTrafficGenerator, { createPointFeature } from "./trafficRandomRouteTraffic";
 import TripBuilder from "./trip-builder";
+const trainSpacingDistance = 200;
+const trainSpeed = 60;
 
 class TrainSimulator {
   constructor(roadDataRaw, roadData) {
     this.routes = roadData;
     this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
     this.routes = this.routeGenerator.generateRoutes(this.getRoutes());
-    //console.log(this.routes);
-    // this.routes = [
-    //   {
-    //     coordinates: [
-    //       [-92.407386253237547, 42.543651277187941],
-    //       [-92.398567025006557, 42.543563084905628],
-    //       [-92.394069218608749, 42.543298508058704],
-    //       [-92.389924181340191, 42.542769354364843],
-    //       [-92.387190220588579, 42.542240200670982],
-    //       [-92.383662529296188, 42.540917316436335],
-    //       [-92.380487607133034, 42.539241663072445],
-    //       [-92.376783531276018, 42.536595894603145],
-    //       [-92.370521879232015, 42.532803626463824],
-    //       [-92.365142150011081, 42.529143646747961],
-    //       [-92.363201919800275, 42.527864858654468],
-    //       [-92.361261689589455, 42.526630166702127],
-    //       [-92.358241103920335, 42.524645840350153],
-    //       [-92.337912782847908, 42.511394949933091],
-    //       [-92.331562938521586, 42.507338104946832],
-    //       [-92.330306198498675, 42.506764855111818],
-    //       [-92.324309123301603, 42.502906442760761],
-    //       [-92.321112153067858, 42.50037091464435],
-    //       [-92.315666279635224, 42.496777079140223],
-    //       [-92.304024898370329, 42.489104350579261],
-    //       [-92.299218418984438, 42.485951476486683],
-    //       [-92.297432525267666, 42.48493726524012],
-    //       [-92.293552064846025, 42.483570284864314],
-    //       [-92.286518730331807, 42.481255237453681],
-    //       [-92.275163973984405, 42.477529113526089],
-    //     ],
-    //   },
-    // ]; // Hardcoded route for testing
     this.trains = this.generateTrains(this.routes);
     this.lastTimestamp = null;
   }
@@ -49,8 +19,33 @@ class TrainSimulator {
       end: [-92.275163973984405, 42.477529113526089],
     });
     routes.push({
-      start: [-92.287873, 42.481739],
-      end: [-92.310451, 42.493333],
+      start: [-92.4328632, 42.5428187],
+      end: [-92.2356214, 42.464944],
+    });
+
+    routes.push({
+      start: [-92.32986395, 42.49283162],
+      end: [-92.248906, 42.4689823],
+    });
+    routes.push({
+      start: [-92.2538184, 42.5129998],
+      end: [-92.282081, 42.439778],
+    });
+    routes.push({
+      start: [-92.31195, 42.494405],
+      end: [-92.396044, 42.543462],
+    });
+    routes.push({
+      start: [-92.360834, 42.501087],
+      end: [-92.400362, 42.543481],
+    });
+    routes.push({
+      start: [-92.3676717, 42.5426225],
+      end: [-92.326127, 42.503816],
+    });
+    routes.push({
+      start: [-92.382378, 42.510608],
+      end: [-92.45435, 42.54123],
     });
     return routes;
   }
@@ -80,9 +75,7 @@ class TrainSimulator {
         train.position = frame.point;
         train.heading = frame.heading;
 
-        // Define spacing between cars
-        const spacingDistance = 70; // Adjust this value for desired car spacing
-        const timePerCar = spacingDistance / train.speed;
+        const timePerCar = trainSpacingDistance / train.speed;
 
         // Update positions of train cars
         train.cars.forEach((car, index) => {
@@ -121,7 +114,7 @@ class TrainSimulator {
         });
       }
 
-      train.speed = 30; // Store train speed
+      train.speed = trainSpeed; // Store train speed
 
       train.tripBuilder = new TripBuilder({
         waypoints: route,

@@ -2,32 +2,28 @@ import { ScenegraphLayer } from "@deck.gl/mesh-layers";
 import { WebMercatorViewport } from "@deck.gl/core";
 
 class DeckglAnimation {
-  isPointInViewport(point, viewport) {
+  static isPointInViewport(point, viewport) {
     const [x, y] = viewport.project([point[0], point[1]]);
     return x >= 0 && x <= viewport.width && y >= 0 && y <= viewport.height;
   }
 
-  constructor(setMapLayers, simulator, modelUrl) {
+  constructor(setMapLayers, simulator, modelUrls, simulationType) {
     this.setMapLayers = setMapLayers;
     this.simulator = simulator;
     this.animationId = null; // Keep track of the animation frame ID
     this.isAnimating = false; // Flag to indicate whether animation is running
-    this.modelUrl = modelUrl;
+    this.modelUrls = modelUrls; // Should have modelUrl and sizeScale for each type
+    this.simulationType = simulationType; // Type of simulation
   }
 
   startAnimation(routeData, options, viewportRef) {
-    //const MODEL_URL = `${process.env.PUBLIC_URL}/data/CesiumMilkTruck.glb`;
-    //const MODEL_URL = `${process.env.PUBLIC_URL}/data/car_green.glb`;
-    const MODEL_URL = `${process.env.PUBLIC_URL}/data/Old_Rusty_Bus.glb`;
-    //const data = routeData;
     let timestamp = 0;
-    //let animation = null;
     const onAnimationFrame = () => {
       // If the animation is stopped, don't continue
       if (!this.isAnimating) return;
 
       timestamp += 0.02;
-      this.simulator.updatePositions(timestamp);  // Changed from updateCarPositions
+      this.simulator.updatePositions(timestamp); // Changed from updateCarPositions
 
       let currentViewport = null;
       if (viewportRef) {
@@ -45,13 +41,16 @@ class DeckglAnimation {
         //console.log(viewport.latitude, viewport.longitude);
       }
 
-      let allTripFrames = [];
+      const allTripFrames = [];
+
+      // Set default simulationType if undefined
+      const simType = this.simulationType || 'default';
 
       if (this.simulator.cars) {
         this.simulator.cars.forEach((car) => {
           if (car.tripBuilder) {
-            // Run tripBuilder.getFrame and collect the result
             const frame = car.tripBuilder.getFrame(timestamp);
+            frame.type = simType; // Use specific type instead of simulationType
             allTripFrames.push(frame);
           }
         });
@@ -60,17 +59,15 @@ class DeckglAnimation {
       if (this.simulator.trains) {
         this.simulator.trains.forEach((train) => {
           if (train.tripBuilder) {
-            // Add locomotive
             const frame = train.tripBuilder.getFrame(timestamp);
-            frame.isLocomotive = true; // Flag to use different model
+            frame.type = "trainLocomotive"; // Assign type
             allTripFrames.push(frame);
 
-            // Add cars
             train.cars.forEach((car) => {
               const carFrame = {
                 point: car.position,
                 heading: car.heading,
-                isLocomotive: false // Flag to use wagon model
+                type: "trainCar", // Assign type
               };
               allTripFrames.push(carFrame);
             });
@@ -82,8 +79,8 @@ class DeckglAnimation {
         this.simulator.roads.forEach((road) => {
           road.cars.forEach((car) => {
             if (car.tripBuilder) {
-              // Run tripBuilder.getFrame and collect the result
               const frame = car.tripBuilder.getFrame(timestamp);
+              frame.type = "roadCar"; // Use specific type
               allTripFrames.push(frame);
             }
           });
@@ -99,40 +96,39 @@ class DeckglAnimation {
       } else {
         visibleFrame = allTripFrames;
       }
-      // // Set the camera to follow the first truck
-      // if (options.tracking) {
-      //   map.moveCamera({
-      //     center: { lat: frame[0].point[1], lng: frame[0].point[0] },
-      //     heading: frame[0].heading
-      //   });
-      // }
 
-      const layers = [
-        // options.showPaths &&
-        // new PathLayer({
-        //   id: 'animation-trip-lines',
-        //   data: trips,
-        //   getPath: d => d.keyframes.map(f => f.point),
-        //   getColor: _ => [128 * Math.random(), 255 * Math.random(), 255],
-        //   jointRounded: true,
-        //   opacity: 0.5,
-        //   getWidth: 10
-        // }),
-        new ScenegraphLayer({
-          id: "animation-layer",
-          data: visibleFrame,
-          scenegraph: this.modelUrl,
-          sizeScale: 20,
+      // Group frames by type
+      const framesByType = {};
+      visibleFrame.forEach((frame) => {
+        const type = frame.type || "default";
+        if (!framesByType[type]) {
+          framesByType[type] = [];
+        }
+        framesByType[type].push(frame);
+      });
+
+      // Create layers for each type
+      const layers = Object.keys(framesByType).map((type) => {
+        const modelConfig = this.modelUrls[type] || this.modelUrls['default'];
+        return new ScenegraphLayer({
+          id: `animation-layer-${type}`,
+          data: framesByType[type],
+          scenegraph: modelConfig.modelUrl,
+          sizeScale: modelConfig.sizeScale,
           getPosition: (d) => d.point,
           getTranslation: [0, 0, 1],
           getOrientation: (d) => [0, 180 - d.heading, 90],
           _lighting: "pbr",
-        }),
-      ];
+        });
+      });
+
       this.setMapLayers(layers);
 
       // Request the next animation frame if still animating
-      this.animationId = requestAnimationFrame(onAnimationFrame);
+      if (this.isAnimating) {
+        this.animationId = requestAnimationFrame(onAnimationFrame);
+      }
+      //this.animationId = requestAnimationFrame(onAnimationFrame);
     };
     // Start animation loop
     this.isAnimating = true;
@@ -141,13 +137,19 @@ class DeckglAnimation {
     //return () => cancelAnimationFrame(animation);
   }
 
-  stopAnimation = () => {  // Converted to an arrow function
-    if (this.animationId) {
+  stopAnimation() {
+
+    try {
+      if (this && this.animationId) {
       cancelAnimationFrame(this.animationId);
       this.isAnimating = false;
       this.animationId = null;
       this.setMapLayers([]);
+      }
+    } catch (error) {
+      console.error("Error stopping animation:", error);
+      debugger;
     }
-  };
+  }
 }
 export default DeckglAnimation;
