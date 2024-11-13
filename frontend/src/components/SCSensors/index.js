@@ -7,7 +7,7 @@ import {
   getSoilMoistureSensors,
 } from "./sensorData"; // Import your sensor functions here
 
-const createIconLayer = (id, sensorData, setTooltip, iconName) =>
+const createIconLayer = (id, sensorData, iconName, openDetailsBox) =>
   new IconLayer({
     id: id,
     data: sensorData,
@@ -18,34 +18,14 @@ const createIconLayer = (id, sensorData, setTooltip, iconName) =>
     sizeScale: 10,
     getPosition: (d) => [d.longitude, d.latitude], // Adjusted to your data's latitude/longitude format
     getSize: (d) => 4, // Adjust the icon size as needed
-    onHover: ({ object, x, y }) => {
-      //debugger;
-      if (object) {
-        setTooltip({
-          x,
-          y,
-          tooltip_data: "test", //`Sensor Type: ${object.sensorType}, Sensor id: ${object.id}`, // Customize tooltip content
-        });
-      } else {
-        setTooltip(null);
+    getTooltip: ({ object }) => object && object.tooltip_data,
+    //getColor: d => [255, 0, 0],
+    onClick: (info, event) => {
+      //console.log("Clicked:", info);
+      if (info.object) {
+        openDetailsBox(info.object.details_data);
       }
     },
-    // onClick: async ({ object, x, y }) => {
-    //   if (object) {
-    //     try {
-    //       // Call the getData function when an icon is clicked
-    //       const data = await getStreamData(object.id);
-    //       const htmlContent = JSON.stringify(data);
-    //       // Set the tooltip content and position
-    //       setTooltip(htmlContent);
-    //     } catch (error) {
-    //       console.error(`Error fetching data for sensor ID ${object.id}:`, error);
-    //       setTooltip("<p>Unable to load data for this sensor.</p>");
-    //     }
-    //   } else {
-    //     setTooltip(null); // Clear tooltip if nothing is clicked
-    //   }
-    // },
   });
 
 export const createSensorColumnLayer = (id, sensorData, setTooltip) => {
@@ -83,11 +63,12 @@ export const createSensorColumnLayer = (id, sensorData, setTooltip) => {
 };
 
 // Function to create the Stream Sensor layer and set it
-export async function createStreamSensorLayer(setMapLayer, lat, long, milesRange, setTooltip) {
+export async function createStreamSensorLayer(setMapLayer, lat, long, milesRange, openDetailsBox) {
   try {
     const streamSensorsData = await getStreamSensors(lat, long, milesRange);
     //console.log(JSON.stringify(streamSensorsData));
-    const layer = createSensorColumnLayer("stream-sensors", streamSensorsData, setTooltip, "stream_gauge");
+    //const layer = createSensorColumnLayer("stream-sensors", streamSensorsData, setTooltip, "stream_gauge");
+    const layer = createIconLayer("StreamGauges", streamSensorsData, "stream_gauge", openDetailsBox);
 
     setMapLayer(layer);
   } catch (error) {
@@ -100,12 +81,11 @@ export async function createSoilMoistureSensorLayer(
   lat,
   long,
   milesRange,
-  setTooltip
+  openDetailsBox
 ) {
   try {
     const communitySensorsData = await getSoilMoistureSensors(lat, long, milesRange);
-    const layer = createIconLayer("SoilMoistureSensors", communitySensorsData, setTooltip, "soil");
-    debugger;
+    const layer = createIconLayer("SoilMoistureSensors", communitySensorsData, "soil", openDetailsBox);
     setMapLayer(layer);
   } catch (error) {
     console.error("Error fetching or creating community sensor layer:", error);
@@ -113,7 +93,7 @@ export async function createSoilMoistureSensorLayer(
 }
 
 // Function to create the Rain Sensor layer and set it
-export async function createRainSensorLayer(setMapLayer, lat, long, milesRange, setTooltip) {
+export async function createRainSensorLayer(setMapLayer, lat, long, milesRange, openDetailsBox) {
   try {
     const rainSensorsData = await getRainSensors(lat, long, milesRange);
     const rainLayer = new GeoJsonLayer({

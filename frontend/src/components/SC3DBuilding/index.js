@@ -447,7 +447,7 @@ const handleRouteChange = async (updatedRoutes) => {
           lat,
           long,
           30,
-          setTooltip
+          openDetailsBox
         );
         return;
       }
@@ -456,7 +456,7 @@ const handleRouteChange = async (updatedRoutes) => {
           lat,
           long,
           30,
-          setTooltip
+          openDetailsBox
         );
         return;
       }

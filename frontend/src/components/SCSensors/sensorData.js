@@ -1,10 +1,10 @@
+import formatObjectData from "components/SC3DBuilding/formatObjectData";
 import { serialize } from "stylis";
 
 export async function getStreamSensors(lat, long, milesRange) {
   try {
     // Get stream sensors (sensor type 4)
     const sensors = await getSensorsByType(4, lat, long, milesRange);
-    debugger;
     //return sensors;
     // Fetch data for each stream sensor
     const data = await Promise.all(
@@ -12,6 +12,11 @@ export async function getStreamSensors(lat, long, milesRange) {
         sensor.data = await getStreamData(sensor.id); // Wait for the promise to resolve
         sensor.dataSource = sensor.data.dataSource;
         delete sensor.data.dataSource;
+        console.log(JSON.stringify(sensor.data));
+        const streamSensorObjData = extractStreamSensorData(sensor);
+
+        sensor.tooltip_data = formatObjectData(streamSensorObjData, keyMappingsStreamSensor, "tooltip");
+        sensor.details_data = formatObjectData(streamSensorObjData, keyMappingsStreamSensor, "details");
         return sensor; // Return the updated sensor
       })
     );
@@ -38,6 +43,30 @@ export async function getCommunitySensors(lat, long, milesRange) {
   }
 }
 
+const keyMappings = {
+  data_source: "Data Source",
+  groundwater_temperature: "Groundwater Temperature",
+  last_reported: "Last Reported",
+  rain: "Rain",
+  water_table_depth: "Water Table Depth",
+  wind: "Wind",
+};
+
+
+function parseTextToObject(text) {
+  const lines = text.trim().split('\n');
+  const dataObject = {};
+
+  lines.forEach(line => {
+      const [key, ...valueParts] = line.split(':');
+      const keyFormatted = key.trim().replace(/ /g, "_").toLowerCase(); // format key with underscores and lowercase
+      const value = valueParts.join(':').trim(); // join in case of colons in value (like time)
+
+      dataObject[keyFormatted] = value;
+  });
+
+  return dataObject;
+}
 export async function getSoilMoistureSensors(lat, long, milesRange) {
   try {
     debugger;
@@ -47,7 +76,9 @@ export async function getSoilMoistureSensors(lat, long, milesRange) {
     // Fetch data for each community sensor
     //const data = await Promise.all(sensors.map((sensor) => getSoilMoistureData(sensor[0])));
     const data = await Promise.all(sensors.map(async (sensor) => {
-      sensor.tooltip_data = await getSoilMoistureData(sensor.id);
+      const item = await getSoilMoistureData(sensor.id);
+      sensor.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
+      sensor.details_data = formatObjectData(item, keyMappings, "details");
       return sensor;
     }));
 
@@ -331,7 +362,8 @@ async function getSoilMoistureData(sensorid) {
     );
     const htmlData = await response.text();
     const strData = extractHydroStationData(htmlData);
-    return strData;
+    const result = parseTextToObject(strData);
+    return result;
   } catch (error) {
     console.error(`Error fetching community data for sensor ${sensorid}:`, error);
     return null;
@@ -510,4 +542,33 @@ function filterByCoords(lat, long, milesRange, sensors) {
     const distance = haversineDistance(lat, long, sensorLat, sensorLong);
     return distance <= milesRange;
   });
+}
+
+const keyMappingsStreamSensor = {
+  location: "Location",
+  data_source: "Data Source", 
+  current_water_level: "Current Water Level",
+  last_updated: "Last Updated"
+};
+
+
+function extractStreamSensorData(sensor) {
+  // Format coordinates to 6 decimal places
+  const lat = sensor.latitude.toFixed(6);
+  const long = sensor.longitude.toFixed(6);
+  
+  // Get the latest reading, handling null case
+  const latestReading = sensor.data.today !== null ? `${sensor.data.today} ft` : 'No data';
+  
+  // Get last updated date, handling empty data case
+  const lastUpdated = sensor.data.data.length > 0 ? 
+    sensor.data.data[sensor.data.data.length - 1].date : 
+    'No date available';
+
+  return {
+    "location": `${lat}, ${long}`,
+    "data_source": sensor.dataSource,
+    "current_water_level": latestReading,
+    "last_updated": lastUpdated
+  };
 }
