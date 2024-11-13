@@ -6,6 +6,7 @@ import { startTrafficSimulator } from "components/TrafficSimulator";
 import { getFloodLayer } from "components/SCFlood";
 import { stopTrafficSimulator } from "components/TrafficSimulator";
 import { FloodYearMenu } from "components/SCFlood/floodYearMenu";
+import { SimulationParameters } from "./simulationParameters";
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
@@ -20,9 +21,12 @@ function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes 
   const [floodYears, setFloodYears] = useState(0);
   // Store the previous floodYears value
   const prevFloodYearsRef = useRef(-1);
+  const prevRouteNumberRef = useRef(-1);
 
   // State to track if overlays are initialized
   const [overlayInitialized, setOverlayInitialized] = useState(false);
+
+  const [routeNumber, setRouteNumber] = useState(400);
 
   // Function to remove existing flood layers
   const removeFloodLayer = (layers) => {
@@ -116,7 +120,8 @@ function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes 
         setAnimationLayers, // Other parameters remain the same
         addMapLayerStatic,
         null,
-        floodYears
+        floodYears,
+        routeNumber
       );
     });
   };
@@ -173,46 +178,70 @@ function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes 
     };
   }, []);
 
-  const clearAllLayers = () => {
-    const overlayStatic = overlayStaticRef.current;
+  const clearAnimationLayers = () => {
     const overlayAnimation = overlayRef.current;
-
-    if (overlayStatic) {
-      overlayStatic.setProps({ layers: [] }); // Clears the static layers
-    }
 
     if (overlayAnimation) {
       overlayAnimation.setProps({ layers: [] }); // Clears the animated layers (ScenegraphLayer)
     }
   };
 
+  const clearStaticLayers = () => {
+    const overlayStatic = overlayStaticRef.current;
+
+    if (overlayStatic) {
+      overlayStatic.setProps({ layers: [] }); // Clears the static layers
+    }
+  };
+
+  const clearNonFloodLayers = () => {
+    const overlayStatic = overlayStaticRef.current;
+    if (overlayStatic) {
+      // Get the current layers from the overlay
+      let currentLayers = overlayStatic.props.layers || [];
+
+      // Remove any existing flood layers
+      currentLayers = currentLayers.filter((layer) => layer.id?.startsWith("flood_"));
+
+      // Add the floodLayer to the current layers
+      const updatedLayers = [...currentLayers];
+
+      // Update the overlay with the new set of layers
+      overlayStatic.setProps({ layers: updatedLayers });
+    }
+  };
+
   // Effect to handle flood years changes
   useEffect(() => {
-    // Only call changefloodyears if overlay is initialized and floodYears has changed
-    if (
-      overlayInitialized &&
-      floodYears !== undefined &&
-      floodYears !== prevFloodYearsRef.current
-    ) {
-      if (prevFloodYearsRef.current >= 0) {
-        stopTrafficSimulator(); // Ensure this completes before continuing
-        clearAllLayers();
+    if (overlayInitialized) {
+      if (floodYears !== undefined && floodYears !== prevFloodYearsRef.current) {
+        stopTrafficSimulator();
+        clearStaticLayers();
+        clearAnimationLayers();
         startSimulation();
+        changefloodyears(floodYears);
+        prevFloodYearsRef.current = floodYears;
       }
-      changefloodyears(floodYears);
-      prevFloodYearsRef.current = floodYears;
+      if (routeNumber !== undefined && routeNumber !== prevRouteNumberRef.current) {
+        stopTrafficSimulator();
+        clearAnimationLayers();
+        clearNonFloodLayers();
+        startSimulation();
+        prevRouteNumberRef.current = routeNumber;
+      }
     }
-  }, [floodYears, overlayInitialized]);
-
-  const handleFloodYearChange = (newFloodYear) => {
-    console.log("Selected Flood Year:", newFloodYear);
-    //setSelectedFloodYear(newFloodYear);
-  };
+  }, [floodYears, routeNumber, overlayInitialized]);
 
   return (
     <>
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       <FloodYearMenu selectedFloodYear={floodYears} handleFloodYearChange={setFloodYears} />
+      {simTypes.includes("car") && (
+        <SimulationParameters
+          selectedRouteNumber={routeNumber}
+          handleRouteNumberChange={setRouteNumber}
+        />
+      )}
     </>
   );
 }

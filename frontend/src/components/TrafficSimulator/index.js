@@ -51,7 +51,8 @@ export async function startTrafficSimulator(
   setAnimationLayers,
   setMapLayerStatic,
   viewportRef,
-  floodYears
+  floodYears,
+  routeNumber
 ) {
   let roadData;
   let roadDataTransformed;
@@ -61,7 +62,7 @@ export async function startTrafficSimulator(
     roadData = await loadRoadData(floodYears, simulationType);
     roadDataTransformed = importOSMRoadsFromGeoJSON(roadData);
     allRoadsLayer = generateRoadLayer(roadDataTransformed);
-    simulator = new CarSimulator(roadData, roadDataTransformed);
+    simulator = new CarSimulator(roadData, roadDataTransformed, routeNumber);
   } else if (simulationType === "bus") {
     roadData = await loadRoadData(floodYears, simulationType);
     roadDataTransformed = importBusRoutesFromGeoJSON(roadData);
