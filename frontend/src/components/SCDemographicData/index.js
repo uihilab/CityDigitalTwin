@@ -52,17 +52,15 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
             </button>
             <h3
                 style={{
-                    borderRadius: '4px', 
-                    fontSize: '16px',
-                    backgroundColor: "#4A90E2",  // Mavi başlık rengi
-                    color: "white",
-                    padding: "5px",  // Başlığa padding eklendi
+                    borderRadius: '4px',
+                    fontSize: '20px',
+                    backgroundColor: "white",
+                    color: "black", 
+                    padding: "5px",
                     borderTopLeftRadius: "10px",
                     borderTopRightRadius: "10px",
-                    fontSize: "18px",  // Büyük yazı boyutu
-                    fontWeight: "bold",  // Kalın yazı
-                    textAlign: "center",  // Yazı ortalanacak
-                    margin: "30px 10px 0 10px",  // Üstten ve yanlardan boşluk eklendi
+                    fontWeight: "900",
+                    textAlign: "center",
                 }}
             >
                 Black Hawk County Summary
