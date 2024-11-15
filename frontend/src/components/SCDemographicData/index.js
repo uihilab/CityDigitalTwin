@@ -147,26 +147,30 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
                 <table style={{ width: "100%", textAlign: "left", marginTop: "20px", fontSize: "14px" }}>
                 <thead>
                     <tr>
-                    <th style={{ fontWeight: "bold", color: "#4A90E2", padding: "5px" }}>
-                                {chartData.datasets[0].label === 'Language Spoken at Home' ? 'Language spoken at home' : 'Education Level'}
-                            </th>
-                            <th style={{ fontWeight: "bold", color: "#4A90E2", padding: "5px" }}>
-                                {chartData.datasets[0].label === 'Language Spoken at Home' ? 'Percentage' : 'Percentage'}
-                            </th>
+                        <th style={{ fontWeight: "bold", color: "#4A90E2", padding: "5px" }}>
+                            {chartData.datasets[0].label === 'Language Spoken at Home' ? 'Language spoken at home' : 'Education Level'}
+                        </th>
+                        <th style={{ fontWeight: "bold", color: "#4A90E2", padding: "5px" }}>
+                            
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {chartData.labels.map((label, index) => (
-                        <tr key={index}>
-                            <td style={{ padding: "5px", color: "#333", fontWeight: "normal" }}>{label}</td>
-                            <td style={{ padding: "5px", color: "#333", fontWeight: "normal" }}>{chartData.datasets[0].data[index]}</td>
+                        <tr key={`row-${label}`}>
+                            <td style={{ padding: "5px", color: "#333", fontWeight: "normal" }}>
+                                {label}
+                            </td>
+                            <td style={{ padding: "5px", color: "#333", fontWeight: "normal" }}>
+                                {chartData.datasets[0].data[index]}%
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
             )}
             <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <button
+                {/* <button
                     style={{
                         fontSize: "14px",
                         padding: "10px 20px",
@@ -179,7 +183,7 @@ export const SCDemographicData = ({ isChartVisible, menuContent, setIsMenuOpenDe
                     onClick={() => setIsMenuOpenDemographic(false)}
                 >
                     Close
-                </button>
+                </button> */}
             </div>
         </div>
     )
@@ -235,16 +239,16 @@ export async function fetchDataFromApis() {
             data0: data3.measureData.stats[0][0].estimate,
         },
         source4: {
-            data0: data4[1][2],
+            data0: data4[1][2].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
         },
         source5: {
-            data0: data5[1][0],
+            data0: data5[1][0].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","),
         },
         source6: {
             data0: Number(data6[1][46]).toLocaleString('en-US', {
                 style: 'currency',
                 currency: 'USD',
-                minimumFractionDigits: 2, // İsteğe bağlı: Dolar cinsinde 2 ondalık basamak gösterir
+                minimumFractionDigits: 0, // İsteğe bağlı: Dolar cinsinde 2 ondalık basamak gösterir
             }),
         },
     };
