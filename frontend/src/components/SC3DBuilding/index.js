@@ -329,6 +329,26 @@ const handleRouteChange = async (updatedRoutes) => {
   const [controller, dispatch] = useMaterialUIController();
   const { sidenavColor, transparentSidenav, darkMode } = controller;
   const [activeItems, setActiveItems] = useState([]);
+
+useEffect(() => {
+    // Filter items that start with "Simulation"
+    const simulationItems = activeItems.filter(item => item.key.startsWith("Simulation"));
+    
+    if (simulationItems.length > 1) {
+      // Keep only the latest simulation item
+      const latestSimulation = simulationItems[simulationItems.length - 1];
+      
+      // Remove all other simulation items
+      setActiveItems(prevItems => 
+        prevItems.filter(item => 
+          !item.key.startsWith("Simulation") || item.key === latestSimulation.key
+        )
+      );
+      
+    }
+}, [activeItems]);
+
+
   const [mapLayers, setMapLayersState] = useState([]);
   const [AQiconLayer, setAQIconLayer] = useState(null);
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
@@ -833,10 +853,10 @@ const handleRouteChange = async (updatedRoutes) => {
   };
   
   const getSimulationTypes = () => {    
-    const keysArray = activeItems
-      .filter(item => item.key.startsWith("Simulation"))
-      .map(item => keyMapping[item.key] || item.key);
-    return keysArray;
+    const simulationItems = activeItems.filter(item => item.key.startsWith("Simulation"));
+    // Get the last (most recent) simulation item if any exist
+    const lastItem = simulationItems[simulationItems.length - 1];
+    return lastItem ? [keyMapping[lastItem.key] || lastItem.key] : [];
   };
 
   //const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");

@@ -26,7 +26,7 @@ function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes 
   // State to track if overlays are initialized
   const [overlayInitialized, setOverlayInitialized] = useState(false);
 
-  const [routeNumber, setRouteNumber] = useState(400);
+  const [routeNumber, setRouteNumber] = useState(300);
 
   // Function to remove existing flood layers
   const removeFloodLayer = (layers) => {
@@ -229,8 +229,14 @@ function SCSimulation({ options = { tracking: true, showPaths: true }, simTypes 
         startSimulation();
         prevRouteNumberRef.current = routeNumber;
       }
+      if (simTypes.length > 0) {
+        stopTrafficSimulator();
+        clearStaticLayers();
+        clearAnimationLayers();
+        startSimulation();
+      }
     }
-  }, [floodYears, routeNumber, overlayInitialized]);
+  }, [floodYears, routeNumber, overlayInitialized, simTypes]);
 
   return (
     <>
