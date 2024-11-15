@@ -4,6 +4,13 @@ export function SimulationParameters({
   selectedRouteNumber,
   handleRouteNumberChange,
 }) {
+  const levels = {
+    50: "Low",
+    300: "Moderate",
+    600: "High",
+    1000: "Very High",
+  };
+
   const handleSliderChange = (event) => {
     handleRouteNumberChange(Number(event.target.value));
   };
@@ -35,22 +42,33 @@ export function SimulationParameters({
       </h4>
       
       <div style={{ marginTop: "10px" }}>
-        <label 
-          htmlFor="routeNumberSlider" 
-          style={{ fontSize: "14px", display: "block", marginBottom: "5px" }}
-        >
-          Number of Routes: {selectedRouteNumber}
+        <label style={{ fontSize: "14px", display: "block", marginBottom: "5px" }}>
+          Traffic Level:
         </label>
-        <input
-          type="range"
-          id="routeNumberSlider"
-          min="1"
-          max="1000"
-          value={selectedRouteNumber}
-          onChange={handleSliderChange}
-          style={{ width: "100%" }}
-        />
+        <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
+          {Object.entries(levels).map(([value, label]) => (
+            <label
+              key={value}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                cursor: "pointer",
+                fontSize: "14px",
+              }}
+            >
+              <input
+                type="radio"
+                name="routeNumber"
+                value={value}
+                checked={selectedRouteNumber === Number(value)}
+                onChange={handleSliderChange}
+                style={{ marginRight: "8px" }}
+              />
+              {label} ({value} routes)
+            </label>
+          ))}
+        </div>
       </div>
     </div>
   );
-} 
+}
