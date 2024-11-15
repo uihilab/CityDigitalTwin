@@ -309,7 +309,7 @@ const layers = [
       },
       {
         type: "maplayer",
-        name: "Transportation Events",
+        name: "Road Closures",
         key: "TransEvents",
         icon: <Icon fontSize="small">Events</Icon>,
         dataPath:
