@@ -47,9 +47,29 @@ export async function createFloodDamageIconLayer(mapid, openDetailsBox) {
         position: [item[3], item[4]],
         cntDamagePercentage: item[5],
         cntDamageDollar: item[6],
+        tooltip_data: formatObjectData(
+          {
+            ID: item[0],
+            strDamage: item[1],
+            dollarDamage: item[2],
+            cntDamagePercentage: item[5],
+            cntDamageDollar: item[6]
+          },
+          keyMappings,
+          "tooltip"
+        ),
+        details_data: formatObjectData(
+          {
+            ID: item[0],
+            strDamage: item[1],
+            dollarDamage: item[2],
+            cntDamagePercentage: item[5],
+            cntDamageDollar: item[6]
+          },
+          keyMappings,
+          "details"
+        )
       };
-      item.tooltip_data = formatObjectData(item, keyMappings, "tooltip");
-      item.details_data = formatObjectData(item, keyMappings, "details");
       return dataItem;
     });
 
