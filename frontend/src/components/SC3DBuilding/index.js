@@ -967,10 +967,28 @@ useEffect(() => {
                   mapId={GOOGLE_MAP_ID}
                   defaultCenter={{ lat: 42.4937, lng: -92.345 }}
                   defaultZoom={12}
-                  // style={{ width: '100%', height: '100%' }}
+                  style={{marginLeft: '0%' , width: '100%', height: '100%' }}
                   tilt={mapTiltAngle}
                   onClick={handleMapClick}
-                  options={{streetViewControl: false}}
+                  options={
+                    {
+                      mapTypeControl: true,
+                      mapTypeControlOptions: {
+                        style: 2,
+                        position: 6  // BOTTOM_CENTER
+                      },
+                      fullscreenControl: true,
+                      fullscreenControlOptions: {
+                        position: 12  // BOTTOM_RIGHT
+                      },
+                      zoomControl: true,
+                      zoomControlOptions: {
+                        position: 0  // BOTTOM_LEFT
+                      },
+                      scaleControl: false,
+                      streetViewControl: false,                
+                    }
+                  }
                   onIdle={handleMapLoad}
                 >
                   {map && (
