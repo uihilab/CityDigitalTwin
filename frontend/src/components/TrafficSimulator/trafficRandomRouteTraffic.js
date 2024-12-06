@@ -11,10 +11,10 @@ export const createPointFeature = (coordinates) => ({
 });
 
 class RandomRouteTrafficGenerator {
-  constructor(roadDataRaw, roadData) {
+  constructor(roadDataRaw, roadData, tolerance = 1e-4) {
     this.roadDataRaw = roadDataRaw;
     this.roadData = roadData;
-    this.pathFinder = new PathFinder(this.roadDataRaw, { tolerance: 1e-4 });//{ tolerance: 1e-3 }
+    this.pathFinder = new PathFinder(this.roadDataRaw, { tolerance });//{ tolerance: 1e-3 }
   }
 
   findPath(start, end) {

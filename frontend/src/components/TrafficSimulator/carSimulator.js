@@ -3,7 +3,7 @@ import TripBuilder from "./trip-builder";
 
 class CarSimulator {
   constructor(roadDataRaw, roadData, routeNumber = 400) {
-    this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
+    this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData, 1e-4);
     this.routes = this.routeGenerator.generateRandomRoutes(routeNumber, 0.001);
     this.cars = this.generateCars(this.routes);
     this.lastTimestamp = null;

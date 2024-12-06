@@ -6,7 +6,7 @@ const trainSpeed = 60;
 class TrainSimulator {
   constructor(roadDataRaw, roadData) {
     this.routes = roadData;
-    this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData);
+    this.routeGenerator = new RandomRouteTrafficGenerator(roadDataRaw, roadData, 1e-3);
     this.routes = this.routeGenerator.generateRoutes(this.getRoutes());
     this.trains = this.generateTrains(this.routes);
     this.lastTimestamp = null;
