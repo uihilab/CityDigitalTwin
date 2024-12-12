@@ -244,7 +244,6 @@ export async function loadBusStopLayer(openDetailsBox) {
     item.details_data = formatObjectData(item, keyMappings, "details");
     return item;
   });
-
   const StopLayer = new IconLayer({
     id: "BusStop",
     data: processedData,
@@ -261,7 +260,9 @@ export async function loadBusStopLayer(openDetailsBox) {
         openDetailsBox(info.object.details_data);
       }
     },
+    collisionCheck: true,
   });
+
   return StopLayer;
 }
 

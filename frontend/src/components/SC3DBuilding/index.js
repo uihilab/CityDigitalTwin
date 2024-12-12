@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, StrictMode, useMemo } from "react";
 import { GoogleMapsOverlay } from '@deck.gl/google-maps';
 import { APIProvider, Map, useMap } from "@vis.gl/react-google-maps";
-import { GeoJsonLayer, IconLayer } from "@deck.gl/layers";
+import { GeoJsonLayer, IconLayer, ScatterplotLayer } from "@deck.gl/layers";
 import Sidenav from "examples/Sidenav";
 import { useMaterialUIController } from "context";
 import layers from "layers";
@@ -13,7 +13,6 @@ import {
   handleButtonClick,
 } from "components/SCDemographicData";
 import { startTrafficSimulator } from "components/TrafficSimulator";
-import { point, polygon } from "@turf/helpers";
 import { Bar } from "react-chartjs-2";
 import HighwayCheckboxComponent from "../SCHighway/index";
 import { createTrafficEventLayer, getTrafficEventData } from "../SCEvents/TrafficEvent";
@@ -24,7 +23,7 @@ import { DroughtLayer, FetchDroughtData, createLegendHTML } from "../SCDrought/i
 import { ElectricgridLayer } from "../SCElectric/index";
 import { BridgesgridLayer } from "../SCBridge/index";
 import { BuildingLayer } from "../SCBuilding/layerBuilding";
-import { getFloodLayer, FloodMenu, createFloodDamageIconLayer } from "../SCFlood/index";
+import {  FloodMenu } from "../SCFlood/index";
 import { getWellData, createWellLayer } from "../SCWell/well";
 import { fetchRailwayData, CreateRailwayLayer, FetchRailwayStations, CreateRailwayStations } from "../SCRailway/index";
 import { RailwayBridgesLayer } from "../SCRailwayBridge/index";
@@ -45,6 +44,8 @@ import { createStreamSensorLayer } from "components/SCSensors";
 import { createSoilMoistureSensorLayer } from "components/SCSensors";
 import DetailsBox from "../DetailsBox/index";
 import { BusRouteMenu } from "components/SCPublicTransitRoute/busRouteMenu";
+import { findCollisions } from '../SCFlood/floodCollision';
+
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 const GOOGLE_MAP_ID = process.env.REACT_APP_GOOGLE_MAPS_MAP_ID;
@@ -245,7 +246,7 @@ const handleRouteChange = async (updatedRoutes) => {
            }
           const airQualityData = await FetchAirQuality(latitude, longitude);
           renderAirQualityChart(airQualityData);
-          debugger;
+          
           //createMenu();
           const iconLayer = addIconToMap(latitude, longitude);
           
@@ -354,13 +355,47 @@ useEffect(() => {
   const [BlackHawkLayer, setBlackHawkLayer] = useState(null);
   const [layersStatic, setLayersStatic] = useState([]);
   const [isFloodLayerSelected, setIsFloodLayerSelected] = useState(false);
-  const [currentLayerFlood, setCurrentLayerFlood] = useState("50");
+
   //const [isMenuFloodOpen, setIsMenuFloodOpen] = useState(false); // Menü durumu
 
   //const [isselectedTransit, setSelectedTransit] = useState(false);
 
+  function checkCollision(mapLayers){
+    const floodLayer = mapLayers.find(layer => layer.id === "flood");
+    const iconLayer = mapLayers.find(layer => layer.id === "BusStop");
+    
+    // Check for collisions if floodLayer and iconLayer exist
+    let collisionPoints = [];
+    if (floodLayer && iconLayer) {
+        const floodAreas = floodLayer.props.data; // Assuming floodLayer.data contains the GeoJSON
+        const points = iconLayer.props.data; // Assuming iconLayer.data contains the points
+        collisionPoints = findCollisions(floodAreas, points); // Find collisions
+    }
+
+    return collisionPoints; // Return collisionPoints along with other layers
+  }
+  
   function setMapLayers(newLayers) {
     layersStatic.push(newLayers);
+    const collisionPoints = checkCollision(layersStatic);
+    const collisionLayer = new ScatterplotLayer({
+      id: 'collision-layer',
+      data: collisionPoints,
+      pickable: true,
+      radiusScale: 6,      
+      getPosition: d => d.coordinates,
+      getFillColor: [255, 0, 0], // Red color for collisions
+      radiusMinPixels: 4,
+      radiusMaxPixels: 10,
+      getRadius: d => d.radius, // Assuming 'radius' property is added to each collision point
+      updateTriggers: {
+        getRadius: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100] // Simulate a flashing effect by updating radius
+      },
+      // Adding animation to the layer
+      getRadius: d => d.radius + (Date.now() % 100) / 100, // Dynamic radius for animation
+      radiusScale: 10 // Adjusting radius scale for better visibility of animation
+    });
+    layersStatic.push(collisionLayer);
     setLayersStatic(layersStatic);
     const layersCopy = layersStatic.slice();
     // layersCopy.push(layersAnimation);
@@ -542,10 +577,10 @@ useEffect(() => {
       }
       if (key === "Flood") {
         setIsFloodLayerSelected(true);
-        const layer = await getFloodLayer("flood", currentLayerFlood);
-        setMapLayers(layer);
-        const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040, openDetailsBox);
-        setMapLayers(FloodDamageIconLayer);
+        //const layer = await getFloodLayer("flood", currentLayerFlood);
+        //setMapLayers(layer);
+        //const FloodDamageIconLayer = await createFloodDamageIconLayer(1036040, openDetailsBox);
+        //setMapLayers(FloodDamageIconLayer);
         setIsMenuOpenFlood(true);
         return;
       }
@@ -861,35 +896,8 @@ useEffect(() => {
 
   //const mydesignLayers = layers.filter((layer) => layer.type === "mydesign");
   layers[0].clickFunc = layerLinkHandler;
+  
 
-  const handleLayerSelectChangeFlood = async (event) => {
-    removeLayer("flood");
-
-    //if(iconlayerFlood!==null)
-    {
-      removeLayer("icon-layer-flood");
-    }
-    const selectedLayer = event.target.value;
-    var mapid = null;
-    if (selectedLayer === "500") {
-      mapid = "1036053"; // Örnek mapid
-    } else if (selectedLayer === "100") {
-      mapid = "1036044";
-    } else if (selectedLayer === "50") {
-      mapid = "1036040";
-    } else if (selectedLayer === "25") {
-      mapid = "1036035";
-    } else mapid = null;
-
-    const layer = await getFloodLayer("flood", selectedLayer);
-    setMapLayers(layer);
-
-    if (mapid !== null) {
-      const iconLayer = await createFloodDamageIconLayer(mapid, openDetailsBox); // IconLayer'ı oluştur
-      setMapLayers(iconLayer);
-      //seticonlayerFlood(iconLayer);
-    }
-  };
 
   return (
     <>
@@ -897,7 +905,10 @@ useEffect(() => {
         isFloodLayerSelected={isFloodLayerSelected}
         isMenuOpenFlood={isMenuOpenFlood}
         setIsMenuOpenFlood={setIsMenuOpenFlood}
-        handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
+        //handleLayerSelectChangeFlood={handleLayerSelectChangeFlood}
+        setMapLayers={setMapLayers}
+        removeLayer={removeLayer}
+        openDetailsBox={openDetailsBox}
       />
       {isBusRouteActive && (
       <BusRouteMenu
