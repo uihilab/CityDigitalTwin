@@ -45,6 +45,7 @@ import { createSoilMoistureSensorLayer } from "components/SCSensors";
 import DetailsBox from "../DetailsBox/index";
 import { BusRouteMenu } from "components/SCPublicTransitRoute/busRouteMenu";
 import { findCollisions } from '../SCFlood/floodCollision';
+import ProjectModal from '../ProjectModal';
 
 
 const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -899,8 +900,70 @@ useEffect(() => {
   
 
 
+  const projectContent = (
+    <>
+      <h2>City Scale Flood Impact and Data Analytics Platform</h2>
+      <p>The City-FIDAP is web platform that provides city scale flood impact analysis and data analytics for both technical and non-technical users. Our framework leverages advanced data integration techniques to process real-time feeds from diverse sources, such as sensors, hydrological models, GIS systems, and IoT networks. By incorporating different flood maps and urban mobility analysis, the framework enables dynamic analysis of flood impacts under various scenarios.</p>
+      
+      {/* Screenshots section */}
+      <div className="screenshots-container">
+        <div className="screenshot-item">
+          <h3>Visualization</h3>
+          <img 
+            src={`${process.env.PUBLIC_URL}/screen_visualization.png`} 
+            alt="Visualization" 
+            className="screenshot-image"
+          />
+        </div>
+        <div className="screenshot-item">
+          <h3>Flood Maps and Impact</h3>
+          <img 
+            src={`${process.env.PUBLIC_URL}/screen_flood.png`} 
+            alt="Flood maps and impact" 
+            className="screenshot-image"
+          />
+        </div>
+        <div className="screenshot-item">
+          <h3>Risk Assessment</h3>
+          <img 
+            src={`${process.env.PUBLIC_URL}/screen_risk.png`} 
+            alt="Risk Assessment"
+            className="screenshot-image"
+          />
+        </div>
+      </div>
+
+      {/* Logos section */}
+      <div className="logos-container">
+        <a 
+          href="https://hydroinformatics.uiowa.edu/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          <img 
+            src={`${process.env.PUBLIC_URL}/uihilab.png`} 
+            alt="UIHILAB Logo" 
+            className="logo-image uihilab" 
+          />
+        </a>
+        <a 
+          href="https://ifis.iowafloodcenter.org/ifis/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+        >
+          <img 
+            src={`${process.env.PUBLIC_URL}/ifc.png`} 
+            alt="IFC Logo" 
+            className="logo-image ifc" 
+          />
+        </a>
+      </div>
+    </>
+  );
+
   return (
     <>
+      <ProjectModal content={projectContent} />
       <FloodMenu
         isFloodLayerSelected={isFloodLayerSelected}
         isMenuOpenFlood={isMenuOpenFlood}
