@@ -1,5 +1,6 @@
 # City-Scale Digital Twin Framework
 
+![Graphical Abstract](docs/project_intro.png)
 ![Graphical Abstract](docs/graphical_abstract.jpg)
 
 ## Table of Contents
